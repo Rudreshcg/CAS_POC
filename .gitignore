@@ -1,5 +1,22 @@
 venv
 /venv
+
 # EC2 SSH Keys (keep private!)
 terraform/ec2/cas_app_key
 terraform/ec2/cas_app_key.pub
+
+# Terraform
+**/.terraform/*
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
