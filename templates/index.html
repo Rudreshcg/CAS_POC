@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAS Number Lookup - Real-time Processing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            transform: translateY(-5px);
+        }
+
+        .upload-area.dragover {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-hint {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-title {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .progress-stats {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .progress-bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .results-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .results-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .results-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+        }
+
+        .results-table tbody tr {
+            animation: slideIn 0.3s ease-out;
+            transition: background 0.2s ease;
+        }
+
+        .results-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .cas-found {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .cas-not-found {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .completion-message h3 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .download-btn {
+            background: white;
+            color: #10b981;
+            margin-top: 15px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        /* Modal Popup Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideInModal 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: #ef4444;
+        }
+
+        .modal-body {
+            font-size: 1rem;
+            color: #333;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        /* Clickable cells */
+        .results-table td {
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        .results-table td:hover {
+            background: #f0f7ff;
+        }
+
+        .results-table td.truncated::after {
+            content: '👁️';
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .results-table td.truncated:hover::after {
+            opacity: 0.6;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInModal {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 CAS Number Lookup System</h1>
+            <p>Upload your CSV file and watch real-time chemical identification</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Click to upload or drag and drop</div>
+                <div class="upload-hint">CSV files only (Max 16MB)</div>
+                <input type="file" id="fileInput" accept=".csv">
+            </div>
+            <div style="text-align: center;">
+                <button class="btn" id="processBtn" style="display: none;">Start Processing</button>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-header">
+                <div class="progress-title">Processing Your File...</div>
+                <div class="spinner" id="spinner"></div>
+            </div>
+
+            <div class="progress-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Total Rows</div>
+                    <div class="stat-value" id="totalRows">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Processed</div>
+                    <div class="stat-value" id="processedRows">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">CAS Found</div>
+                    <div class="stat-value" id="foundCount">0</div>
+                </div>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar">0%</div>
+            </div>
+
+            <div class="table-container">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Commodity</th>
+                            <th>Sub-Category</th>
+                            <th>Item Description</th>
+                            <th>Search Term</th>
+                            <th>CAS Number</th>
+                            <th>Synonyms</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="completion-message" id="completionMessage">
+                <h3>✅ Processing Complete!</h3>
+                <p id="completionStats"></p>
+                <button class="btn download-btn" id="downloadBtn">Download Results CSV</button>
+            </div>
+        </div>
+
+        <!-- Modal Popup -->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="modalTitle">Cell Content</div>
+                    <button class="modal-close" id="modalClose">&times;</button>
+                </div>
+                <div class="modal-body" id="modalBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFilename = null;
+        let outputFilename = null;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const processBtn = document.getElementById('processBtn');
+        const progressSection = document.getElementById('progressSection');
+        const resultsBody = document.getElementById('resultsBody');
+        const progressBar = document.getElementById('progressBar');
+        const totalRowsEl = document.getElementById('totalRows');
+        const processedRowsEl = document.getElementById('processedRows');
+        const foundCountEl = document.getElementById('foundCount');
+        const completionMessage = document.getElementById('completionMessage');
+        const completionStats = document.getElementById('completionStats');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const spinner = document.getElementById('spinner');
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect();
+            }
+        });
+
+        // File selection
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (file) {
+                uploadArea.querySelector('.upload-text').textContent = `Selected: ${file.name}`;
+                processBtn.style.display = 'inline-block';
+                uploadFile(file);
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        uploadedFilename = data.filename;
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('Upload failed: ' + error);
+                });
+        }
+
+        processBtn.addEventListener('click', () => {
+            if (!uploadedFilename) {
+                alert('Please upload a file first');
+                return;
+            }
+
+            progressSection.style.display = 'block';
+            processBtn.disabled = true;
+            resultsBody.innerHTML = '';
+            completionMessage.style.display = 'none';
+
+            const eventSource = new EventSource(`/process/${uploadedFilename}`);
+            let processedCount = 0;
+            let foundCount = 0;
+
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+
+                if (data.type === 'start') {
+                    totalRowsEl.textContent = data.total;
+                }
+
+                if (data.type === 'row') {
+                    processedCount++;
+                    processedRowsEl.textContent = processedCount;
+
+                    const row = data.data;
+                    const isCasFound = row.cas_number !== 'NOT FOUND';
+                    if (isCasFound) {
+                        foundCount++;
+                        foundCountEl.textContent = foundCount;
+                    }
+
+                    const tr = document.createElement('tr');
+
+                    // Helper function to create cell with full content
+                    function createCell(content, maxLength, columnName) {
+                        const truncated = content.length > maxLength;
+                        const displayText = truncated ? content.substring(0, maxLength) + '...' : content;
+                        const className = truncated ? 'truncated' : '';
+                        return `<td class="${className}" data-full-content="${content.replace(/"/g, '&quot;')}" data-column="${columnName}" title="Click to view full content">${displayText}</td>`;
+                    }
+
+                    tr.innerHTML = `
+                        <td data-full-content="${row.row_number}" data-column="Row #">${row.row_number}</td>
+                        ${createCell(row.commodity, 30, 'Commodity')}
+                        ${createCell(row.sub_category, 30, 'Sub-Category')}
+                        ${createCell(row.item_description, 40, 'Item Description')}
+                        ${createCell(row.final_search_term, 35, 'Search Term')}
+                        <td class="${isCasFound ? 'cas-found' : 'cas-not-found'}" data-full-content="${row.cas_number}" data-column="CAS Number">${row.cas_number}</td>
+                        ${createCell(row.synonyms, 50, 'Synonyms')}
+                    `;
+                    resultsBody.appendChild(tr);
+
+                    const progress = (processedCount / parseInt(totalRowsEl.textContent)) * 100;
+                    progressBar.style.width = progress + '%';
+                    progressBar.textContent = Math.round(progress) + '%';
+
+                    // Auto scroll to bottom
+                    tr.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                }
+
+                if (data.type === 'complete') {
+                    eventSource.close();
+                    spinner.style.display = 'none';
+                    completionMessage.style.display = 'block';
+                    completionStats.textContent = `Processed ${data.total} rows. Found ${data.found} CAS numbers (${Math.round(data.found / data.total * 100)}% success rate).`;
+                    outputFilename = data.output_file;
+                    processBtn.disabled = false;
+                }
+
+                if (data.type === 'error') {
+                    eventSource.close();
+                    alert('Error: ' + data.message);
+                    processBtn.disabled = false;
+                }
+            };
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (outputFilename) {
+                window.location.href = `/download/${outputFilename}`;
+            }
+        });
+
+        // Modal functionality
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const modalClose = document.getElementById('modalClose');
+
+        // Open modal when clicking on table cells
+        document.addEventListener('click', (e) => {
+            const cell = e.target.closest('.results-table td');
+            if (cell) {
+                const fullContent = cell.getAttribute('data-full-content');
+                const columnName = cell.getAttribute('data-column');
+
+                if (fullContent) {
+                    modalTitle.textContent = columnName || 'Cell Content';
+                    modalBody.textContent = fullContent;
+                    modalOverlay.classList.add('active');
+                }
+            }
+        });
+
+        // Close modal when clicking close button
+        modalClose.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+        });
+
+        // Close modal when clicking outside content
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+
+</html>
