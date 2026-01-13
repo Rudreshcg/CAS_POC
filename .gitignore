@@ -1,2 +1,5 @@
 venv
 /venv
+# EC2 SSH Keys (keep private!)
+terraform/ec2/cas_app_key
+terraform/ec2/cas_app_key.pub
