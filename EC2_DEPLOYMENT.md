@@ -21,9 +21,12 @@ This creates:
 # Initialize Terraform
 terraform init
 
-# Deploy EC2 instance
+# Deploy EC2 instance (and IAM Role for Bedrock)
 terraform apply -auto-approve
 ```
+
+> [!IMPORTANT]
+> If you are updating an existing deployment to support the new LLM features, you MUST run `terraform apply` again to create and attach the IAM Role for Bedrock access.
 
 **Wait ~5 minutes** for the instance to be ready.
 

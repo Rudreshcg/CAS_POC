@@ -36,7 +36,7 @@ def hyper_clean_chemical(text):
         'SOURCE', 'HEAVY', 'PERF', 'TECH', 'TECHNICAL', 'BP', 'USP', 'FCC', 'GRADE',
         'MESH', 'EXTRACT', 'OIL', 'PEPTIDE', 'GEL', 'BUTTER', 'WAX', 'MONOHYDRATE',
         'DIHYDRATE', 'CRYSTALLINE', 'PHARMA', 'BG', 'LQ', 'WD', 'CH', 'JP', 'FR', 'EP',
-        'KOSHER', 'NON-KOSHER', 'COGNIS', 'DRUM'
+        'KOSHER', 'NON-KOSHER', 'COGNIS', 'DRUM', 'ESTER', 'SOLUTION'
     ]
     for word in noise_words:
         t = re.sub(r'\b' + word + r'\b', '', t)
@@ -51,7 +51,7 @@ def hyper_clean_chemical(text):
         cleaned_words.append(w)
 
     t = " ".join(cleaned_words).strip()
-    return t.strip('-').strip()
+    return t.strip('*-., ').strip()
 
 class CASClient:
     def __init__(self, key):
@@ -75,28 +75,202 @@ class CASClient:
             pass
         return None, None
 
-def process_row(row, idx, total, client):
-    """Process a single row and return result"""
+def is_likely_inci(name):
+    """
+    Heuristic to identify INCI names from synonyms.
+    INCI names are typically all uppercase or title case with specific patterns.
+    """
+    if not name or len(name) > 60 or len(name) < 3:
+        return False
+    
+    # Skip CAS number patterns
+    if re.match(r'^\d+-\d+-\d+$', name):
+        return False
+    
+    # Skip very generic terms
+    generic_terms = ['EXTRACT', 'OIL', 'POWDER', 'LIQUID', 'SOLUTION', 'MIXTURE']
+    if name.upper().strip() in generic_terms:
+        return False
+    
+    # INCI names often have these patterns
+    name_upper = name.upper()
+    
+    # Check for common INCI suffixes
+    inci_suffixes = [
+        'ACID', 'OXIDE', 'EXTRACT', 'OIL', 'BUTTER', 'WAX', 'GLYCOL',
+        'ALCOHOL', 'ESTER', 'SULFATE', 'CHLORIDE', 'NITRATE', 'PHOSPHATE',
+        'CARBONATE', 'HYDROXIDE', 'PEROXIDE', 'BENZOATE', 'PALMITATE',
+        'STEARATE', 'OLEATE', 'ACETATE', 'CITRATE'
+    ]
+    
+    # Check if mostly uppercase (INCI standard)
+    uppercase_ratio = sum(1 for c in name if c.isupper()) / len(name.replace(' ', '').replace('-', ''))
+    if uppercase_ratio > 0.7:
+        # Check for INCI suffix patterns
+        for suffix in inci_suffixes:
+            if name_upper.endswith(suffix):
+                return True
+    
+    return False
+
+def extract_inci_from_synonyms(synonyms_string):
+    """
+    Extract INCI name from existing CAS API synonyms.
+    """
+    if not synonyms_string or synonyms_string == "N/A":
+        return "N/A"
+    
+    # Split synonyms by pipe delimiter
+    synonyms = synonyms_string.split('|')
+    
+    # Look for INCI-like names
+    for syn in synonyms:
+        syn = syn.strip()
+        if is_likely_inci(syn):
+            return syn
+    
+    return "N/A"
+
+def lookup_inci_from_pubchem(cas_number):
+    """
+    Lookup INCI name from PubChem using CAS number.
+    """
+    if not cas_number or cas_number == "NOT FOUND":
+        return "N/A"
+    
+    try:
+        # Clean CAS number (remove any spaces)
+        cas_clean = cas_number.strip()
+        
+        # Search PubChem by CAS number
+        url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{cas_clean}/synonyms/JSON"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            synonyms = data.get('InformationList', {}).get('Information', [{}])[0].get('Synonym', [])
+            
+            # Look for INCI-like names
+            for syn in synonyms[:50]:  # Check first 50 synonyms
+                if is_likely_inci(syn):
+                    return syn
+        
+        # If no INCI found in PubChem, return N/A
+        return "N/A"
+        
+    except Exception as e:
+        return "N/A"
+
+from llm_helper import BedrockCleaner
+
+def process_row(row, idx, total, client, bedrock_cleaner=None):
+    """Process a single row and yield logs + result"""
     desc = str(row.get('Item description', ''))
     sub = str(row.get('Sub-Category', ''))
     commodity = str(row.get('Commodity', ''))
 
+    yield {"type": "log", "message": f"Processing Row {idx+1}/{total}: {desc}..."}
+
     trials = [(desc, "Raw Desc"), (sub, "Raw Sub"),
               (hyper_clean_chemical(desc), "Clean Desc"),
               (hyper_clean_chemical(sub), "Clean Sub")]
+
+    # Add smart variations
+    variations = []
+    for term, label in trials:
+        if isinstance(term, str):
+            if 'POLYGLYCEROL' in term.upper():
+                variations.append((term.upper().replace('POLYGLYCEROL', 'POLYGLYCERYL'), label + " (Var)"))
+            if 'ESTER' in term.upper():
+                variations.append((re.sub(r'\bESTER\b', '', term.upper()).strip(), label + " (No Ester)"))
+
+    if variations:
+        trials.extend(variations)
 
     cas, syns, best_term = None, "N/A", hyper_clean_chemical(desc)
 
     for term, label in trials:
         if not term or term.upper() in ['EXTRACT', 'OIL', 'NAN']: 
             continue
+        
+        # yield {"type": "log", "message": f"Trying: {term} ({label})..."} 
+        
         cas, syns = client.search_and_detail(term)
         if cas:
             best_term = f"{term} ({label})"
+            yield {"type": "log", "message": f"✅ Found CAS: {cas} for '{term}'"}
             break
         time.sleep(1.1)
+    
+    # LLM Fallback (if enabled and no CAS found)
+    llm_inci = None
+    if not cas and bedrock_cleaner:
+        yield {"type": "log", "message": f"⚠️ CAS not found. Asking AI..."}
+        try:
+            # Challenge 1: Smart Cleaning
+            llm_term = bedrock_cleaner.smart_clean(desc)
+            if llm_term and llm_term.upper() != hyper_clean_chemical(desc):
+                yield {"type": "log", "message": f"AI suggest cleaning: {llm_term}"}
+                cas, syns = client.search_and_detail(llm_term)
+                if cas:
+                    best_term = f"{llm_term} (AI Clean)"
+                    yield {"type": "log", "message": f"✅ Found CAS via AI Clean: {cas}"}
+                time.sleep(1.1)
+            
+            # Challenge 2: Direct Knowledge Lookup (if still not found)
+            if not cas:
+                yield {"type": "log", "message": f"Checking AI Knowledge Base..."}
+                details = bedrock_cleaner.get_chemical_details(desc)
+                if details:
+                    s_cas = details.get('cas')
+                    s_inci = details.get('inci')
+                    
+                    if s_cas and s_cas != "NOT FOUND":
+                        # Verify with API
+                        verify_cas, _ = client.search_and_detail(s_cas)
+                        if verify_cas:
+                            cas = verify_cas
+                            # syns might be missing if search_and_detail returns only RN
+                            # We should fetch Details ideally. 
+                            # But CasClient.search_and_detail returns (rn, syns).
+                            # If verified, we are good.
+                            best_term = f"{desc} (AI Verified)"
+                            yield {"type": "log", "message": f"✅ AI Identified & Verified: {cas}"}
+                        else:
+                            # Use unverified CAS
+                            cas = f"{s_cas} (LLM)"
+                            best_term = f"{desc} (AI Knowledge)"
+                            yield {"type": "log", "message": f"⚠️ AI Identified (Unverified): {s_cas}"}
+                    
+                    if s_inci and s_inci != "NOT FOUND":
+                        llm_inci = s_inci
+                        yield {"type": "log", "message": f"ℹ️ AI Found INCI: {s_inci}"}
 
-    return {
+        except Exception as e:
+            print(f"LLM Error: {e}")
+            pass
+
+    # INCI Lookup
+    inci_name = "N/A"
+    
+    if llm_inci:
+        inci_name = f"{llm_inci} (AI)"
+        
+    if inci_name == "N/A" and cas and "NOT FOUND" not in str(cas):
+        yield {"type": "log", "message": f"Looking up INCI for CAS {cas}..."}
+        # Clean CAS for lookup (remove comments like "(LLM)")
+        clean_cas = str(cas).split('(')[0].strip()
+        
+        # First try to extract INCI from existing CAS synonyms
+        inci_name = extract_inci_from_synonyms(syns)
+        
+        # If not found in CAS synonyms, try PubChem
+        if inci_name == "N/A":
+            time.sleep(0.5)  # Small delay for PubChem rate limiting
+            yield {"type": "log", "message": f"Querying PubChem for INCI..."}
+            inci_name = lookup_inci_from_pubchem(clean_cas)
+
+    result_data = {
         'row_number': idx + 1,
         'total': total,
         'commodity': commodity,
@@ -104,8 +278,10 @@ def process_row(row, idx, total, client):
         'item_description': desc,
         'final_search_term': best_term,
         'cas_number': cas if cas else "NOT FOUND",
-        'synonyms': syns if syns else "N/A"
+        'synonyms': syns if syns else "N/A",
+        'inci_name': inci_name
     }
+    yield {"type": "result", "data": result_data}
 
 # ==========================================
 # ROUTES
@@ -124,13 +300,14 @@ def upload_file():
     if file.filename == '':
         return json.dumps({'error': 'No file selected'}), 400
     
-    if file and file.filename.endswith('.csv'):
+    allowed_extensions = {'.csv', '.xlsx', '.xls'}
+    if file and any(file.filename.endswith(ext) for ext in allowed_extensions):
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
         return json.dumps({'success': True, 'filename': filename})
     
-    return json.dumps({'error': 'Invalid file type. Please upload a CSV file.'}), 400
+    return json.dumps({'error': 'Invalid file type. Please upload a CSV or Excel file.'}), 400
 
 @app.route('/process/<filename>')
 def process_file(filename):
@@ -138,8 +315,17 @@ def process_file(filename):
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         
         try:
-            df = pd.read_csv(filepath, on_bad_lines='skip', encoding='utf-8')
+            if filename.lower().endswith(('.xlsx', '.xls')):
+                df = pd.read_excel(filepath)
+            else:
+                df = pd.read_csv(filepath, on_bad_lines='skip', encoding='utf-8')
             client = CASClient(CAS_API_KEY)
+            
+            try:
+                bedrock_cleaner = BedrockCleaner()
+            except Exception as e:
+                print(f"Bedrock Init Failed: {e}")
+                bedrock_cleaner = None
             
             results = []
             total = len(df)
@@ -148,11 +334,14 @@ def process_file(filename):
             yield f"data: {json.dumps({'type': 'start', 'total': total})}\n\n"
             
             for idx, row in df.iterrows():
-                result = process_row(row, idx, total, client)
-                results.append(result)
-                
-                # Stream each result
-                yield f"data: {json.dumps({'type': 'row', 'data': result})}\n\n"
+                # Stream logs and result from process_row generator
+                for event in process_row(row, idx, total, client, bedrock_cleaner):
+                    if event['type'] == 'log':
+                        yield f"data: {json.dumps(event)}\n\n"
+                    elif event['type'] == 'result':
+                        result = event['data']
+                        results.append(result)
+                        yield f"data: {json.dumps({'type': 'row', 'data': result})}\n\n"
             
             # Save output file
             output_df = pd.DataFrame([{
@@ -161,6 +350,7 @@ def process_file(filename):
                 'Item description': r['item_description'],
                 'Final Search Term': r['final_search_term'],
                 'CAS Number': r['cas_number'],
+                'INCI Name': r['inci_name'],
                 'Synonyms': r['synonyms']
             } for r in results])
             

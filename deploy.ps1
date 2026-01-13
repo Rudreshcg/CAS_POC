@@ -35,8 +35,9 @@ $zipFile = "deploy_$timestamp.zip"
 Compress-Archive -Path `
     app.py, `
     application.py, `
+    llm_helper.py, `
     requirements.txt, `
-    templates\*, `
+    templates, `
     uploads, `
     outputs `
     -DestinationPath $zipFile -Force
@@ -64,10 +65,20 @@ ssh -i terraform\ec2\cas_app_key ec2-user@$ServerIP @"
 
 # Restart service
 Write-Host "[5/5] Restarting application..." -ForegroundColor Yellow
-ssh -i terraform\ec2\cas_app_key ec2-user@$ServerIP @"
+$restartCmd = @"
     sudo systemctl restart cas-lookup
-    sudo systemctl status cas-lookup --no-pager
-"@
+    sleep 5
+    if systemctl is-active --quiet cas-lookup; then
+        echo "✅ Service is RUNNING"
+        sudo systemctl status cas-lookup --no-pager
+    else
+        echo "❌ Service FAILED to start"
+        sudo systemctl status cas-lookup --no-pager
+        exit 1
+    fi
+"@ -replace "`r`n", "`n"
+
+ssh -i terraform\ec2\cas_app_key ec2-user@$ServerIP $restartCmd
 
 # Cleanup local zip
 Remove-Item $zipFile

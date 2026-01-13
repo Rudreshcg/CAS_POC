@@ -62,6 +62,48 @@ resource "aws_key_pair" "cas_app_key" {
   public_key = file("${path.module}/cas_app_key.pub")
 }
 
+# IAM Role for Bedrock Access
+resource "aws_iam_role" "cas_app_role" {
+  name = "${var.app_name}-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "cas_app_bedrock_policy" {
+  name = "${var.app_name}-bedrock-policy"
+  role = aws_iam_role.cas_app_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:ListFoundationModels"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "cas_app_profile" {
+  name = "${var.app_name}-profile"
+  role = aws_iam_role.cas_app_role.name
+}
+
 # EC2 Instance
 resource "aws_instance" "cas_app" {
   ami           = "ami-0453ec754f44f9a4a" # Amazon Linux 2023 in us-east-1
@@ -69,6 +111,7 @@ resource "aws_instance" "cas_app" {
 
   key_name               = aws_key_pair.cas_app_key.key_name
   vpc_security_group_ids = [aws_security_group.cas_app_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.cas_app_profile.name
 
   user_data = <<-EOF
               #!/bin/bash
