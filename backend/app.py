@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, Response, send_file
+from flask import Flask, request, Response, send_file, jsonify, send_from_directory
+from flask_cors import CORS
 import pandas as pd
 import requests
 import re
@@ -8,6 +9,28 @@ import os
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+
+# Enable CORS for React frontend
+CORS(app, resources={
+    r"/upload": {"origins": "*"},
+    r"/process/*": {"origins": "*"},
+    r"/download/*": {"origins": "*"},
+    r"/clusters": {"origins": "*"}
+})
+
+# Configure static folder for React frontend
+# Detect environment and set static folder accordingly
+# Local: running from backend/ directory -> ../frontend/dist
+# EC2/Gunicorn: running from /opt/cas-lookup/ -> frontend/dist
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(current_dir) == 'backend':
+    app.static_folder = os.path.abspath(os.path.join(current_dir, '../frontend/dist'))
+else:
+    app.static_folder = os.path.abspath(os.path.join(current_dir, 'frontend/dist'))
+
+print(f"🔧 Static folder configured: {app.static_folder}")
+print(f"🔍 Static folder exists: {os.path.exists(app.static_folder)}")
+
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['OUTPUT_FOLDER'] = 'outputs'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -287,9 +310,7 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
 # ROUTES
 # ==========================================
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -372,5 +393,59 @@ def download_file(filename):
     filepath = os.path.join(app.config['OUTPUT_FOLDER'], filename)
     return send_file(filepath, as_attachment=True)
 
+
+@app.route('/api/clusters')
+def clusters():
+    try:
+        data_path = os.path.join(os.path.dirname(__file__), 'material_clusters.json')
+        with open(data_path, 'r', encoding='utf-8') as f:
+            raw_data = json.load(f)
+            
+        # Hierarchy: Brand -> Sub-Category -> Material -> Plants
+        brands = {}
+        
+        for item in raw_data:
+            b_name = item.get('Brand', 'Unknown Brand')
+            if b_name not in brands: brands[b_name] = {}
+            
+            sub_name = item.get('Sub-Category', 'Misc')
+            if sub_name not in brands[b_name]: brands[b_name][sub_name] = []
+            
+            for mat in item.get('Materials', []):
+                brands[b_name][sub_name].append(mat)
+        
+        tree = {"name": "Apollo Material Clusters", "children": []}
+        
+        for b_name, subs in brands.items():
+            b_node = {"name": b_name, "children": []}
+            for sub_name, materials in subs.items():
+                sub_node = {"name": sub_name, "children": []}
+                for mat in materials:
+                    mat_node = {
+                        "name": mat.get('Name', 'Unknown'),
+                        "children": [{"name": f"📍 {p}"} for p in mat.get('Plants', [])]
+                    }
+                    if not mat_node["children"]:
+                        del mat_node["children"]
+                        mat_node["value"] = 1
+                    
+                    sub_node["children"].append(mat_node)
+                b_node["children"].append(sub_node)
+            tree["children"].append(b_node)
+            
+        return jsonify(tree) # Return JSON for React
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/')
+def index():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/<path:path>')
+def serve_static(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    return send_from_directory(app.static_folder, 'index.html')
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000, threaded=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

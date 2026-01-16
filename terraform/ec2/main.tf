@@ -120,8 +120,8 @@ resource "aws_instance" "cas_app" {
               # Update system
               yum update -y
               
-              # Install Python 3.11
-              yum install -y python3.11 python3.11-pip git
+              # Install Python 3.11 and unzip
+              yum install -y python3.11 python3.11-pip git unzip
               
               # Create app directory
               mkdir -p /opt/cas-lookup
