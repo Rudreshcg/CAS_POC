@@ -414,28 +414,184 @@ def clusters():
             for mat in item.get('Materials', []):
                 brands[b_name][sub_name].append(mat)
         
-        tree = {"name": "Apollo Material Clusters", "children": []}
+        tree = {"name": "Material Clusters", "children": []}
         
         for b_name, subs in brands.items():
             b_node = {"name": b_name, "children": []}
             for sub_name, materials in subs.items():
                 sub_node = {"name": sub_name, "children": []}
+                
+                # Invert: Find all unique plants in this sub-category
+                plants_map = {} # plant_name -> [materials]
+                
                 for mat in materials:
-                    mat_node = {
-                        "name": mat.get('Name', 'Unknown'),
-                        "children": [{"name": f"📍 {p}"} for p in mat.get('Plants', [])]
+                    mat_name = mat.get('Name', 'Unknown')
+                    for p in mat.get('Plants', []):
+                        if p not in plants_map: plants_map[p] = []
+                        plants_map[p].append(mat_name)
+                
+                # Build Plant Nodes
+                for p_name, mat_list in plants_map.items():
+                    plant_node = {
+                        "name": f"📍 {p_name}",
+                        "children": [{"name": m} for m in mat_list]
                     }
-                    if not mat_node["children"]:
-                        del mat_node["children"]
-                        mat_node["value"] = 1
+                    if not plant_node["children"]:
+                         # Should not happen given logic, but safe fallback
+                         del plant_node["children"]
+                         plant_node["value"] = 1
                     
-                    sub_node["children"].append(mat_node)
+                    sub_node["children"].append(plant_node)
+                
                 b_node["children"].append(sub_node)
             tree["children"].append(b_node)
             
         return jsonify(tree) # Return JSON for React
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/clusters/update', methods=['PUT'])
+def update_clusters():
+    """
+    Batch update endpoint for editing and moving nodes
+    Request body: {
+        "changes": [
+            {"type": "rename", "node_type": "plant", "old_name": "X", "new_name": "Y", ...},
+            {"type": "move", "node_type": "plant", "name": "X", "from_subcategory": "A", "to_subcategory": "B", ...}
+        ]
+    }
+    """
+    try:
+        request_data = request.get_json()
+        changes = request_data.get('changes', [])
+        
+        if not changes:
+            return jsonify({"error": "No changes provided"}), 400
+        
+        # Load current data
+        data_path = os.path.join(os.path.dirname(__file__), 'material_clusters.json')
+        with open(data_path, 'r', encoding='utf-8') as f:
+            raw_data = json.load(f)
+        
+        # Create backup
+        backup_path = os.path.join(os.path.dirname(__file__), 'material_clusters_backup.json')
+        with open(backup_path, 'w', encoding='utf-8') as f:
+            json.dump(raw_data, f, indent=4, ensure_ascii=False)
+        
+        # Apply each change
+        for change in changes:
+            change_type = change.get('type')
+            
+            if change_type == 'rename':
+                # Rename a node
+                node_type = change.get('node_type')
+                old_name = change.get('old_name')
+                new_name = change.get('new_name')
+                brand = change.get('brand')
+                subcategory = change.get('subcategory')
+                # plant/material might be context depending on what is renamed
+                
+                for item in raw_data:
+                    if item.get('Brand') == brand and item.get('Sub-Category') == subcategory:
+                        if node_type == 'plant':
+                            # Renaming a plant - update it in ALL materials in this cluster
+                            for mat in item.get('Materials', []):
+                                plants = mat.get('Plants', [])
+                                if old_name in plants:
+                                    idx = plants.index(old_name)
+                                    plants[idx] = new_name
+                                    
+                        elif node_type == 'material':
+                            # Renaming a material
+                            for mat in item.get('Materials', []):
+                                if mat.get('Name') == old_name:
+                                    mat['Name'] = new_name
+                                    
+                        elif node_type == 'subcategory':
+                            if item.get('Sub-Category') == old_name:
+                                item['Sub-Category'] = new_name
+            
+            elif change_type == 'move':
+                # Move a node
+                node_type = change.get('node_type')
+                name = change.get('name') # Name of item being moved (Material Name)
+                brand = change.get('brand')
+                from_subcategory = change.get('from_subcategory')
+                to_subcategory = change.get('to_subcategory')
+                
+                # Context for new hierarchy:
+                # Dragging a MATERIAL (leaf) from PLANT A to PLANT B
+                from_plant = change.get('from_plant')
+                to_plant = change.get('to_plant')
+                
+                if node_type == 'material':
+                    # 1. Remove material from Source Plant
+                    # We need to find the specific material instance in source subcategory
+                    # AND remove the 'from_plant' from its plants list.
+                    
+                    found_source = False
+                    for item in raw_data:
+                        if item.get('Brand') == brand and item.get('Sub-Category') == from_subcategory:
+                            for mat in item.get('Materials', []):
+                                if mat.get('Name') == name:
+                                    if from_plant in mat.get('Plants', []):
+                                        mat['Plants'].remove(from_plant)
+                                        found_source = True
+                    
+                    if found_source:
+                        # 2. Add material to Destination Plant
+                        # If material exists in dest, add plant to it.
+                        # If not, create material and add plant.
+                        
+                        target_item = None
+                        for item in raw_data:
+                            if item.get('Brand') == brand and item.get('Sub-Category') == to_subcategory:
+                                target_item = item
+                                break
+                        
+                        if target_item:
+                            target_mat = None
+                            for mat in target_item.get('Materials', []):
+                                if mat.get('Name') == name:
+                                    target_mat = mat
+                                    break
+                            
+                            if target_mat:
+                                if to_plant not in target_mat.get('Plants', []):
+                                    target_mat['Plants'].append(to_plant)
+                            else:
+                                # New material in this subcategory
+                                target_item['Materials'].append({
+                                    'Name': name,
+                                    'Plants': [to_plant],
+                                    'CAS': []
+                                })
+        
+        # Save updated data
+        with open(data_path, 'w', encoding='utf-8') as f:
+            json.dump(raw_data, f, indent=4, ensure_ascii=False)
+        
+        return jsonify({
+            "success": True,
+            "message": f"Applied {len(changes)} changes successfully"
+        })
+        
+    except Exception as e:
+        # Restore from backup on error
+        try:
+            backup_path = os.path.join(os.path.dirname(__file__), 'material_clusters_backup.json')
+            if os.path.exists(backup_path):
+                with open(backup_path, 'r', encoding='utf-8') as f:
+                    backup_data = json.load(f)
+                data_path = os.path.join(os.path.dirname(__file__), 'material_clusters.json')
+                with open(data_path, 'w', encoding='utf-8') as f:
+                    json.dump(backup_data, f, indent=4, ensure_ascii=False)
+        except:
+            pass
+        
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/')
 def index():

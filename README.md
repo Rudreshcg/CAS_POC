@@ -1,4 +1,4 @@
-# CAS Lookup Application
+# Golden Record Generator
 
 A Flask-based web application that automatically finds CAS Registry Numbers for chemical descriptions using a multi-stage lookup process, including AI-powered cleaning.
 

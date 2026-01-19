@@ -1,0 +1,960 @@
+[
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "PCMX",
+        "Materials": [
+            {
+                "Name": "AU - U - PCMX - Chloroxylenol",
+                "Plants": [],
+                "CAS": []
+            },
+            {
+                "Name": "CHLOROXYLENOL",
+                "Plants": [
+                    "Elandsfontein",
+                    "Bahrain"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "CHLOROXYLENOL I.P",
+                "Plants": [
+                    "India - Mysore"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "CHLOROXYLENOL (PCMX)",
+                "Plants": [
+                    "Elandsfontein"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "PCMX - IMPORTED",
+                "Plants": [
+                    "India - Uttaranchal 1"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "Para-Chloro-meta-Xylenol",
+                "Plants": [
+                    "Karachi / Maur."
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "Yellow",
+        "Materials": [
+            {
+                "Name": "FD&C YELLOW 6 - CI 15985",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "COSMENYL YELLOW G30",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "FD&C YELLOW N¢6 CI15985",
+                "Plants": [
+                    "Bahrain"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "U - FD&C YEL#5-TARTRAZINE CI19140",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "Viscofil Yellow (Cosmenyl Yellow GLS Gran)",
+                "Plants": [
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "TALC",
+        "Materials": [
+            {
+                "Name": "Talc Purified-BP",
+                "Plants": [
+                    "Karachi / Maur."
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "Talc - Cosmetic grade",
+                "Plants": [
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "TALC FOR SOAP TANKER- 97%",
+                "Plants": [
+                    "India - Uttaranchal 1",
+                    "India - Uttaranchal 2"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "TALC",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "Blue",
+        "Materials": [
+            {
+                "Name": "FD&C BLUE #1",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "DYE ACID BLUE 62",
+                "Plants": [
+                    "Elandsfontein",
+                    "Belle Mead",
+                    "St. Peters"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "CC BLUE FINE PASTE 615",
+                "Plants": [
+                    "India - Uttaranchal 2",
+                    "India - Uttaranchal 1"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "Red",
+        "Materials": [
+            {
+                "Name": "PIGMENT RED 5",
+                "Plants": [
+                    "India - Uttaranchal 2",
+                    "India - Uttaranchal 1"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "D & C RED 33",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "FD&C RED 4 - CI 14700",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Enfagrow",
+        "Sub-Category": "Premix-HMO",
+        "Materials": [
+            {
+                "Name": "PMX VIT ENFAMIL A+ S1 SCH 2FL TH",
+                "Plants": [
+                    "Singapore"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "PMX VIT ENFAMIL A+1 2FL KOSHER PH",
+                "Plants": [
+                    "Singapore"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "PMX VIT ENFAMIL A+2 2FL KOSHER PH",
+                "Plants": [
+                    "Singapore"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Mr Min, Cobra",
+        "Sub-Category": "Silicone Oil",
+        "Materials": [
+            {
+                "Name": "SILICONE OIL 10 000 CA",
+                "Plants": [
+                    "Elandsfontein"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "SILICONE OIL 350 CA",
+                "Plants": [
+                    "Elandsfontein"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "SILICONE OIL 30 000 CA",
+                "Plants": [
+                    "Elandsfontein"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "VANISH",
+        "Sub-Category": "H2O2",
+        "Materials": [
+            {
+                "Name": "05 PEROXIDO DE HIDROGENO 50 %",
+                "Plants": [
+                    "Atizapan"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "HYDROGEN PEROXIDE 50%",
+                "Plants": [
+                    "Elandsfontein"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "HYDROGEN PEROXIDE 49.1%",
+                "Plants": [
+                    "Klin"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Bryza, LANZA",
+        "Sub-Category": "Colored sulphate",
+        "Materials": [
+            {
+                "Name": "SODIUM SULPHATE, COLORED GREEN",
+                "Plants": [
+                    "Nowy Dwor"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "SODIUM SULPHATE, COLORED PINK",
+                "Plants": [
+                    "Nowy Dwor"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "ALS 30%",
+        "Materials": [
+            {
+                "Name": "Texapon ALS IS T",
+                "Plants": [
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "TEXAPON ALS IS T",
+                "Plants": [
+                    "India - Uttaranchal 1",
+                    "India - Uttaranchal 2"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "ALS 70%",
+        "Materials": [
+            {
+                "Name": "AMMONIUM LAURYL SULPHATE 70%",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "AMMONIUM LAURETH SULFATE 70%",
+                "Plants": [
+                    "China - Taicang"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "CAA",
+        "Materials": [
+            {
+                "Name": "Citric Acid",
+                "Plants": [
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "U - CITRIC ACID ANHYDROUS",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "CMEA",
+        "Materials": [
+            {
+                "Name": "COCAMIDE MEA",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "COCO MONO ETHANOL AMIDE",
+                "Plants": [
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "Glycerin",
+        "Materials": [
+            {
+                "Name": "GLYCERIN CP",
+                "Plants": [
+                    "India - Uttaranchal 2",
+                    "India - Uttaranchal 1",
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "U - GLYCERINE USP 99.7%",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": [
+                    "56-81-5"
+                ]
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "Green",
+        "Materials": [
+            {
+                "Name": "D&C GREEN 5",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "CC GREEN FINE PASTE 631",
+                "Plants": [
+                    "India - Uttaranchal 2",
+                    "India - Uttaranchal 1"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "MPG",
+        "Materials": [
+            {
+                "Name": "Propylene Glycol Codex",
+                "Plants": [
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "PROPYLENE GLYCOL CODEX  ,DM,EU",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "Pine85",
+        "Materials": [
+            {
+                "Name": "PINE OIL",
+                "Plants": [
+                    "Bahrain"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "PINE OIL                ,TK,GB",
+                "Plants": [
+                    "Elandsfontein"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "SLES 70%",
+        "Materials": [
+            {
+                "Name": "U - SODIUM LAURYL ETHER SULPH 2EO",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "Sodium Lauryl Ether Sulfate (70%)",
+                "Plants": [
+                    "India - Uttaranchal 2",
+                    "India - Uttaranchal 1"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "TSC",
+        "Materials": [
+            {
+                "Name": "SODIUM CITRATE DIHYDRATE",
+                "Plants": [
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "U - SODIUM CITRATE DIHYDRATE",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "TiO2",
+        "Materials": [
+            {
+                "Name": "Titanium Dioxide",
+                "Plants": [
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "TI DIOXIDE (CI 77891),BG,FR",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Dettol",
+        "Sub-Category": "Violet",
+        "Materials": [
+            {
+                "Name": "D&C VIOLET 2- CI 60730",
+                "Plants": [
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "LIQUITINT VIOLET 129",
+                "Plants": [
+                    "Karachi / Maur.",
+                    "Bahrain"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Disprin",
+        "Sub-Category": "SLS",
+        "Materials": [
+            {
+                "Name": "Sodium Lauryl Sulphate",
+                "Plants": [
+                    "Karachi / Maur."
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "SODIUM LAURYL SULPHATE-EP",
+                "Plants": [
+                    "India - Mysore"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Enfagrow",
+        "Sub-Category": "Premix-Vitamin",
+        "Materials": [
+            {
+                "Name": "PMX VIT ENFA S2 A2 SCH PREMO 20KG",
+                "Plants": [
+                    "Singapore"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "PMX VIT ENFA S1 A2 SCH PREMO 20KG",
+                "Plants": [
+                    "Singapore"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "FINISH, Neophos",
+        "Sub-Category": "Blue",
+        "Materials": [
+            {
+                "Name": "SANOLAN LAVE BLUE",
+                "Plants": [
+                    "St. Peters"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "Ultramarine Blue 8E",
+                "Plants": [
+                    "Nowy Dwor"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Gaviscon",
+        "Sub-Category": "Sodium Bicarb",
+        "Materials": [
+            {
+                "Name": "Sodium Bicarbonate",
+                "Plants": [
+                    "Karachi / Maur."
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "SODIUM BICARB.M/GRAN.25KG",
+                "Plants": [
+                    "Nottingham"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "K-Y, Durex",
+        "Sub-Category": "HEC",
+        "Materials": [
+            {
+                "Name": "NATROSOL 250 HHX",
+                "Plants": [
+                    "Thailand - Bangplee"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "NATROSOL 250 H",
+                "Plants": [
+                    "Thailand - Bangplee"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Lysol/Lizol",
+        "Sub-Category": "Blue",
+        "Materials": [
+            {
+                "Name": "LIQUITINT BLUE HP DYE",
+                "Plants": [
+                    "Atizapan",
+                    "St. Peters"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "Acid Blue 80 CI 61585",
+                "Plants": [
+                    "Bangladesh - Chittagong"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Mortein",
+        "Sub-Category": "D-Phenothrin 92%",
+        "Materials": [
+            {
+                "Name": "AU - D-PHENOTHRIN 92%",
+                "Plants": [
+                    "Karachi / Maur."
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "A - D-Phenothrin 92%",
+                "Plants": [
+                    "Elandsfontein"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Move Free",
+        "Sub-Category": "Capsule",
+        "Materials": [
+            {
+                "Name": "HPMC WHT-CLEAR SIZE CAP 00-S",
+                "Plants": [
+                    "Salt Lake City"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "HPMC WHT-CLEAR SIZE CAP 0-S",
+                "Plants": [
+                    "Salt Lake City"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Mucinex",
+        "Sub-Category": "MCC",
+        "Materials": [
+            {
+                "Name": "CELLULOSE MICROCRYSTALLINE 102",
+                "Plants": [
+                    "Tlalpan"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "MICROCRYSTALLINE CELLULOSEE",
+                "Plants": [
+                    "Nottingham"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Naldecon, Tempra",
+        "Sub-Category": "Yellow",
+        "Materials": [
+            {
+                "Name": "COLOUR D&C YELLOW NO. 10",
+                "Plants": [
+                    "Tlalpan"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "COLOUR FD&C YELLOW NO. 6",
+                "Plants": [
+                    "Tlalpan"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Nurofen",
+        "Sub-Category": "MCC",
+        "Materials": [
+            {
+                "Name": "MICROCRYSTALLINE CELLULOSE 102",
+                "Plants": [
+                    "Nottingham"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "AVICEL PH-101",
+                "Plants": [
+                    "Nottingham"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Private Label, Steradent, Kukident",
+        "Sub-Category": "Mineral Oil",
+        "Materials": [
+            {
+                "Name": "PARAFFINUM LIQUID & PE  ,DM,DE",
+                "Plants": [
+                    "Weinheim"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "PARAFFINUM LIQUIDUM     ,DM,DE",
+                "Plants": [
+                    "Weinheim"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Sustagen, Enfa Mama, Enfagrow, Lactum",
+        "Sub-Category": "Cocoa",
+        "Materials": [
+            {
+                "Name": "COCOA POWDER 25KG BAG",
+                "Plants": [
+                    "Makati City"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "COCOA POWDER 25KG BAG 100%",
+                "Plants": [
+                    "Makati City",
+                    "Chonburi"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "VANISH",
+        "Sub-Category": "CTAC",
+        "Materials": [
+            {
+                "Name": "Praepagen HY",
+                "Plants": [
+                    "Nowy Dwor"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "PRAEPAGEN HY",
+                "Plants": [
+                    "Klin"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "VANISH",
+        "Sub-Category": "DPNB",
+        "Materials": [
+            {
+                "Name": "DOWANOL D Pn B",
+                "Plants": [
+                    "Atizapan"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "DIPROPYLENEGLYCOL BUTYLETHER",
+                "Plants": [
+                    "Klin"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Vanish",
+        "Sub-Category": "FATTY ALCOHOL 3EO",
+        "Materials": [
+            {
+                "Name": "C12-C16 ALCOHOL 3EO",
+                "Plants": [
+                    "Raposo Tavares"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "C12-C16 ALCOHOLS 3EO",
+                "Plants": [
+                    "Indonesia - Cileungsi",
+                    "Indonesia - Semarang",
+                    "Bahrain"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Vanish",
+        "Sub-Category": "FATTY ALCOHOL 7EO",
+        "Materials": [
+            {
+                "Name": "8079367 LUTENSOL M7 TAMBOR",
+                "Plants": [
+                    "Raposo Tavares"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "C12-14 7EO, ETHOXYLATED",
+                "Plants": [
+                    "Indonesia - Semarang",
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Vanish",
+        "Sub-Category": "H2O2",
+        "Materials": [
+            {
+                "Name": "HYDROGEN PEROXIDE 50%",
+                "Plants": [
+                    "Indonesia - Semarang",
+                    "Indonesia - Cileungsi"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "Hydrogen Per Oxide 50%",
+                "Plants": [
+                    "Bahrain"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Veet",
+        "Sub-Category": "Extract",
+        "Materials": [
+            {
+                "Name": "GINSENG EXTRACT",
+                "Plants": [
+                    "India - Uttaranchal 2",
+                    "Chartres"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "CROPURE GRAPESEED-LQ-(JP)",
+                "Plants": [
+                    "India - Uttaranchal 2",
+                    "Chartres"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Veet",
+        "Sub-Category": "Oil",
+        "Materials": [
+            {
+                "Name": "ARGAN OIL",
+                "Plants": [
+                    "Chartres"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "Prunus Amygdalus Dulcis Oil",
+                "Plants": [
+                    "Chartres"
+                ],
+                "CAS": []
+            }
+        ]
+    },
+    {
+        "Brand": "Veet",
+        "Sub-Category": "Thioglycolic Acid",
+        "Materials": [
+            {
+                "Name": "Thioglycolic Acid 99%",
+                "Plants": [
+                    "Bahrain"
+                ],
+                "CAS": []
+            },
+            {
+                "Name": "*THIOGLYCOLIC ACID 99%  ,TK,EU",
+                "Plants": [
+                    "Chartres"
+                ],
+                "CAS": []
+            }
+        ]
+    }
+]

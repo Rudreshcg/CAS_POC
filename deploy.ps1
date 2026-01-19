@@ -1,4 +1,4 @@
-# One-Command Deployment Script for CAS Lookup App
+# One-Command Deployment Script for Golden Record Generator
 # Usage: .\deploy.ps1
 
 param(
@@ -6,7 +6,7 @@ param(
 )
 
 Write-Host "==================================" -ForegroundColor Cyan
-Write-Host "CAS Lookup App - Deployment Script" -ForegroundColor Cyan
+Write-Host "Golden Record Generator - Deployment Script" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan
 Write-Host ""
 
