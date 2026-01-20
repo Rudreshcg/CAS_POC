@@ -17,6 +17,11 @@ class CasLookupResult(db.Model):
     inci_name = db.Column(db.String(255))
     synonyms = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Validation Fields
+    confidence_score = db.Column(db.Integer, default=70) # 70% default for AI/Search
+    validation_status = db.Column(db.String(50), default='Pending') # Pending, Validated
+    validation_documents = db.Column(db.Text, default='[]') # JSON array: [{"type": "MSDS", "path": "..."}]
 
     def to_dict(self):
         return {
@@ -31,7 +36,10 @@ class CasLookupResult(db.Model):
             'cas_number': self.cas_number,
             'inci_name': self.inci_name,
             'synonyms': self.synonyms,
-            'created_at': self.created_at.isoformat()
+            'created_at': self.created_at.isoformat(),
+            'confidence_score': self.confidence_score,
+            'validation_status': self.validation_status,
+            'validation_documents': json.loads(self.validation_documents) if self.validation_documents else []
         }
 
 class EnrichmentRule(db.Model):

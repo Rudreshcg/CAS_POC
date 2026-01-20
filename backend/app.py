@@ -7,6 +7,7 @@ import time
 import json
 import os
 from werkzeug.utils import secure_filename
+from pypdf import PdfReader
 
 app = Flask(__name__)
 
@@ -44,7 +45,8 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 
 # Database Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cas_database.db'
+db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cas_database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 from models import db, CasLookupResult, EnrichmentRule
@@ -354,7 +356,9 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
         'final_search_term': best_term,
         'cas_number': cas if cas else "NOT FOUND",
         'synonyms': syns if syns else "N/A",
-        'inci_name': inci_name
+        'inci_name': inci_name,
+        'confidence_score': 70 if cas else 0, # Default to 70% if found
+        'validation_status': 'Pending'
     }
     yield {"type": "result", "data": result_data}
 
@@ -726,6 +730,69 @@ def add_rule():
         
         db.session.commit()
         return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/validate/<int:row_id>', methods=['POST'])
+def validate_cas(row_id):
+    try:
+        row = CasLookupResult.query.filter_by(row_number=row_id).first()
+        if not row:
+            return jsonify({"error": "Row not found"}), 404
+
+        file = request.files.get('file')
+        document_type = request.form.get('document_type', 'Other')  # MSDS, CoS, Other
+        
+        # 1. Manual Validation (No file)
+        if not file:
+            row.confidence_score = 100
+            row.validation_status = 'Validated (Manual)'
+            db.session.commit()
+            return jsonify(row.to_dict())
+
+        # 2. Document Validation
+        filename = secure_filename(file.filename)
+        timestamp = int(time.time())
+        save_path = os.path.join(app.config['UPLOAD_FOLDER'], f"val_{row_id}_{timestamp}_{filename}")
+        file.save(save_path)
+
+        # Parse text based on type
+        text_content = ""
+        if filename.lower().endswith('.pdf'):
+            try:
+                reader = PdfReader(save_path)
+                for page in reader.pages:
+                    text_content += page.extract_text() + "\n"
+            except Exception as e:
+                os.remove(save_path)
+                return jsonify({"error": f"PDF Error: {e}"}), 400
+        else:
+             os.remove(save_path)
+             return jsonify({"error": "Only PDF validation supported currently"}), 400
+        
+        # Verify with Bedrock
+        bedrock = BedrockCleaner()
+        is_verified = bedrock.verify_cas_match(text_content, row.cas_number)
+        
+        if not is_verified:
+            os.remove(save_path)
+            return jsonify({"error": f"Document does not confirm CAS {row.cas_number}"}), 400
+
+        # Success: Add document to array
+        existing_docs = json.loads(row.validation_documents) if row.validation_documents else []
+        existing_docs.append({
+            "type": document_type,
+            "filename": filename,
+            "path": save_path,
+            "uploaded_at": datetime.utcnow().isoformat()
+        })
+        row.validation_documents = json.dumps(existing_docs)
+        row.confidence_score = 100
+        row.validation_status = f'Validated ({len(existing_docs)} doc{"s" if len(existing_docs) > 1 else ""})'
+
+        db.session.commit()
+        return jsonify(row.to_dict())
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

@@ -150,4 +150,49 @@ class BedrockCleaner:
             return None
         except Exception as e:
             print(f"Bedrock Parameter Extraction Error: {e}")
-            return None
+            return None        
+
+    def verify_cas_match(self, text, target_cas):
+        if not self.available or not text or not target_cas:
+            return False
+            
+        prompt = f"""
+        <|begin_of_text|><|start_header_id|>system<|end_header_id|>
+        You are an expert chemical safety data analyst.
+        Your goal is to VERIFY if the document text confirms that the product contains the specific CAS Number: {target_cas}.
+        
+        Rules:
+        1. Read the text carefully. Look for CAS #, CAS No, or Chemical Abstract Service Registry Number.
+        2. If the CAS {target_cas} is explicitly listed as an ingredient or component, return TRUE.
+        3. If a different CAS is listed for the main ingredient, return FALSE.
+        4. If the CAS is not mentioned at all, return FALSE.
+        5. Return ONLY a JSON object: {{"verified": true}} or {{"verified": false}}.
+        <|eot_id|><|start_header_id|>user<|end_header_id|>
+        Document Text: "{text[:10000]}"...
+        Target CAS: "{target_cas}"
+        <|eot_id|><|start_header_id|>assistant<|end_header_id|>
+        """
+
+        body = json.dumps({
+            "prompt": prompt,
+            "max_gen_len": 50,
+            "temperature": 0.0,
+            "top_p": 1.0,
+        })
+
+        try:
+            response = self.bedrock.invoke_model(
+                body=body, 
+                modelId=self.model_id, 
+                accept='application/json', 
+                contentType='application/json'
+            )
+            response_body = json.loads(response.get('body').read())
+            result_text = response_body.get('generation', '').strip()
+            
+            if 'true' in result_text.lower():
+                return True
+            return False
+        except Exception as e:
+            print(f"Bedrock Verification Error: {e}")
+            return False
