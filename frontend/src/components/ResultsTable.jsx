@@ -7,6 +7,7 @@ export default function ResultsTable({ results, totalRows }) {
         commodity: '',
         sub_category: '',
         item_description: '',
+        enriched_description: '',
         final_search_term: '',
         cas_number: '',
         inci_name: '',
@@ -65,6 +66,7 @@ export default function ResultsTable({ results, totalRows }) {
             commodity: '',
             sub_category: '',
             item_description: '',
+            enriched_description: '',
             final_search_term: '',
             cas_number: '',
             inci_name: '',
@@ -117,6 +119,9 @@ export default function ResultsTable({ results, totalRows }) {
                                 </th>
                                 <th className="px-6 py-3 cursor-pointer hover:bg-slate-800 select-none" onClick={() => requestSort('item_description')}>
                                     Item Description {getSortIcon('item_description')}
+                                </th>
+                                <th className="px-6 py-3 cursor-pointer hover:bg-slate-800 select-none" onClick={() => requestSort('enriched_description')}>
+                                    Enriched Description {getSortIcon('enriched_description')}
                                 </th>
                                 <th className="px-6 py-3 cursor-pointer hover:bg-slate-800 select-none" onClick={() => requestSort('final_search_term')}>
                                     Search Term {getSortIcon('final_search_term')}
@@ -235,6 +240,13 @@ export default function ResultsTable({ results, totalRows }) {
                                             onClick={() => openModal('Item Description', row.item_description)}
                                         >
                                             {row.item_description}
+                                        </td>
+                                        <td
+                                            className="px-6 py-4 truncate max-w-[200px] cursor-pointer hover:text-cyan-400 transition-colors"
+                                            title="Click to view full content"
+                                            onClick={() => openModal('Enriched Description', row.enriched_description)}
+                                        >
+                                            {row.enriched_description}
                                         </td>
                                         <td
                                             className="px-6 py-4 truncate max-w-[150px] cursor-pointer hover:text-cyan-400 transition-colors"

@@ -15,7 +15,11 @@ CORS(app, resources={
     r"/upload": {"origins": "*"},
     r"/process/*": {"origins": "*"},
     r"/download/*": {"origins": "*"},
-    r"/clusters": {"origins": "*"}
+    r"/upload": {"origins": "*"},
+    r"/process/*": {"origins": "*"},
+    r"/download/*": {"origins": "*"},
+    r"/clusters": {"origins": "*"},
+    r"/api/*": {"origins": "*"}
 })
 
 # Configure static folder for React frontend
@@ -38,6 +42,16 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 # Create folders if they don't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
+
+# Database Configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cas_database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+from models import db, CasLookupResult, EnrichmentRule
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
 
 # ==========================================
 # CAS LOOKUP LOGIC
@@ -212,6 +226,43 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
 
     cas, syns, best_term = None, "N/A", hyper_clean_chemical(desc)
 
+
+    # Check for Enrichment Rules matching Sub-Category
+    # Using app.app_context() because this is a generator
+    rule = None
+    with app.app_context():
+        rule = EnrichmentRule.query.filter_by(sub_category=sub).first()
+    
+    if rule and bedrock_cleaner:
+        yield {"type": "log", "message": f"✨ Applying Enrichment Rule for '{sub}'..."}
+        try:
+            params = json.loads(rule.parameters)
+            extracted_data = bedrock_cleaner.extract_parameters(desc, rule.identifier_name, params)
+            
+            if extracted_data:
+                # Format: IdentifierNumber_Param1Name_Param1Value_...
+                # Get Identifier
+                identifier_val = extracted_data.get(rule.identifier_name, "N/A")
+                
+                parts = [identifier_val]
+                for p_name in params:
+                    p_val = extracted_data.get(p_name, "N/A")
+                    parts.append(f"{p_name}")
+                    parts.append(f"{p_val}")
+                
+                # Update best_term to become the Enriched Description
+                best_term = "_".join(parts)
+                yield {"type": "log", "message": f"✅ Generated Enriched Desc: {best_term}"}
+                
+                # Also try to use identifier as CAS if it looks like one
+                if "CAS" in rule.identifier_name.upper() and identifier_val != "N/A":
+                     cas = identifier_val
+                     yield {"type": "log", "message": f"ℹ️ Using extracted Identifier as CAS: {cas}"}
+            
+        except Exception as e:
+            print(f"Enrichment Error: {e}")
+            pass
+
     for term, label in trials:
         if not term or term.upper() in ['EXTRACT', 'OIL', 'NAN']: 
             continue
@@ -299,6 +350,7 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
         'commodity': commodity,
         'sub_category': sub,
         'item_description': desc,
+        'enriched_description': best_term,
         'final_search_term': best_term,
         'cas_number': cas if cas else "NOT FOUND",
         'synonyms': syns if syns else "N/A",
@@ -342,6 +394,15 @@ def process_file(filename):
                 df = pd.read_csv(filepath, on_bad_lines='skip', encoding='utf-8')
             client = CASClient(CAS_API_KEY)
             
+            # CLEAR DATABASE for Single Session Persistence
+            with app.app_context():
+                try:
+                    db.session.query(CasLookupResult).delete()
+                    db.session.commit()
+                    print("🗑️ Database cleared for new session.")
+                except Exception as e:
+                    print(f"Error clearing database: {e}")
+
             try:
                 bedrock_cleaner = BedrockCleaner()
             except Exception as e:
@@ -363,12 +424,33 @@ def process_file(filename):
                         result = event['data']
                         results.append(result)
                         yield f"data: {json.dumps({'type': 'row', 'data': result})}\n\n"
+                        
+                        # Save to Database
+                        with app.app_context():
+                            try:
+                                db_entry = CasLookupResult(
+                                    filename=filename,
+                                    row_number=result['row_number'],
+                                    commodity=result['commodity'],
+                                    sub_category=result['sub_category'],
+                                    item_description=result['item_description'],
+                                    enriched_description=result['enriched_description'],
+                                    final_search_term=result['final_search_term'],
+                                    cas_number=result['cas_number'],
+                                    inci_name=result['inci_name'],
+                                    synonyms=result['synonyms']
+                                )
+                                db.session.add(db_entry)
+                                db.session.commit()
+                            except Exception as db_err:
+                                print(f"Database Error: {db_err}")
             
             # Save output file
             output_df = pd.DataFrame([{
                 'Commodity': r['commodity'],
                 'Sub-Category': r['sub_category'],
                 'Item description': r['item_description'],
+                'Enriched Description': r['enriched_description'],
                 'Final Search Term': r['final_search_term'],
                 'CAS Number': r['cas_number'],
                 'INCI Name': r['inci_name'],
@@ -447,6 +529,15 @@ def clusters():
             tree["children"].append(b_node)
             
         return jsonify(tree) # Return JSON for React
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/results')
+def get_results():
+    try:
+        results = CasLookupResult.query.order_by(CasLookupResult.row_number).all()
+        return jsonify([r.to_dict() for r in results])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -602,6 +693,53 @@ def serve_static(path):
     if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/api/rules', methods=['GET'])
+def get_rules():
+    rules = EnrichmentRule.query.all()
+    return jsonify([r.to_dict() for r in rules])
+
+@app.route('/api/rules', methods=['POST'])
+def add_rule():
+    data = request.get_json()
+    sub_category = data.get('sub_category')
+    identifier_name = data.get('identifier_name', 'CAS')
+    parameters = data.get('parameters', []) # List of strings
+
+    if not sub_category:
+        return jsonify({"error": "Sub-category is required"}), 400
+
+    try:
+        existing = EnrichmentRule.query.filter_by(sub_category=sub_category).first()
+        if existing:
+            # Update existing
+            existing.identifier_name = identifier_name
+            existing.parameters = json.dumps(parameters)
+        else:
+            # Create new
+            new_rule = EnrichmentRule(
+                sub_category=sub_category,
+                identifier_name=identifier_name,
+                parameters=json.dumps(parameters)
+            )
+            db.session.add(new_rule)
+        
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/rules/<int:rule_id>', methods=['DELETE'])
+def delete_rule(rule_id):
+    try:
+        rule = EnrichmentRule.query.get(rule_id)
+        if rule:
+            db.session.delete(rule)
+            db.session.commit()
+            return jsonify({"success": True})
+        return jsonify({"error": "Rule not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

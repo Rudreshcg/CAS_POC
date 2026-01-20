@@ -100,3 +100,54 @@ class BedrockCleaner:
         except Exception as e:
             print(f"Bedrock Details Error: {e}")
             return None
+
+    def extract_parameters(self, text, identifier_name, parameter_names):
+        if not self.available or not text or not parameter_names:
+            return None
+            
+        param_list_str = ", ".join(parameter_names)
+        
+        prompt = f"""
+        <|begin_of_text|><|start_header_id|>system<|end_header_id|>
+        You are an expert chemical data extractor.
+        Extract the following parameters from the description: {param_list_str}.
+        
+        Rules:
+        1. Return a JSON object where keys are the specific parameter names requested.
+        2. If a parameter value is not found in the text, use "N/A".
+        3. Do not invent values.
+        4. Also extract the value for "{identifier_name}" if present (e.g. CAS Number, Material ID).
+        
+        Example Output: {{"Purity": "99%", "Grade": "USP", "{identifier_name}": "50-00-0"}}
+        <|eot_id|><|start_header_id|>user<|end_header_id|>
+        Description: "{text}"
+        <|eot_id|><|start_header_id|>assistant<|end_header_id|>
+        """
+
+        body = json.dumps({
+            "prompt": prompt,
+            "max_gen_len": 200,
+            "temperature": 0.0,
+            "top_p": 1.0,
+        })
+
+        try:
+            response = self.bedrock.invoke_model(
+                body=body, 
+                modelId=self.model_id, 
+                accept='application/json', 
+                contentType='application/json'
+            )
+            response_body = json.loads(response.get('body').read())
+            result_text = response_body.get('generation', '').strip()
+            
+            # Simple JSON extraction
+            if '{' in result_text:
+                start = result_text.find('{')
+                end = result_text.rfind('}') + 1
+                json_str = result_text[start:end]
+                return json.loads(json_str)
+            return None
+        except Exception as e:
+            print(f"Bedrock Parameter Extraction Error: {e}")
+            return None

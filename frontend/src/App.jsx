@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import FileUpload from './components/FileUpload';
 import ResultsTable from './components/ResultsTable';
 import LogConsole from './components/LogConsole';
+import EnrichmentRules from './components/EnrichmentRules';
 import ClusterVisualizer from './components/ClusterVisualizer';
-import { Boxes } from 'lucide-react';
+import { Boxes, Settings } from 'lucide-react';
 
 function Dashboard() {
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -15,6 +16,26 @@ function Dashboard() {
   const [totalRows, setTotalRows] = useState(0);
   const [foundCount, setFoundCount] = useState(0);
   const [completionData, setCompletionData] = useState(null);
+
+  useEffect(() => {
+    fetchSessionData();
+  }, []);
+
+  const fetchSessionData = async () => {
+    try {
+      const res = await fetch('/api/results');
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setResults(data);
+        setTotalRows(data.length);
+        setFoundCount(data.filter(r => r.cas_number !== 'NOT FOUND').length);
+        setOriginalFilename(data[0].filename);
+        setUploadedFile(data[0].filename);
+      }
+    } catch (error) {
+      console.error("Failed to load session:", error);
+    }
+  };
 
   const handleUploadComplete = (filename, originalName) => {
     setUploadedFile(filename);
@@ -78,9 +99,14 @@ function Dashboard() {
         </h1>
         <p className="text-slate-400">Intelligent Chemical Identification by SCM-MAX</p>
 
-        <Link to="/clusters" className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-slate-800 rounded-full text-cyan-400 text-sm font-semibold hover:bg-slate-700 transition-colors">
-          <Boxes size={16} /> View Material Clusters
-        </Link>
+        <div className="flex justify-center gap-4 mt-4">
+          <Link to="/clusters" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full text-cyan-400 text-sm font-semibold hover:bg-slate-700 transition-colors">
+            <Boxes size={16} /> View Material Clusters
+          </Link>
+          <Link to="/rules" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full text-cyan-400 text-sm font-semibold hover:bg-slate-700 transition-colors">
+            <Settings size={16} /> Enrichment Rules
+          </Link>
+        </div>
       </div>
 
       <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 backdrop-blur-sm shadow-2xl">
@@ -149,6 +175,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/clusters" element={<ClustersPage />} />
+        <Route path="/rules" element={<EnrichmentRules />} />
       </Routes>
     </Router>
   );

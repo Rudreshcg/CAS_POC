@@ -12,10 +12,10 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/upload': 'http://localhost:5000',
-      '/process': 'http://localhost:5000',
-      '/download': 'http://localhost:5000',
-      '/api': 'http://localhost:5000'
+      '/upload': { target: 'http://localhost:5000', changeOrigin: true },
+      '/process': { target: 'http://localhost:5000', changeOrigin: true },
+      '/download': { target: 'http://localhost:5000', changeOrigin: true },
+      '/api': { target: 'http://localhost:5000', changeOrigin: true }
     }
   }
 })
