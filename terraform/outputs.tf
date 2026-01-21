@@ -37,3 +37,8 @@ output "s3_bucket" {
   description = "S3 bucket for application versions"
   value       = aws_s3_bucket.eb_app_versions.bucket
 }
+
+output "s3_validation_bucket" {
+  description = "S3 bucket for validation documents"
+  value       = module.s3_validation.bucket_name
+}

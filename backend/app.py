@@ -6,6 +6,7 @@ import re
 import time
 import json
 import os
+from datetime import datetime
 from werkzeug.utils import secure_filename
 from pypdf import PdfReader
 
@@ -48,6 +49,19 @@ os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cas_database.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# S3 Configuration
+app.config['S3_BUCKET'] = os.environ.get('S3_VALIDATION_BUCKET', '')
+app.config['USE_S3'] = bool(app.config['S3_BUCKET'])  # Use S3 if bucket name is set
+
+# Initialize S3 client if configured
+s3_client = None
+if app.config['USE_S3']:
+    import boto3
+    s3_client = boto3.client('s3')
+    print(f"✅ S3 configured: {app.config['S3_BUCKET']}")
+else:
+    print("⚠️  S3 not configured, using local storage")
 
 from models import db, CasLookupResult, EnrichmentRule
 db.init_app(app)
@@ -202,6 +216,18 @@ def lookup_inci_from_pubchem(cas_number):
 
 from llm_helper import BedrockCleaner
 
+def extract_pdf_text(file_path):
+    """Extract text from PDF file using PyPDF2"""
+    try:
+        reader = PdfReader(file_path)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() + "\n"
+        return text.strip()
+    except Exception as e:
+        print(f"PDF extraction error: {e}")
+        return ""
+
 def process_row(row, idx, total, client, bedrock_cleaner=None):
     """Process a single row and yield logs + result"""
     desc = str(row.get('Item description', ''))
@@ -227,6 +253,7 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
         trials.extend(variations)
 
     cas, syns, best_term = None, "N/A", hyper_clean_chemical(desc)
+    enrichment_applied = False  # Track if enrichment was applied
 
 
     # Check for Enrichment Rules matching Sub-Category
@@ -237,33 +264,63 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
     
     if rule and bedrock_cleaner:
         yield {"type": "log", "message": f"✨ Applying Enrichment Rule for '{sub}'..."}
+        print(f"✨ Applying Enrichment Rule for '{sub}'...")
+        yield {"type": "log", "message": f"🔍 DEBUG: Rule found - Identifier: {rule.identifier_name}, Params: {rule.parameters}"}
+        print(f"🔍 DEBUG: Rule found - Identifier: {rule.identifier_name}, Params: {rule.parameters}")
         try:
             params = json.loads(rule.parameters)
+            yield {"type": "log", "message": f"🔍 DEBUG: Calling extract_parameters with desc='{desc}'"}
+            print(f"🔍 DEBUG: Calling extract_parameters with desc='{desc}'")
             extracted_data = bedrock_cleaner.extract_parameters(desc, rule.identifier_name, params)
             
+            yield {"type": "log", "message": f"🔍 DEBUG: Extracted data: {extracted_data}"}
+            print(f"🔍 DEBUG: Extracted data: {extracted_data}")
+            
             if extracted_data:
-                # Format: IdentifierNumber_Param1Name_Param1Value_...
-                # Get Identifier
-                identifier_val = extracted_data.get(rule.identifier_name, "N/A")
+                # Format: materialname_identifiername_identifiervalue_param1name_param1value_...
+                # Example: glycerine_cas_56-81-5_purity_80%_grade_nonpharma
                 
-                parts = [identifier_val]
+                # Start with material name (cleaned and lowercase)
+                material_name = hyper_clean_chemical(desc).lower().replace(' ', '').replace('-', '')
+                parts = [material_name]
+                
+                yield {"type": "log", "message": f"🔍 DEBUG: Material name: {material_name}"}
+                print(f"🔍 DEBUG: Material name: {material_name}")
+                
+                # Add Identifier name and value
+                identifier_val = extracted_data.get(rule.identifier_name, "N/A")
+                if identifier_val != "N/A":
+                    parts.append(rule.identifier_name.lower())  # e.g., "cas"
+                    parts.append(identifier_val)  # e.g., "56-81-5"
+                
+                # Add Parameters (name_value pairs)
                 for p_name in params:
                     p_val = extracted_data.get(p_name, "N/A")
-                    parts.append(f"{p_name}")
-                    parts.append(f"{p_val}")
+                    if p_val != "N/A":
+                        parts.append(p_name.lower())  # e.g., "purity"
+                        parts.append(p_val)  # e.g., "80%"
                 
                 # Update best_term to become the Enriched Description
                 best_term = "_".join(parts)
+                enrichment_applied = True  # Mark that enrichment was applied
                 yield {"type": "log", "message": f"✅ Generated Enriched Desc: {best_term}"}
+                print(f"✅ Generated Enriched Desc: {best_term}")
                 
                 # Also try to use identifier as CAS if it looks like one
                 if "CAS" in rule.identifier_name.upper() and identifier_val != "N/A":
                      cas = identifier_val
                      yield {"type": "log", "message": f"ℹ️ Using extracted Identifier as CAS: {cas}"}
+                     print(f"ℹ️ Using extracted Identifier as CAS: {cas}")
             
         except Exception as e:
             print(f"Enrichment Error: {e}")
             pass
+    elif rule and not bedrock_cleaner:
+        yield {"type": "log", "message": f"⚠️ Enrichment rule found for '{sub}' but Bedrock is not available"}
+        print(f"⚠️ Enrichment rule found for '{sub}' but Bedrock is not available")
+    elif not rule:
+        yield {"type": "log", "message": f"ℹ️ No enrichment rule found for sub-category '{sub}'"}
+        print(f"ℹ️ No enrichment rule found for sub-category '{sub}'")
 
     for term, label in trials:
         if not term or term.upper() in ['EXTRACT', 'OIL', 'NAN']: 
@@ -273,7 +330,9 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
         
         cas, syns = client.search_and_detail(term)
         if cas:
-            best_term = f"{term} ({label})"
+            # Only overwrite best_term if enrichment wasn't applied
+            if not enrichment_applied:
+                best_term = f"{term} ({label})"
             yield {"type": "log", "message": f"✅ Found CAS: {cas} for '{term}'"}
             break
         time.sleep(1.1)
@@ -310,7 +369,8 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
                             # We should fetch Details ideally. 
                             # But CasClient.search_and_detail returns (rn, syns).
                             # If verified, we are good.
-                            best_term = f"{desc} (AI Verified)"
+                            if not enrichment_applied:
+                                best_term = f"{desc} (AI Verified)"
                             yield {"type": "log", "message": f"✅ AI Identified & Verified: {cas}"}
                         else:
                             # Use unverified CAS
@@ -346,13 +406,48 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
             yield {"type": "log", "message": f"Querying PubChem for INCI..."}
             inci_name = lookup_inci_from_pubchem(clean_cas)
 
+    # Final enriched description formatting
+    # If we have a CAS number and an enrichment rule, regenerate the enriched description
+    final_enriched_desc = best_term
+    if cas and cas != "NOT FOUND":
+        # Check if there's an enrichment rule for this sub-category
+        with app.app_context():
+            rule = EnrichmentRule.query.filter_by(sub_category=sub).first()
+            if rule:
+                try:
+                    material_name = hyper_clean_chemical(desc).lower().replace(' ', '').replace('-', '')
+                    parts = [material_name]
+                    
+                    # Add CAS
+                    parts.append(rule.identifier_name.lower())
+                    parts.append(str(cas).split('(')[0].strip())  # Clean CAS
+                    
+                    # Try to extract parameters from description if Bedrock is available
+                    if bedrock_cleaner:
+                        try:
+                            params = json.loads(rule.parameters)
+                            extracted_params = bedrock_cleaner.extract_parameters(desc, rule.identifier_name, params)
+                            if extracted_params:
+                                for p_name in params:
+                                    p_val = extracted_params.get(p_name, "N/A")
+                                    if p_val != "N/A":
+                                        parts.append(p_name.lower())
+                                        parts.append(p_val)
+                        except Exception as e:
+                            print(f"Bedrock parameter extraction failed (will use CAS only): {e}")
+                    
+                    final_enriched_desc = "_".join(parts)
+                    print(f"🔄 Final enriched description: {final_enriched_desc}")
+                except Exception as e:
+                    print(f"Final enrichment error: {e}")
+
     result_data = {
         'row_number': idx + 1,
         'total': total,
         'commodity': commodity,
         'sub_category': sub,
         'item_description': desc,
-        'enriched_description': best_term,
+        'enriched_description': final_enriched_desc,
         'final_search_term': best_term,
         'cas_number': cas if cas else "NOT FOUND",
         'synonyms': syns if syns else "N/A",
@@ -543,6 +638,34 @@ def get_results():
         results = CasLookupResult.query.order_by(CasLookupResult.row_number).all()
         return jsonify([r.to_dict() for r in results])
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/results/<int:row_id>', methods=['PUT'])
+def update_result(row_id):
+    """Update a result row with manual edits"""
+    try:
+        # Query by id (primary key), not row_number
+        row = CasLookupResult.query.get(row_id)
+        if not row:
+            return jsonify({"error": "Row not found"}), 404
+        
+        data = request.json
+        
+        # Update allowed fields
+        if 'enriched_description' in data:
+            row.enriched_description = data['enriched_description']
+        if 'cas_number' in data:
+            row.cas_number = data['cas_number']
+        if 'inci_name' in data:
+            row.inci_name = data['inci_name']
+        if 'synonyms' in data:
+            row.synonyms = data['synonyms']
+        
+        db.session.commit()
+        return jsonify(row.to_dict())
+    except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
 
@@ -753,37 +876,100 @@ def validate_cas(row_id):
         # 2. Document Validation
         filename = secure_filename(file.filename)
         timestamp = int(time.time())
-        save_path = os.path.join(app.config['UPLOAD_FOLDER'], f"val_{row_id}_{timestamp}_{filename}")
-        file.save(save_path)
+        
+        # Save file temporarily for processing
+        temp_path = os.path.join(app.config['UPLOAD_FOLDER'], f"temp_{row_id}_{timestamp}_{filename}")
+        file.save(temp_path)
 
         # Parse text based on type
         text_content = ""
         if filename.lower().endswith('.pdf'):
             try:
-                reader = PdfReader(save_path)
+                reader = PdfReader(temp_path)
                 for page in reader.pages:
                     text_content += page.extract_text() + "\n"
             except Exception as e:
-                os.remove(save_path)
+                os.remove(temp_path)
                 return jsonify({"error": f"PDF Error: {e}"}), 400
         else:
-             os.remove(save_path)
+             os.remove(temp_path)
              return jsonify({"error": "Only PDF validation supported currently"}), 400
+        
+        # Extract parameters from PDF text
+        if text_content and row.sub_category:
+            rule = EnrichmentRule.query.filter_by(sub_category=row.sub_category).first()
+            if rule:
+                try:
+                    bedrock = BedrockCleaner()
+                    params = json.loads(rule.parameters)
+                    extracted_params = bedrock.extract_parameters(text_content, rule.identifier_name, params)
+                    print(f"📄 Extracted from PDF: {extracted_params}")
+                    
+                    if extracted_params:
+                        # Update CAS if found
+                        cas_value = extracted_params.get(rule.identifier_name, "N/A")
+                        if cas_value != "N/A" and cas_value != row.cas_number:
+                            row.cas_number = cas_value
+                        
+                        # Regenerate enriched description
+                        material_name = row.item_description.lower().replace(' ', '').replace('-', '')
+                        parts = [material_name]
+                        
+                        # Add identifier
+                        if row.cas_number and row.cas_number != "NOT FOUND":
+                            parts.append(rule.identifier_name.lower())
+                            parts.append(row.cas_number)
+                        
+                        # Add parameters
+                        for p_name in params:
+                            p_val = extracted_params.get(p_name, "N/A")
+                            if p_val != "N/A":
+                                parts.append(p_name.lower())
+                                parts.append(p_val)
+                        
+                        row.enriched_description = "_".join(parts)
+                        print(f"✅ Updated enriched description from PDF: {row.enriched_description}")
+                except Exception as e:
+                    print(f"Parameter extraction error: {e}")
         
         # Verify with Bedrock
         bedrock = BedrockCleaner()
         is_verified = bedrock.verify_cas_match(text_content, row.cas_number)
         
         if not is_verified:
-            os.remove(save_path)
+            os.remove(temp_path)
             return jsonify({"error": f"Document does not confirm CAS {row.cas_number}"}), 400
+
+        # Success: Upload to S3 or save locally
+        file_path = ""
+        if app.config['USE_S3']:
+            # Upload to S3
+            s3_key = f"validation_docs/{row_id}/{timestamp}_{filename}"
+            try:
+                with open(temp_path, 'rb') as f:
+                    s3_client.upload_fileobj(
+                        f,
+                        app.config['S3_BUCKET'],
+                        s3_key,
+                        ExtraArgs={'ContentType': 'application/pdf'}
+                    )
+                file_path = f"s3://{app.config['S3_BUCKET']}/{s3_key}"
+                os.remove(temp_path)  # Clean up temp file
+            except Exception as e:
+                os.remove(temp_path)
+                return jsonify({"error": f"S3 Upload Error: {e}"}), 500
+        else:
+            # Save locally
+            local_path = os.path.join(app.config['UPLOAD_FOLDER'], f"val_{row_id}_{timestamp}_{filename}")
+            os.rename(temp_path, local_path)
+            file_path = local_path
 
         # Success: Add document to array
         existing_docs = json.loads(row.validation_documents) if row.validation_documents else []
         existing_docs.append({
             "type": document_type,
             "filename": filename,
-            "path": save_path,
+            "path": file_path,  # S3 path or local path
             "uploaded_at": datetime.utcnow().isoformat()
         })
         row.validation_documents = json.dumps(existing_docs)

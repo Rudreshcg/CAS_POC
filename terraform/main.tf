@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.0"
-  
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -16,7 +16,7 @@ provider "aws" {
 # S3 Bucket for Elastic Beanstalk application versions
 resource "aws_s3_bucket" "eb_app_versions" {
   bucket = "${var.application_name}-versions-${random_id.bucket_suffix.hex}"
-  
+
   tags = {
     Name        = "${var.application_name}-versions"
     Environment = var.environment_name
@@ -29,7 +29,7 @@ resource "random_id" "bucket_suffix" {
 
 resource "aws_s3_bucket_versioning" "eb_app_versions" {
   bucket = aws_s3_bucket.eb_app_versions.id
-  
+
   versioning_configuration {
     status = "Enabled"
   }
@@ -39,7 +39,7 @@ resource "aws_s3_bucket_versioning" "eb_app_versions" {
 resource "aws_elastic_beanstalk_application" "cas_lookup" {
   name        = var.application_name
   description = "CAS Number Lookup System - Flask Application"
-  
+
   tags = {
     Name        = var.application_name
     Environment = var.environment_name
@@ -78,6 +78,26 @@ resource "aws_iam_role_policy_attachment" "eb_multicontainer_docker" {
 resource "aws_iam_role_policy_attachment" "eb_worker_tier" {
   role       = aws_iam_role.eb_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier"
+}
+
+# Bedrock permissions for LLM functionality
+resource "aws_iam_role_policy" "bedrock_access" {
+  name = "${var.application_name}-bedrock-access"
+  role = aws_iam_role.eb_ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }
 
 # Instance profile
@@ -296,4 +316,13 @@ data "aws_subnets" "default" {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
+}
+
+# S3 Module for Validation Documents
+module "s3_validation" {
+  source = "./s3"
+
+  application_name = var.application_name
+  environment      = var.environment_name
+  aws_region       = var.aws_region
 }

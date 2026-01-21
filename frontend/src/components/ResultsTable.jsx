@@ -25,6 +25,11 @@ export default function ResultsTable({ results, totalRows }) {
     const [uploadingId, setUploadingId] = useState(null);
     const [validationMessage, setValidationMessage] = useState(null);
 
+    // Editing state
+    const [editingCell, setEditingCell] = useState(null); // {rowId, field}
+    const [editValues, setEditValues] = useState({});
+    const [savingRows, setSavingRows] = useState(new Set());
+
     // Filter and sort results
     const filteredAndSortedResults = useMemo(() => {
         let items = [...localResults];
@@ -62,21 +67,21 @@ export default function ResultsTable({ results, totalRows }) {
         setSortConfig({ key, direction });
     };
 
-    const handleValidationUpload = async (rowId, file, documentType = 'Other') => {
+    const handleValidationUpload = async (rowId, file, documentType) => {
         setUploadingId(rowId);
-        setValidationMessage(null);
-
-        const formData = new FormData();
-        if (file) {
-            formData.append('file', file);
-            formData.append('document_type', documentType);
-        }
 
         try {
+            const formData = new FormData();
+            if (file) {
+                formData.append('file', file);
+            }
+            formData.append('document_type', documentType);
+
             const res = await fetch(`/api/validate/${rowId}`, {
                 method: 'POST',
                 body: formData
             });
+
             const data = await res.json();
 
             if (res.ok) {
@@ -84,15 +89,124 @@ export default function ResultsTable({ results, totalRows }) {
                 setLocalResults(prev => prev.map(r =>
                     r.row_number === rowId ? { ...r, ...data } : r
                 ));
-                setValidationMessage({ id: rowId, type: 'success', text: `${documentType} verified!` });
+                const message = documentType === 'manual' ? 'Manually validated!' : `${documentType} verified!`;
+                setValidationMessage({ id: rowId, type: 'success', text: message });
             } else {
                 setValidationMessage({ id: rowId, type: 'error', text: data.error });
             }
         } catch (error) {
-            setValidationMessage({ id: rowId, type: 'error', text: 'Upload failed' });
+            setValidationMessage({ type: 'error', text: 'Upload failed' });
+            setTimeout(() => setValidationMessage(null), 3000);
         } finally {
             setUploadingId(null);
         }
+    };
+
+    // Edit handlers
+    const handleCellDoubleClick = (rowId, field) => {
+        const row = localResults.find(r => r.id === rowId);
+        if (row) {
+            setEditingCell({ rowId, field });
+            setEditValues(prev => ({ ...prev, [`${rowId}-${field}`]: row[field] || '' }));
+        }
+    };
+
+    const handleEditChange = (rowId, field, value) => {
+        setEditValues(prev => ({ ...prev, [`${rowId}-${field}`]: value }));
+    };
+
+    const handleSaveEdit = async (rowId) => {
+        setSavingRows(prev => new Set(prev).add(rowId));
+
+        try {
+            const updates = {};
+            ['enriched_description', 'cas_number', 'inci_name', 'synonyms'].forEach(field => {
+                const key = `${rowId}-${field}`;
+                if (editValues[key] !== undefined) {
+                    updates[field] = editValues[key];
+                }
+            });
+
+            const response = await fetch(`/api/results/${rowId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates)
+            });
+
+            if (response.ok) {
+                const updatedRow = await response.json();
+                setLocalResults(prev => prev.map(r => r.id === rowId ? updatedRow : r));
+                setEditingCell(null);
+                // Clear edit values for this row
+                const newEditValues = { ...editValues };
+                ['enriched_description', 'cas_number', 'inci_name', 'synonyms'].forEach(field => {
+                    delete newEditValues[`${rowId}-${field}`];
+                });
+                setEditValues(newEditValues);
+                setValidationMessage({ type: 'success', text: '✓ Changes saved!' });
+                setTimeout(() => setValidationMessage(null), 3000);
+            } else {
+                throw new Error('Failed to save');
+            }
+        } catch (error) {
+            setValidationMessage({ type: 'error', text: 'Failed to save changes' });
+            setTimeout(() => setValidationMessage(null), 3000);
+        } finally {
+            setSavingRows(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(rowId);
+                return newSet;
+            });
+        }
+    };
+
+    const handleCancelEdit = (rowId) => {
+        setEditingCell(null);
+        const newEditValues = { ...editValues };
+        ['enriched_description', 'cas_number', 'inci_name', 'synonyms'].forEach(field => {
+            delete newEditValues[`${rowId}-${field}`];
+        });
+        setEditValues(newEditValues);
+    };
+
+    const hasUnsavedChanges = (rowId) => {
+        return ['enriched_description', 'cas_number', 'inci_name', 'synonyms'].some(field => {
+            return editValues[`${rowId}-${field}`] !== undefined;
+        });
+    };
+
+    // Render editable cell
+    const renderEditableCell = (row, field, className = "", modalTitle = null) => {
+        const isEditing = editingCell?.rowId === row.id && editingCell?.field === field;
+        const editKey = `${row.id}-${field}`;
+        const value = editValues[editKey] !== undefined ? editValues[editKey] : row[field];
+
+        if (isEditing) {
+            return (
+                <input
+                    type="text"
+                    value={value || ''}
+                    onChange={(e) => handleEditChange(row.id, field, e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveEdit(row.id);
+                        if (e.key === 'Escape') handleCancelEdit(row.id);
+                    }}
+                    className="w-full bg-slate-700 border border-cyan-500 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-cyan-400"
+                    autoFocus
+                />
+            );
+        }
+
+        return (
+            <span
+                onClick={() => modalTitle && openModal(modalTitle, value)}
+                onDoubleClick={() => handleCellDoubleClick(row.id, field)}
+                className={`cursor-pointer hover:bg-slate-600/30 px-2 py-1 rounded ${editValues[editKey] !== undefined ? 'bg-yellow-900/20' : ''} ${className} ${modalTitle ? 'hover:text-cyan-400' : ''}`}
+                title={modalTitle ? "Click to view, Double-click to edit" : "Double-click to edit"}
+            >
+                {value || ''}
+            </span>
+        );
     };
 
     const getSortIcon = (key) => {
@@ -184,6 +298,9 @@ export default function ResultsTable({ results, totalRows }) {
                                 <th className="px-6 py-3">
                                     Validate
                                 </th>
+                                <th className="px-6 py-3">
+                                    Actions
+                                </th>
                             </tr>
 
                             {/* Filter Row */}
@@ -193,6 +310,7 @@ export default function ResultsTable({ results, totalRows }) {
                                 <th className="px-6 py-2">
                                     {/* Confidence Filter Space */}
                                 </th>
+                                <th className="px-6 py-2"></th>
                                 <th className="px-6 py-2"></th>
                             </tr>
                         </thead>
@@ -209,9 +327,9 @@ export default function ResultsTable({ results, totalRows }) {
                                         <td className="px-6 py-4 truncate max-w-[200px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Item Description', row.item_description)}>{row.item_description}</td>
                                         <td className="px-6 py-4 truncate max-w-[200px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Enriched Description', row.enriched_description)}>{row.enriched_description}</td>
                                         <td className="px-6 py-4 truncate max-w-[150px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Search Term', row.final_search_term)}>{row.final_search_term}</td>
-                                        <td className="px-6 py-4 font-mono text-cyan-400">{row.cas_number}</td>
-                                        <td className="px-6 py-4 truncate max-w-[150px] text-slate-400">{row.inci_name}</td>
-                                        <td className="px-6 py-4 truncate max-w-[150px] text-slate-500">{row.synonyms}</td>
+                                        <td className="px-6 py-4 font-mono">{renderEditableCell(row, 'cas_number', 'text-cyan-400')}</td>
+                                        <td className="px-6 py-4 truncate max-w-[150px]">{renderEditableCell(row, 'inci_name', 'text-slate-400', 'INCI Name')}</td>
+                                        <td className="px-6 py-4 truncate max-w-[150px]">{renderEditableCell(row, 'synonyms', 'text-slate-500', 'Synonyms')}</td>
 
                                         {/* Confidence Column */}
                                         <td className="px-6 py-4">
@@ -273,6 +391,13 @@ export default function ResultsTable({ results, totalRows }) {
                                                             </label>
                                                         ))}
                                                     </div>
+                                                    {/* Manual Confirm Button */}
+                                                    <button
+                                                        onClick={() => handleValidationUpload(row.row_number, null, 'manual')}
+                                                        className="px-2 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded text-xs font-semibold"
+                                                    >
+                                                        ✓ Confirm
+                                                    </button>
                                                     {validationMessage?.id === row.row_number && (
                                                         <span className={`text-[10px] ${validationMessage.type === 'error' ? 'text-red-400' : 'text-green-400'}`}>
                                                             {validationMessage.text}
@@ -282,6 +407,31 @@ export default function ResultsTable({ results, totalRows }) {
                                             ) : (
                                                 <span className="text-slate-600 text-xs">-</span>
                                             )}
+                                        </td>
+
+                                        {/* Actions Column */}
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col gap-2">
+                                                {/* Save/Cancel buttons for edited rows */}
+                                                {hasUnsavedChanges(row.id) && (
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => handleSaveEdit(row.id)}
+                                                            disabled={savingRows.has(row.id)}
+                                                            className="px-3 py-1 bg-green-600 hover:bg-green-500 text-white rounded text-xs font-semibold disabled:opacity-50"
+                                                        >
+                                                            {savingRows.has(row.id) ? 'Saving...' : '✓ Save'}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleCancelEdit(row.id)}
+                                                            disabled={savingRows.has(row.id)}
+                                                            className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-semibold disabled:opacity-50"
+                                                        >
+                                                            ✗ Cancel
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 );
