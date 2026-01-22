@@ -7,90 +7,13 @@ import EnrichmentRules from './components/EnrichmentRules';
 import ClusterVisualizer from './components/ClusterVisualizer';
 import { Boxes, Settings } from 'lucide-react';
 
-function Dashboard() {
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [originalFilename, setOriginalFilename] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [logs, setLogs] = useState([]);
-  const [results, setResults] = useState([]);
-  const [totalRows, setTotalRows] = useState(0);
-  const [foundCount, setFoundCount] = useState(0);
-  const [completionData, setCompletionData] = useState(null);
-
-  useEffect(() => {
-    fetchSessionData();
-  }, []);
-
-  const fetchSessionData = async () => {
-    try {
-      const res = await fetch('/api/results');
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setResults(data);
-        setTotalRows(data.length);
-        setFoundCount(data.filter(r => r.cas_number !== 'NOT FOUND').length);
-        setOriginalFilename(data[0].filename);
-        setUploadedFile(data[0].filename);
-      }
-    } catch (error) {
-      console.error("Failed to load session:", error);
-    }
-  };
-
-  const handleUploadComplete = (filename, originalName) => {
-    setUploadedFile(filename);
-    setOriginalFilename(originalName);
-    setLogs([]);
-    setResults([]);
-    setCompletionData(null);
-  };
-
-  const startProcessing = () => {
-    if (!uploadedFile) return;
-    setIsProcessing(true);
-    setLogs([{ message: 'Initializing connection...', type: 'info' }]);
-
-    const eventSource = new EventSource(`/process/${uploadedFile}`);
-
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      if (data.type === 'log') {
-        setLogs(prev => [...prev, data]);
-      }
-
-      if (data.type === 'start') {
-        setTotalRows(data.total);
-        setLogs(prev => [...prev, { message: `Processing started for ${data.total} rows`, type: 'success' }]);
-      }
-
-      if (data.type === 'row') {
-        setResults(prev => [...prev, data.data]);
-        if (data.data.cas_number !== 'NOT FOUND') {
-          setFoundCount(prev => prev + 1);
-        }
-      }
-
-      if (data.type === 'complete') {
-        eventSource.close();
-        setIsProcessing(false);
-        setCompletionData(data);
-        setLogs(prev => [...prev, { message: 'Processing Complete!', type: 'success' }]);
-      }
-
-      if (data.type === 'error') {
-        eventSource.close();
-        setIsProcessing(false);
-        setLogs(prev => [...prev, { message: `Error: ${data.message}`, type: 'error' }]);
-      }
-    };
-
-    eventSource.onerror = () => {
-      eventSource.close();
-      setIsProcessing(false);
-    };
-  };
-
+// Dashboard Component - Pure UI now
+function Dashboard({
+  uploadedFile, setUploadedFile,
+  originalFilename, setOriginalFilename,
+  isProcessing, startProcessing,
+  logs, results, totalRows, foundCount, completionData, handleUploadComplete
+}) {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <div className="mb-8 text-center">
@@ -170,13 +93,125 @@ function ClustersPage() {
 }
 
 function App() {
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [originalFilename, setOriginalFilename] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [results, setResults] = useState([]);
+  const [totalRows, setTotalRows] = useState(0);
+  const [foundCount, setFoundCount] = useState(0);
+  const [completionData, setCompletionData] = useState(null);
+
+  useEffect(() => {
+    fetchSessionData();
+  }, []);
+
+  const fetchSessionData = async () => {
+    try {
+      const res = await fetch('/api/results');
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setResults(data);
+        setTotalRows(data.length);
+        setFoundCount(data.filter(r => r.cas_number !== 'NOT FOUND').length);
+        setOriginalFilename(data[0].filename);
+        setUploadedFile(data[0].filename);
+      }
+    } catch (error) {
+      console.error("Failed to load session:", error);
+    }
+  };
+
+  const handleUploadComplete = (filename, originalName) => {
+    setUploadedFile(filename);
+    setOriginalFilename(originalName);
+    setLogs([]);
+    setResults([]);
+    setCompletionData(null);
+  };
+
+  const startProcessing = () => {
+    if (!uploadedFile) return;
+    setIsProcessing(true);
+    setResults([]); // Clear previous results to avoid duplication
+    setLogs([{ message: 'Initializing connection...', type: 'info' }]);
+
+    const eventSource = new EventSource(`/process/${uploadedFile}`);
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === 'log') {
+        setLogs(prev => [...prev.slice(-99), data]); // Keep last 100 logs
+      }
+
+      if (data.type === 'start') {
+        setTotalRows(data.total);
+        setLogs(prev => [...prev, { message: `Processing started for ${data.total} rows`, type: 'success' }]);
+      }
+
+      if (data.type === 'row') {
+        setResults(prev => [...prev, data.data]);
+        if (data.data.cas_number !== 'NOT FOUND') {
+          setFoundCount(prev => prev + 1);
+        }
+      }
+
+      if (data.type === 'complete') {
+        eventSource.close();
+        setIsProcessing(false);
+        setCompletionData(data);
+        setLogs(prev => [...prev, { message: 'Processing Complete!', type: 'success' }]);
+      }
+
+      if (data.type === 'error') {
+        eventSource.close();
+        setIsProcessing(false);
+        setLogs(prev => [...prev, { message: `Error: ${data.message}`, type: 'error' }]);
+      }
+    };
+
+    eventSource.onerror = () => {
+      eventSource.close();
+      setIsProcessing(false);
+    };
+  };
+
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/clusters" element={<ClustersPage />} />
-        <Route path="/rules" element={<EnrichmentRules />} />
-      </Routes>
+      <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500/30">
+        <Routes>
+          <Route path="/" element={
+            <Dashboard
+              uploadedFile={uploadedFile}
+              setUploadedFile={setUploadedFile}
+              originalFilename={originalFilename}
+              setOriginalFilename={setOriginalFilename}
+              isProcessing={isProcessing}
+              startProcessing={startProcessing}
+              logs={logs}
+              results={results}
+              totalRows={totalRows}
+              foundCount={foundCount}
+              completionData={completionData}
+              handleUploadComplete={handleUploadComplete}
+            />
+          } />
+          <Route path="/clusters" element={<ClustersPage />} />
+          <Route path="/rules" element={<EnrichmentRules />} />
+        </Routes>
+
+        {/* Global Progress Indicator (Toast style) */}
+        {isProcessing && (
+          <div className="fixed bottom-4 right-4 bg-slate-800 border border-cyan-500/50 p-4 rounded-xl shadow-2xl z-50 flex items-center gap-4 animate-slide-up">
+            <div className="w-8 h-8 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin"></div>
+            <div>
+              <p className="text-white font-bold text-sm">Processing Data...</p>
+              <p className="text-xs text-slate-400">{results.length} / {totalRows}</p>
+            </div>
+          </div>
+        )}
+      </div>
     </Router>
   );
 }

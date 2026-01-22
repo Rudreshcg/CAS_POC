@@ -13,6 +13,7 @@ export default function ResultsTable({ results, totalRows }) {
     const [filters, setFilters] = useState({
         commodity: '',
         sub_category: '',
+        brand: '',
         item_description: '',
         enriched_description: '',
         final_search_term: '',
@@ -222,6 +223,7 @@ export default function ResultsTable({ results, totalRows }) {
         setFilters({
             commodity: '',
             sub_category: '',
+            brand: '',
             item_description: '',
             enriched_description: '',
             final_search_term: '',
@@ -274,6 +276,9 @@ export default function ResultsTable({ results, totalRows }) {
                                 <th className="px-6 py-3 cursor-pointer hover:bg-slate-800 select-none" onClick={() => requestSort('sub_category')}>
                                     Sub-Category {getSortIcon('sub_category')}
                                 </th>
+                                <th className="px-6 py-3 cursor-pointer hover:bg-slate-800 select-none" onClick={() => requestSort('brand')}>
+                                    Brand {getSortIcon('brand')}
+                                </th>
                                 <th className="px-6 py-3 cursor-pointer hover:bg-slate-800 select-none" onClick={() => requestSort('item_description')}>
                                     Item Description {getSortIcon('item_description')}
                                 </th>
@@ -306,7 +311,7 @@ export default function ResultsTable({ results, totalRows }) {
                             {/* Filter Row */}
                             <tr className="bg-slate-800/50">
                                 {/* ... existing filters ... */}
-                                <th className="px-6 py-2" colSpan={8}></th>
+                                <th className="px-6 py-2" colSpan={9}></th>
                                 <th className="px-6 py-2">
                                     {/* Confidence Filter Space */}
                                 </th>
@@ -324,6 +329,7 @@ export default function ResultsTable({ results, totalRows }) {
                                         <td className="px-6 py-4 font-mono text-slate-500">{row.row_number}</td>
                                         <td className="px-6 py-4 truncate max-w-[150px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Commodity', row.commodity)}>{row.commodity}</td>
                                         <td className="px-6 py-4 truncate max-w-[150px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Sub-Category', row.sub_category)}>{row.sub_category}</td>
+                                        <td className="px-6 py-4 truncate max-w-[150px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Brand', row.brand)}>{row.brand}</td>
                                         <td className="px-6 py-4 truncate max-w-[200px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Item Description', row.item_description)}>{row.item_description}</td>
                                         <td className="px-6 py-4 truncate max-w-[200px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Enriched Description', row.enriched_description)}>{row.enriched_description}</td>
                                         <td className="px-6 py-4 truncate max-w-[150px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Search Term', row.final_search_term)}>{row.final_search_term}</td>

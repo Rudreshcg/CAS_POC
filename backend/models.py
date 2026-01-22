@@ -4,24 +4,38 @@ import json
 
 db = SQLAlchemy()
 
-class CasLookupResult(db.Model):
+class MaterialData(db.Model):
+    __tablename__ = 'material_data'
+    
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
     row_number = db.Column(db.Integer, nullable=False)
+    
+    # Original CSV Columns Mapped
     commodity = db.Column(db.String(255))
     sub_category = db.Column(db.String(255))
     item_description = db.Column(db.Text)
+    brand = db.Column(db.String(255))  # Item used for Brand(s)
+    item_code = db.Column(db.String(100))
+    plant = db.Column(db.String(255))  # Factory/Country
+    cluster = db.Column(db.String(255))
+    
+    # Enriched Data
     enriched_description = db.Column(db.Text)
     final_search_term = db.Column(db.String(255))
     cas_number = db.Column(db.String(50))
     inci_name = db.Column(db.String(255))
     synonyms = db.Column(db.Text)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Validation Fields
-    confidence_score = db.Column(db.Integer, default=70) # 70% default for AI/Search
-    validation_status = db.Column(db.String(50), default='Pending') # Pending, Validated
-    validation_documents = db.Column(db.Text, default='[]') # JSON array: [{"type": "MSDS", "path": "..."}]
+    confidence_score = db.Column(db.Integer, default=70)
+    validation_status = db.Column(db.String(50), default='Pending')
+    validation_documents = db.Column(db.Text, default='[]')
+
+    # Relationship to Dynamic Parameters
+    parameters = db.relationship('MaterialParameter', backref='material', lazy=True, cascade="all, delete-orphan")
 
     def to_dict(self):
         return {
@@ -31,6 +45,10 @@ class CasLookupResult(db.Model):
             'commodity': self.commodity,
             'sub_category': self.sub_category,
             'item_description': self.item_description,
+            'brand': self.brand,
+            'item_code': self.item_code,
+            'plant': self.plant,
+            'cluster': self.cluster,
             'enriched_description': self.enriched_description,
             'final_search_term': self.final_search_term,
             'cas_number': self.cas_number,
@@ -39,7 +57,22 @@ class CasLookupResult(db.Model):
             'created_at': self.created_at.isoformat(),
             'confidence_score': self.confidence_score,
             'validation_status': self.validation_status,
+            'parameters': {p.name: p.value for p in self.parameters},
             'validation_documents': json.loads(self.validation_documents) if self.validation_documents else []
+        }
+
+class MaterialParameter(db.Model):
+    __tablename__ = 'material_parameter'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    material_id = db.Column(db.Integer, db.ForeignKey('material_data.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    value = db.Column(db.String(255))
+    
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'value': self.value
         }
 
 class EnrichmentRule(db.Model):

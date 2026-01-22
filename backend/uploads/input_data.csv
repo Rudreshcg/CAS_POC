@@ -2,7 +2,7 @@ SL No,Proc. Cat.,Commodity,Sub-Category,Region,Factory/Country,Cluster,Item code
 66,Raw,Oil Vegetable,Glycerin,NAC,Tlalpan,Reckitt,3065088,GLYCERIN (GLYCEROL),3065088,KG,"Luftal, Mucinex",DDP,,,Glycerin
 90,Raw,Oil Vegetable,Glycerin,Europe Manufacturing,Hull,Reckitt,0266788,COGNIS GLYCEROL  (KOSHER),0266788,KG,,DDP,,,Glycerin
 114,Raw,Oil Vegetable,Glycerin,NAC,Belle Mead,Reckitt,363981,GLYCERIN 99.7% USP KOSHER,363981,LB,"RID-X, FINISH",DDP,,,Glycerin
-129,Raw,Oil Vegetable,Glycerin,ASEAN,Thailand - Bangplee,Reckitt,8046271,GLYCEROL,8046271,KG,"Durex, K-Y, Sico, Jontex, Ola",DDP,Bulk,AMPLUSCHEM CO., LTD. (BPL_1923 (BPL_192369)_LC,Glycerin
+129,Raw,Oil Vegetable,Glycerin,ASEAN,Thailand - Bangplee,Reckitt,8046271,GLYCEROL,8046271,KG,"Durex, K-Y, Sico, Jontex, Ola",DDP,Bulk,AMPLUSCHEM CO., LTD. (BPL_1923 (BPL_192369)_LC
 199,Raw,Oil Vegetable,Glycerin,SOA,India - Uttaranchal 2,Reckitt,3125346,GLYCERIN CP,3125346,KG,Dettol,EXW,,,Glycerin
 220,Raw,Oil Vegetable,Glycerin,NAC,Salt Lake City,Reckitt,22200509,GLYCERIN,22200509,KG,"Move Free, MegaRed",EXW,,,Glycerin
 224,Raw,Oil Vegetable,Glycerin,SOA,India - Uttaranchal 1,Reckitt,3125346,GLYCERIN CP,3125346,KG,Dettol,EXW,,,Glycerin
@@ -15,7 +15,7 @@ SL No,Proc. Cat.,Commodity,Sub-Category,Region,Factory/Country,Cluster,Item code
 404,Raw,Oil Vegetable,Glycerin,ASEAN,Indonesia - Cileungsi,Reckitt,ID120103-AU,U - GLYCERINE USP 99.7%,ID120103-AU,KG,Dettol,DDP,Drums,,Glycerin
 407,Raw,Oil Vegetable,Glycerin,ASEAN,Indonesia - Cileungsi,Reckitt,ID120103-AU,U - GLYCERINE USP 99.7%,ID120103-AU,KG,Dettol,DDP,Drums,,Glycerin
 414,Raw,Oil Vegetable,Glycerin,Europe Manufacturing,Hull,Reckitt,8059734,GLYCEROL (NON-KOSHER),8059734,KG,Lemsip,DDP,,,Health Distribution 28.07.20
-473,Raw,Oil Vegetable,Glycerin,Europe Manufacturing,Nowy Dwor,Reckitt,XV013AD,GLYCERIN 99,5%,XV013AD,KG,"FINISH, Neophos, Lysol/Lizol",DDP,,,DistributionTender
+473,Raw,Oil Vegetable,Glycerin,Europe Manufacturing,Nowy Dwor,Reckitt,XV013AD,GLYCERIN 99,5%,XV013AD,KG,"FINISH, Neophos, Lysol/Lizol",DDP,,
 541,Raw,Oil Vegetable,POLYGLYCEROL OLEATE ESTER (Emulsogen),Africa,Agbara,Reckitt,124380 - AU,AU - POLYGLYCEROL OLEATE ESTER,124380 - AU,KG,,CFR,,,
 544,Raw,Oil Vegetable,Glycerin,Europe Manufacturing,Chartres,Reckitt,119177,"*GLYCERINE ,KG,EU",119177,KG,Veet,DDP,Bulk,,Glycerin
 634,Raw,Oil Vegetable,Glycerin,Europe Manufacturing,Chartres,Reckitt,119177,"*GLYCERINE ,KG,EU",119177,KG,Veet,DDP,Bulk,,Glycerin

@@ -7,6 +7,12 @@ export default function ClusterVisualizer() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const [subcategories, setSubcategories] = useState([]);
+    const [selectedSubcategory, setSelectedSubcategory] = useState('All');
+
+    // Legacy: We removed clusterLevel logic, defaulting to the new unified hierarchy
+    // const [clusterLevel, setClusterLevel] = useState('brand'); 
+
     // Editing and drag-drop state
     const [pendingChanges, setPendingChanges] = useState([]);
     const [editingNode, setEditingNode] = useState(null);
@@ -17,7 +23,13 @@ export default function ClusterVisualizer() {
 
     const fetchClusters = () => {
         setLoading(true);
-        fetch('/api/clusters')
+        // Build query string
+        let url = '/api/clusters';
+        if (selectedSubcategory && selectedSubcategory !== 'All') {
+            url += `?subcategory=${encodeURIComponent(selectedSubcategory)}`;
+        }
+
+        fetch(url)
             .then(res => {
                 if (!res.ok) throw new Error('Failed to load cluster data');
                 return res.json();
@@ -34,8 +46,16 @@ export default function ClusterVisualizer() {
     };
 
     useEffect(() => {
-        fetchClusters();
+        // Fetch subcategories once
+        fetch('/api/subcategories')
+            .then(res => res.json())
+            .then(data => setSubcategories(['All', ...data]))
+            .catch(err => console.error(err));
     }, []);
+
+    useEffect(() => {
+        fetchClusters();
+    }, [selectedSubcategory]); // Re-fetch when subcategory changes
 
     // Inline editing handlers
     const handleDoubleClick = (node, nodeData) => {
@@ -90,23 +110,24 @@ export default function ClusterVisualizer() {
         if (!node.isLeaf) return; // Only Materials (leaves) are draggable
 
         e.stopPropagation();
-        e.preventDefault(); // Prevent native drag behavior
+        e.preventDefault(); // Prevent native drag behavior, we handle it via state
         setIsDragging(true);
         setDraggedNode({ ...node, ...nodeData });
     };
 
+    // Allow dropping on any non-leaf node (except Root maybe, but let's allow all non-leaves)
+    const isNodeValidTarget = (node) => {
+        if (!node) return false;
+        return !node.isLeaf && node.depth > 0; // Don't drop on Root, allow Brand/CAS/Grade/Purity as targets
+    };
+
     const handleDragOver = (e, node) => {
-        // Only Plants (Depth 2) are drop targets
-        if (node.depth !== 2) return;
+        if (!isNodeValidTarget(node)) return;
         e.preventDefault();
     };
 
     const handleDragEnter = (node) => {
-        // If we are dragging a Leaf, and entering a Plant different from its current parent
-        if (isDragging && draggedNode && node.depth === 2) {
-            // Check if this plant is the one it currently belongs to?
-            // Actually, we can move it to same plant (no-op) or different.
-            // Visual feedback is good.
+        if (isDragging && draggedNode && isNodeValidTarget(node)) {
             setDropTarget(node.id);
         }
     };
@@ -125,35 +146,59 @@ export default function ClusterVisualizer() {
             return;
         }
 
-        // We are dragging a Material (draggedNode) to a Plant (targetNode)
-
-        // Prevent dropping on non-plant nodes
-        if (targetNode.depth !== 2) {
+        if (!isNodeValidTarget(targetNode)) {
             setIsDragging(false);
             setDraggedNode(null);
             return;
         }
 
-        const fromPlant = draggedNode.plant;
-        const toPlant = targetNode.name.replace('📍 ', '');
+        // don't drop on self parent
+        // (Simplified check: if target is current parent not easy to check directly without parentId lookup)
 
-        // Don't allow dropping on same plant
-        if (fromPlant === toPlant && draggedNode.subcategory === targetNode.subcategory) {
-            setIsDragging(false);
-            setDraggedNode(null);
-            return;
+        // Traverse up from TARGET to collect new attributes
+        const newAttributes = {};
+        let current = targetNode;
+
+        // We need access to all nodes to traverse up. 
+        // dendrogramData.nodes is accessible via scope if we use it, 
+        // but here we only have targetNode. 
+        // Helper to find node by ID from dendrogramData (we need to ensure it's in scope or passed)
+        // Actually `dendrogramData` is in scope of the component.
+
+        const allNodes = dendrogramData.nodes;
+
+        const getAttributeFromNode = (n) => {
+            // Updated to be generic: "Key: Value"
+            if (n.name.includes(': ')) {
+                const parts = n.name.split(': ');
+                if (parts.length >= 2) {
+                    return { key: parts[0], val: parts.slice(1).join(': ') };
+                }
+            }
+            return null;
+        };
+
+        // Collect attributes from target and its ancestors
+        let tempNode = targetNode;
+        while (tempNode) {
+            const attr = getAttributeFromNode(tempNode);
+            if (attr) {
+                if (!newAttributes[attr.key]) newAttributes[attr.key] = attr.val;
+            }
+            if (tempNode.parentId) {
+                tempNode = allNodes.find(n => n.id === tempNode.parentId);
+            } else {
+                tempNode = null;
+            }
         }
 
-        // Move Material from Plant A to Plant B
+        // Create change object
         const change = {
             type: 'move',
             node_type: 'material',
             name: draggedNode.name, // Material Name
-            brand: draggedNode.brand,
-            from_subcategory: draggedNode.subcategory,
-            to_subcategory: targetNode.subcategory,
-            from_plant: fromPlant,
-            to_plant: toPlant
+            brand: draggedNode.brand, // Should match current brand
+            new_attributes: newAttributes
         };
 
         setPendingChanges(prev => [...prev, change]);
@@ -249,7 +294,8 @@ export default function ClusterVisualizer() {
 
         // Position leaf nodes vertically
         allNodes.filter(n => n.isLeaf).forEach(node => {
-            node.x = maxDepth * HORIZONTAL_SPACING;
+            // Use actual depth for X position to show hierarchy clearly
+            node.x = node.depth * HORIZONTAL_SPACING;
             node.y = node.leafIndex * VERTICAL_SPACING + 50;
         });
 
@@ -346,6 +392,19 @@ export default function ClusterVisualizer() {
                             <Database size={20} className="text-cyan-400" />
                             Cluster Dendrogram
                         </h2>
+                        {/* Subcategory Selector */}
+                        <div className="flex items-center gap-2 ml-4">
+                            <label className="text-sm text-slate-400 font-medium">Filter Subcategory:</label>
+                            <select
+                                value={selectedSubcategory}
+                                onChange={(e) => setSelectedSubcategory(e.target.value)}
+                                className="px-3 py-1.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors cursor-pointer"
+                            >
+                                {subcategories.map(sub => (
+                                    <option key={sub} value={sub}>{sub}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                     <span className="text-xs bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded border border-cyan-500/20">
                         {dendrogramData.leafCount} Materials

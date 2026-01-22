@@ -63,7 +63,7 @@ if app.config['USE_S3']:
 else:
     print("⚠️  S3 not configured, using local storage")
 
-from models import db, CasLookupResult, EnrichmentRule
+from models import db, MaterialData, MaterialParameter, EnrichmentRule
 db.init_app(app)
 
 with app.app_context():
@@ -409,6 +409,8 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
     # Final enriched description formatting
     # If we have a CAS number and an enrichment rule, regenerate the enriched description
     final_enriched_desc = best_term
+    extracted_params_result = {} # To hold final parameters for DB
+
     if cas and cas != "NOT FOUND":
         # Check if there's an enrichment rule for this sub-category
         with app.app_context():
@@ -426,6 +428,8 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
                     if bedrock_cleaner:
                         try:
                             params = json.loads(rule.parameters)
+                            # Re-extract or reuse? We didn't save previous extraction easily. Re-extracting for now.
+                            # Ideally we should have passed it through.
                             extracted_params = bedrock_cleaner.extract_parameters(desc, rule.identifier_name, params)
                             if extracted_params:
                                 for p_name in params:
@@ -433,6 +437,7 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
                                     if p_val != "N/A":
                                         parts.append(p_name.lower())
                                         parts.append(p_val)
+                                        extracted_params_result[p_name] = p_val
                         except Exception as e:
                             print(f"Bedrock parameter extraction failed (will use CAS only): {e}")
                     
@@ -453,7 +458,8 @@ def process_row(row, idx, total, client, bedrock_cleaner=None):
         'synonyms': syns if syns else "N/A",
         'inci_name': inci_name,
         'confidence_score': 70 if cas else 0, # Default to 70% if found
-        'validation_status': 'Pending'
+        'validation_status': 'Pending',
+        'extracted_parameters': extracted_params_result
     }
     yield {"type": "result", "data": result_data}
 
@@ -496,7 +502,8 @@ def process_file(filename):
             # CLEAR DATABASE for Single Session Persistence
             with app.app_context():
                 try:
-                    db.session.query(CasLookupResult).delete()
+                    db.session.query(MaterialParameter).delete()
+                    db.session.query(MaterialData).delete()
                     db.session.commit()
                     print("🗑️ Database cleared for new session.")
                 except Exception as e:
@@ -527,19 +534,36 @@ def process_file(filename):
                         # Save to Database
                         with app.app_context():
                             try:
-                                db_entry = CasLookupResult(
+                                # Create MaterialData
+                                material_entry = MaterialData(
                                     filename=filename,
                                     row_number=result['row_number'],
                                     commodity=result['commodity'],
                                     sub_category=result['sub_category'],
                                     item_description=result['item_description'],
+                                    brand=row.get('Item used for Brand(s)', 'N/A'),
+                                    item_code=str(row.get('Item code', 'N/A')),
+                                    plant=row.get('Factory/Country', 'N/A'),
+                                    cluster=row.get('Cluster', 'N/A'),
                                     enriched_description=result['enriched_description'],
                                     final_search_term=result['final_search_term'],
                                     cas_number=result['cas_number'],
                                     inci_name=result['inci_name'],
                                     synonyms=result['synonyms']
                                 )
-                                db.session.add(db_entry)
+                                db.session.add(material_entry)
+                                db.session.flush() # Get ID
+                                
+                                params_to_save = result.get('extracted_parameters', {}).copy()
+                                
+                                for k, v in params_to_save.items():
+                                    param_entry = MaterialParameter(
+                                        material_id=material_entry.id,
+                                        name=k,
+                                        value=v
+                                    )
+                                    db.session.add(param_entry)
+                                    
                                 db.session.commit()
                             except Exception as db_err:
                                 print(f"Database Error: {db_err}")
@@ -553,7 +577,8 @@ def process_file(filename):
                 'Final Search Term': r['final_search_term'],
                 'CAS Number': r['cas_number'],
                 'INCI Name': r['inci_name'],
-                'Synonyms': r['synonyms']
+                'Synonyms': r['synonyms'],
+                'Parameters': json.dumps(params_to_save) # Add parameters column
             } for r in results])
             
             output_filename = f"output_{filename}"
@@ -575,67 +600,101 @@ def download_file(filename):
     return send_file(filepath, as_attachment=True)
 
 
+@app.route('/api/subcategories')
+def get_subcategories():
+    try:
+        # Get unique subcategories
+        subs = db.session.query(MaterialData.sub_category).distinct().order_by(MaterialData.sub_category).all()
+        # Filter out None/Null/Empty
+        subs_list = [s[0] for s in subs if s[0]]
+        return jsonify(subs_list)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/clusters')
 def clusters():
     try:
-        data_path = os.path.join(os.path.dirname(__file__), 'material_clusters.json')
-        with open(data_path, 'r', encoding='utf-8') as f:
-            raw_data = json.load(f)
-            
-        # Hierarchy: Brand -> Sub-Category -> Material -> Plants
-        brands = {}
-        
-        for item in raw_data:
-            b_name = item.get('Brand', 'Unknown Brand')
-            if b_name not in brands: brands[b_name] = {}
-            
-            sub_name = item.get('Sub-Category', 'Misc')
-            if sub_name not in brands[b_name]: brands[b_name][sub_name] = []
-            
-            for mat in item.get('Materials', []):
-                brands[b_name][sub_name].append(mat)
-        
-        tree = {"name": "Material Clusters", "children": []}
-        
-        for b_name, subs in brands.items():
-            b_node = {"name": b_name, "children": []}
-            for sub_name, materials in subs.items():
-                sub_node = {"name": sub_name, "children": []}
-                
-                # Invert: Find all unique plants in this sub-category
-                plants_map = {} # plant_name -> [materials]
-                
-                for mat in materials:
-                    mat_name = mat.get('Name', 'Unknown')
-                    for p in mat.get('Plants', []):
-                        if p not in plants_map: plants_map[p] = []
-                        plants_map[p].append(mat_name)
-                
-                # Build Plant Nodes
-                for p_name, mat_list in plants_map.items():
-                    plant_node = {
-                        "name": f"📍 {p_name}",
-                        "children": [{"name": m} for m in mat_list]
-                    }
-                    if not plant_node["children"]:
-                         # Should not happen given logic, but safe fallback
-                         del plant_node["children"]
-                         plant_node["value"] = 1
-                    
-                    sub_node["children"].append(plant_node)
-                
-                b_node["children"].append(sub_node)
-            tree["children"].append(b_node)
-            
-        return jsonify(tree) # Return JSON for React
+        subcategory = request.args.get('subcategory')
+        data = build_db_hierarchy(subcategory)
+        return jsonify(data)
     except Exception as e:
+        print(f"Cluster Error: {e}")
         return jsonify({"error": str(e)}), 500
+
+def build_db_hierarchy(filter_subcategory=None):
+    # Fetch all data with specs
+    query = MaterialData.query
+    if filter_subcategory and filter_subcategory != 'All':
+        query = query.filter_by(sub_category=filter_subcategory)
+        
+    materials = query.all()
+    
+    # Check for Enrichment Rule to determine hierarchy order
+    param_order = ['Grade', 'Purity', 'Color'] # Default fallback
+    if filter_subcategory and filter_subcategory != 'All':
+        rule = EnrichmentRule.query.filter_by(sub_category=filter_subcategory).first()
+        if rule and rule.parameters:
+            try:
+                param_order = json.loads(rule.parameters)
+                # Ensure they are Title case for consistency if needed, or trust DB
+            except:
+                pass
+    
+    # Structure: Brand -> CAS -> [Param1] -> [Param2] ... -> Material
+    # Dynamic: If Param is missing/N/A, skip that level.
+    
+    root = {"name": f"Material Clusters - {filter_subcategory or 'All'}", "children": []}
+    
+    # Helper to find or create a child node
+    def find_or_create(parent, name):
+        for child in parent['children']:
+            if child['name'] == name:
+                return child
+        new_node = {"name": name, "children": []}
+        parent['children'].append(new_node)
+        return new_node
+
+    for mat in materials:
+        # Pre-process parameters into dict
+        mat_params = {p.name: p.value for p in mat.parameters}
+        
+        # 1. Brand
+        brand_name = mat.brand if mat.brand and mat.brand != 'nan' else "Unknown Brand"
+        brand_node = find_or_create(root, brand_name)
+        
+        # 2. CAS
+        cas_name = mat.cas_number if mat.cas_number and mat.cas_number != 'NOT FOUND' else "No CAS"
+        cas_node = find_or_create(brand_node, f"CAS: {cas_name}")
+        
+        # Current node pointer for variable depth
+        current_node = cas_node
+        
+        # Dynamic Parameters Levels
+        for p_name in param_order:
+            # Case insensitive lookup?
+            # Assuming stored as Title Case or consistent.
+            val = mat_params.get(p_name)
+            if not val:
+                # Try simple variations?
+                # For now assume exact match
+                pass
+            
+            if val and val not in ["N/A", "Unspecified", "nan"]:
+                # Check for "Unspecified Grade" legacy
+                if "Unspecified" in val: continue
+                current_node = find_or_create(current_node, f"{p_name}: {val}")
+            
+        # Material (Leaf)
+        find_or_create(current_node, mat.item_description)
+    
+    return root
+
 
 
 @app.route('/api/results')
 def get_results():
     try:
-        results = CasLookupResult.query.order_by(CasLookupResult.row_number).all()
+        results = MaterialData.query.order_by(MaterialData.row_number).all()
         return jsonify([r.to_dict() for r in results])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -646,7 +705,7 @@ def update_result(row_id):
     """Update a result row with manual edits"""
     try:
         # Query by id (primary key), not row_number
-        row = CasLookupResult.query.get(row_id)
+        row = MaterialData.query.get(row_id)
         if not row:
             return jsonify({"error": "Row not found"}), 404
         
@@ -672,13 +731,7 @@ def update_result(row_id):
 @app.route('/api/clusters/update', methods=['PUT'])
 def update_clusters():
     """
-    Batch update endpoint for editing and moving nodes
-    Request body: {
-        "changes": [
-            {"type": "rename", "node_type": "plant", "old_name": "X", "new_name": "Y", ...},
-            {"type": "move", "node_type": "plant", "name": "X", "from_subcategory": "A", "to_subcategory": "B", ...}
-        ]
-    }
+    Batch update endpoint for editing and moving nodes (DB Version)
     """
     try:
         request_data = request.get_json()
@@ -686,128 +739,90 @@ def update_clusters():
         
         if not changes:
             return jsonify({"error": "No changes provided"}), 400
+            
+        applied_count = 0
         
-        # Load current data
-        data_path = os.path.join(os.path.dirname(__file__), 'material_clusters.json')
-        with open(data_path, 'r', encoding='utf-8') as f:
-            raw_data = json.load(f)
-        
-        # Create backup
-        backup_path = os.path.join(os.path.dirname(__file__), 'material_clusters_backup.json')
-        with open(backup_path, 'w', encoding='utf-8') as f:
-            json.dump(raw_data, f, indent=4, ensure_ascii=False)
-        
-        # Apply each change
         for change in changes:
             change_type = change.get('type')
             
-            if change_type == 'rename':
-                # Rename a node
-                node_type = change.get('node_type')
+            if change_type == 'move':
+                # Drag layout: Moving 'name' (Material) to 'target_path' or similar context
+                # Frontend needs to send us enough info to identify the material and the new parent attributes.
+                
+                material_name = change.get('name')
+                brand = change.get('brand')
+
+                # We need to find the material in DB. 
+                mat = MaterialData.query.filter_by(item_description=material_name, brand=brand).first()
+                if not mat:
+                    mat = MaterialData.query.filter_by(item_description=material_name).first() # Fallback
+                
+                if mat:
+                    
+                    # 1. Determine which parameters are relevant for this material
+                    # So we know which ones to DELETE if missing from new_attributes
+                    param_keys = ['Grade', 'Purity', 'Color'] # Default
+                    rule = EnrichmentRule.query.filter_by(sub_category=mat.sub_category).first()
+                    if rule and rule.parameters:
+                        try:
+                            param_keys = json.loads(rule.parameters)
+                        except:
+                            pass
+                    
+                    new_attrs = change.get('new_attributes', {})
+                    
+                    # 2. Update CAS Number if present (Special Case)
+                    if 'CAS' in new_attrs:
+                         new_cas = new_attrs['CAS']
+                         # Update main column
+                         mat.cas_number = new_cas
+                    
+                    # 3. Handle Dynamic Parameters (Update OR Delete)
+                    for key in param_keys:
+                        # Should we update this key?
+                        if key in new_attrs:
+                             # UPDATE / INSERT
+                             val = new_attrs[key]
+                             found = False
+                             for p in mat.parameters:
+                                 if p.name == key:
+                                     p.value = str(val)
+                                     db.session.add(p)
+                                     found = True
+                                     break
+                             if not found:
+                                 new_param = MaterialParameter(material_id=mat.id, name=key, value=str(val))
+                                 db.session.add(new_param)
+                        else:
+                             # DELETE (Use case: Dragged "back" to parent, effectively removing this param)
+                             # Only delete if it exists
+                             for p in mat.parameters:
+                                 if p.name == key:
+                                     db.session.delete(p)
+                                     break
+
+                    applied_count += 1
+
+            elif change_type == 'rename':
+                # Rename Material or Plant (Brand?)
+                # If renaming Material: Update item_description
+                
                 old_name = change.get('old_name')
                 new_name = change.get('new_name')
-                brand = change.get('brand')
-                subcategory = change.get('subcategory')
-                # plant/material might be context depending on what is renamed
-                
-                for item in raw_data:
-                    if item.get('Brand') == brand and item.get('Sub-Category') == subcategory:
-                        if node_type == 'plant':
-                            # Renaming a plant - update it in ALL materials in this cluster
-                            for mat in item.get('Materials', []):
-                                plants = mat.get('Plants', [])
-                                if old_name in plants:
-                                    idx = plants.index(old_name)
-                                    plants[idx] = new_name
-                                    
-                        elif node_type == 'material':
-                            # Renaming a material
-                            for mat in item.get('Materials', []):
-                                if mat.get('Name') == old_name:
-                                    mat['Name'] = new_name
-                                    
-                        elif node_type == 'subcategory':
-                            if item.get('Sub-Category') == old_name:
-                                item['Sub-Category'] = new_name
-            
-            elif change_type == 'move':
-                # Move a node
                 node_type = change.get('node_type')
-                name = change.get('name') # Name of item being moved (Material Name)
-                brand = change.get('brand')
-                from_subcategory = change.get('from_subcategory')
-                to_subcategory = change.get('to_subcategory')
-                
-                # Context for new hierarchy:
-                # Dragging a MATERIAL (leaf) from PLANT A to PLANT B
-                from_plant = change.get('from_plant')
-                to_plant = change.get('to_plant')
                 
                 if node_type == 'material':
-                    # 1. Remove material from Source Plant
-                    # We need to find the specific material instance in source subcategory
-                    # AND remove the 'from_plant' from its plants list.
-                    
-                    found_source = False
-                    for item in raw_data:
-                        if item.get('Brand') == brand and item.get('Sub-Category') == from_subcategory:
-                            for mat in item.get('Materials', []):
-                                if mat.get('Name') == name:
-                                    if from_plant in mat.get('Plants', []):
-                                        mat['Plants'].remove(from_plant)
-                                        found_source = True
-                    
-                    if found_source:
-                        # 2. Add material to Destination Plant
-                        # If material exists in dest, add plant to it.
-                        # If not, create material and add plant.
-                        
-                        target_item = None
-                        for item in raw_data:
-                            if item.get('Brand') == brand and item.get('Sub-Category') == to_subcategory:
-                                target_item = item
-                                break
-                        
-                        if target_item:
-                            target_mat = None
-                            for mat in target_item.get('Materials', []):
-                                if mat.get('Name') == name:
-                                    target_mat = mat
-                                    break
-                            
-                            if target_mat:
-                                if to_plant not in target_mat.get('Plants', []):
-                                    target_mat['Plants'].append(to_plant)
-                            else:
-                                # New material in this subcategory
-                                target_item['Materials'].append({
-                                    'Name': name,
-                                    'Plants': [to_plant],
-                                    'CAS': []
-                                })
+                     mat = MaterialData.query.filter_by(item_description=old_name).first()
+                     if mat:
+                         mat.item_description = new_name
+                         applied_count += 1
         
-        # Save updated data
-        with open(data_path, 'w', encoding='utf-8') as f:
-            json.dump(raw_data, f, indent=4, ensure_ascii=False)
-        
-        return jsonify({
-            "success": True,
-            "message": f"Applied {len(changes)} changes successfully"
-        })
+        db.session.commit()
+        return jsonify({"success": True, "message": f"Applied {applied_count} changes"})
         
     except Exception as e:
-        # Restore from backup on error
-        try:
-            backup_path = os.path.join(os.path.dirname(__file__), 'material_clusters_backup.json')
-            if os.path.exists(backup_path):
-                with open(backup_path, 'r', encoding='utf-8') as f:
-                    backup_data = json.load(f)
-                data_path = os.path.join(os.path.dirname(__file__), 'material_clusters.json')
-                with open(data_path, 'w', encoding='utf-8') as f:
-                    json.dump(backup_data, f, indent=4, ensure_ascii=False)
-        except:
-            pass
-        
+        db.session.rollback()
+        print(f"Error in update_clusters: {e}")
         return jsonify({"error": str(e)}), 500
 
 
@@ -859,7 +874,7 @@ def add_rule():
 @app.route('/api/validate/<int:row_id>', methods=['POST'])
 def validate_cas(row_id):
     try:
-        row = CasLookupResult.query.filter_by(row_number=row_id).first()
+        row = MaterialData.query.filter_by(row_number=row_id).first()
         if not row:
             return jsonify({"error": "Row not found"}), 404
 
@@ -926,6 +941,16 @@ def validate_cas(row_id):
                             if p_val != "N/A":
                                 parts.append(p_name.lower())
                                 parts.append(p_val)
+
+                                # Update or Create MaterialParameter
+                                param_entry = MaterialParameter.query.filter_by(material_id=row.id, name=p_name).first()
+                                if param_entry:
+                                    param_entry.value = p_val
+                                    print(f"🔄 Updated Parameter: {p_name} = {p_val}")
+                                else:
+                                    new_param = MaterialParameter(material_id=row.id, name=p_name, value=p_val)
+                                    db.session.add(new_param)
+                                    print(f"cw Created Parameter: {p_name} = {p_val}")
                         
                         row.enriched_description = "_".join(parts)
                         print(f"✅ Updated enriched description from PDF: {row.enriched_description}")
