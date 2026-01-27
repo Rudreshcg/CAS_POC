@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Database, Save, X, Edit2 } from 'lucide-react';
+import { ArrowLeft, Database, Save, X, Edit2, Settings } from 'lucide-react';
+import GroupingConfigModal from './GroupingConfigModal';
 
 export default function ClusterVisualizer() {
     const [data, setData] = useState(null);
@@ -20,6 +21,9 @@ export default function ClusterVisualizer() {
     const [isDragging, setIsDragging] = useState(false);
     const [draggedNode, setDraggedNode] = useState(null);
     const [dropTarget, setDropTarget] = useState(null);
+
+    // Grouping Config Modal State
+    const [isConfigOpen, setIsConfigOpen] = useState(false);
 
     const fetchClusters = () => {
         setLoading(true);
@@ -405,6 +409,14 @@ export default function ClusterVisualizer() {
                                 ))}
                             </select>
                         </div>
+                        {/* Configure Grouping Button */}
+                        <button
+                            onClick={() => setIsConfigOpen(true)}
+                            className="ml-2 p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition-colors"
+                            title="Configure Grouping Order"
+                        >
+                            <Settings size={20} />
+                        </button>
                     </div>
                     <span className="text-xs bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded border border-cyan-500/20">
                         {dendrogramData.leafCount} Materials
@@ -568,6 +580,16 @@ export default function ClusterVisualizer() {
                     </g>
                 </svg>
             </div>
-        </div>
+
+            {/* Configuration Modal */}
+            <GroupingConfigModal
+                isOpen={isConfigOpen}
+                onClose={() => setIsConfigOpen(false)}
+                onSave={() => {
+                    setIsConfigOpen(false);
+                    fetchClusters(); // Refresh to see new hierarchy
+                }}
+            />
+        </div >
     );
 }
