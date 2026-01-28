@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Database, Save, X, Edit2, Settings } from 'lucide-react';
+import { ArrowLeft, Database, Save, X, Edit2, Settings, MessageSquare, AlertCircle } from 'lucide-react';
 import GroupingConfigModal from './GroupingConfigModal';
+import AnnotationModal from './AnnotationModal';
 
 export default function ClusterVisualizer() {
     const [data, setData] = useState(null);
@@ -24,6 +25,9 @@ export default function ClusterVisualizer() {
 
     // Grouping Config Modal State
     const [isConfigOpen, setIsConfigOpen] = useState(false);
+
+    // Annotation Modal State
+    const [annotationNode, setAnnotationNode] = useState(null);
 
     const fetchClusters = () => {
         setLoading(true);
@@ -70,6 +74,22 @@ export default function ClusterVisualizer() {
             const cleanName = node.name.replace('📍 ', '');
             setEditingNode({ ...node, ...nodeData });
             setEditValue(cleanName);
+        }
+    };
+
+    // Handle Click for Annotations (Single Click)
+    const handleNodeClick = (e, node) => {
+        // Only Brand (Depth 0 usually) and Material (Leaf) support annotations for now
+        // But conceptually any node could. Let's stick to user request: Brand and Material.
+
+        // Check if node is brand or material
+        const isBrand = node.depth === 0;
+        // const isMaterial = node.isLeaf; // Material is leaf
+
+        // NOTE: In `dendrogramData` construction, we set Brand at Depth 0
+        if (isBrand || node.isLeaf) {
+            e.stopPropagation();
+            setAnnotationNode(node);
         }
     };
 
@@ -500,12 +520,18 @@ export default function ClusterVisualizer() {
                                 const isDropTarget = dropTarget === node.id;
                                 const isEditable = node.isLeaf || node.depth === 2;
                                 const isDraggable = node.isLeaf;
+                                const isAnnotatable = node.depth === 0 || node.isLeaf;
+
+                                // Annotations
+                                const hasOpenQA = node.annotations?.has_open_qa;
+                                const hasInfo = node.annotations?.has_info || node.annotations?.has_qa;
 
                                 return (
                                     <g
                                         key={i}
                                         transform={`translate(${node.x}, ${node.y})`}
-                                        style={{ cursor: isDraggable ? 'grab' : isEditable ? 'pointer' : 'default' }}
+                                        style={{ cursor: isDraggable ? 'grab' : isEditable || isAnnotatable ? 'pointer' : 'default' }}
+                                        onClick={(e) => handleNodeClick(e, node)}
                                         onDoubleClick={() => handleDoubleClick(node, node)}
                                         onMouseDown={(e) => isDraggable && handleDragStart(e, node, node)}
                                         onMouseEnter={() => handleDragEnter(node)}
@@ -529,6 +555,62 @@ export default function ClusterVisualizer() {
                                             }
                                             strokeWidth={isDragged || isEditing || isDropTarget ? '3' : '2'}
                                         />
+
+                                        {/* Annotation Indicators & Interaction */}
+                                        {/* Status Indicators (Open Question has high priority) */}
+                                        {hasOpenQA && (
+                                            <AlertCircle
+                                                size={16}
+                                                // Position Alert: Leaf (Left of icon), Brand (Right of icon)
+                                                x={node.isLeaf ? -45 : 30}
+                                                y={-8}
+                                                className="text-amber-500 fill-amber-500/10 pointer-events-none"
+                                            />
+                                        )}
+
+                                        {/* Explicit Add/View Note Button */}
+                                        {/* Explicit Add/View Note Button - Native SVG for reliable clicking */}
+                                        {/* Explicit Add/View Note Button - Native SVG for reliable clicking */}
+                                        {isAnnotatable && (
+                                            <g
+                                                className="cursor-pointer hover:opacity-80 transition-opacity"
+                                                onClick={(e) => {
+                                                    console.log('Annotation icon clicked');
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    handleNodeClick(e, node);
+                                                }}
+                                                onMouseDown={(e) => {
+                                                    // Prevent drag start on material nodes
+                                                    e.stopPropagation();
+                                                }}
+                                                onDoubleClick={(e) => {
+                                                    // Prevent edit mode on double click
+                                                    e.stopPropagation();
+                                                }}
+                                                // Position Group: Leaf (Left), Brand (Right)
+                                                transform={`translate(${node.isLeaf ? -25 : 10}, -10)`}
+                                            >
+                                                <rect
+                                                    width="20"
+                                                    height="20"
+                                                    rx="5"
+                                                    // Color Logic: Open QA (Amber) > Info/Answered (Cyan) > Default (Slate)
+                                                    fill={hasOpenQA ? "#f59e0b" : (hasInfo ? "#06b6d4" : "#334155")}
+                                                    className="transition-colors shadow-sm"
+                                                    stroke={hasOpenQA || hasInfo ? "none" : "#475569"}
+                                                    strokeWidth="1"
+                                                />
+                                                <MessageSquare
+                                                    size={12}
+                                                    x={4}
+                                                    y={4}
+                                                    color={hasOpenQA || hasInfo ? "white" : "#94a3b8"}
+                                                    fill={hasOpenQA || hasInfo ? "currentColor" : "none"}
+                                                    style={{ pointerEvents: 'none' }} // Let click pass to group
+                                                />
+                                            </g>
+                                        )}
 
                                         {/* Node label or input */}
                                         {isEditing ? (
@@ -580,6 +662,16 @@ export default function ClusterVisualizer() {
                     </g>
                 </svg>
             </div>
+
+            {/* Annotation Modal */}
+            <AnnotationModal
+                isOpen={!!annotationNode}
+                onClose={() => setAnnotationNode(null)}
+                node={annotationNode}
+                onSave={() => {
+                    fetchClusters();
+                }}
+            />
 
             {/* Configuration Modal */}
             <GroupingConfigModal

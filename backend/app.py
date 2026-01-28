@@ -64,7 +64,7 @@ if app.config['USE_S3']:
 else:
     print("⚠️  S3 not configured, using local storage")
 
-from models import db, MaterialData, MaterialParameter, EnrichmentRule
+from models import db, MaterialData, MaterialParameter, EnrichmentRule, NodeAnnotation
 db.init_app(app)
 
 with app.app_context():
@@ -648,17 +648,42 @@ def build_db_hierarchy(filter_subcategory=None):
     # structure: { sub_category: { 'order': [...], 'purity': [...] } }
     rules_cache = {}
     
-    # Pre-fetch rule if specific filter is active (optimization, but we can just use cache logic)
-    # Actually, let's just purely rely on the cache logic inside the loop for simplicity and correctness
-    
+    # Pre-fetch all annotations to avoid N+1 queries
+    # Map: (type, identifier) -> {'has_info': bool, 'has_qa': bool, 'has_open_qa': bool}
+    annotations_map = {}
+    try:
+        all_anns = NodeAnnotation.query.all()
+        for ann in all_anns:
+            key = (ann.node_type, ann.node_identifier)
+            if key not in annotations_map:
+                annotations_map[key] = {'has_info': False, 'has_qa': False, 'has_open_qa': False}
+            
+            if ann.annotation_type == 'info':
+                annotations_map[key]['has_info'] = True
+            elif ann.annotation_type == 'qa':
+                annotations_map[key]['has_qa'] = True
+                if ann.is_open:
+                    annotations_map[key]['has_open_qa'] = True
+    except Exception as e:
+        print(f"Error fetching annotations: {e}")
+
     root = {"name": f"Material Clusters - {filter_subcategory or 'All'}", "children": []}
     
     # Helper to find or create a child node
-    def find_or_create(parent, name):
+    def find_or_create(parent, name, node_type=None, node_identifier=None):
         for child in parent['children']:
             if child['name'] == name:
                 return child
+        
+        # New Node
         new_node = {"name": name, "children": []}
+        
+        # Attach annotation status if applicable
+        if node_type and node_identifier:
+            key = (node_type, node_identifier)
+            if key in annotations_map:
+                new_node['annotations'] = annotations_map[key]
+                
         parent['children'].append(new_node)
         return new_node
 
@@ -667,6 +692,7 @@ def build_db_hierarchy(filter_subcategory=None):
         mat_params = {p.name.strip().lower(): p.value for p in mat.parameters}
         
         mat_subcat = mat.sub_category or "Uncategorized"
+
         
         # Resolve Rules (Order & Purity) from Cache or DB
         if mat_subcat not in rules_cache:
@@ -694,9 +720,10 @@ def build_db_hierarchy(filter_subcategory=None):
         param_order = current_config['order']
         purity_rules = current_config['purity']
         
+        
         # 1. Brand
         brand_name = mat.brand if mat.brand and mat.brand != 'nan' else "Unknown Brand"
-        brand_node = find_or_create(root, brand_name)
+        brand_node = find_or_create(root, brand_name, node_type='brand', node_identifier=brand_name)
         
         # 2. CAS
         cas_name = mat.cas_number if mat.cas_number and mat.cas_number != 'NOT FOUND' else "No CAS"
@@ -727,7 +754,7 @@ def build_db_hierarchy(filter_subcategory=None):
                     current_node = find_or_create(current_node, f"{p_name}: {val}")
             
         # Material (Leaf)
-        find_or_create(current_node, mat.item_description)
+        find_or_create(current_node, mat.item_description, node_type='material', node_identifier=str(mat.id)) # Use ID for material uniqueness if possible, or name
     
     return root
 
@@ -1089,8 +1116,82 @@ def handle_rules():
     
     else:
         # GET all rules
-        rules = EnrichmentRule.query.all()
         return jsonify([r.to_dict() for r in rules])
+
+@app.route('/api/annotations', methods=['GET', 'POST'])
+def handle_annotations():
+    if request.method == 'GET':
+        # Filter by node type/identifier if provided
+        node_type = request.args.get('node_type')
+        node_identifier = request.args.get('node_identifier')
+        
+        query = NodeAnnotation.query
+        if node_type and node_identifier:
+            query = query.filter_by(node_type=node_type, node_identifier=node_identifier)
+        
+        annotations = query.order_by(NodeAnnotation.created_at.desc()).all()
+        return jsonify([a.to_dict() for a in annotations])
+
+    elif request.method == 'POST':
+        try:
+            data = request.json
+            node_type = data.get('node_type')
+            node_identifier = data.get('node_identifier')
+            annotation_type = data.get('annotation_type', 'info')
+            
+            if not node_type or not node_identifier:
+                return jsonify({"error": "Missing node info"}), 400
+                
+            ann = NodeAnnotation(
+                node_type=node_type,
+                node_identifier=node_identifier,
+                annotation_type=annotation_type,
+                content=data.get('content'),
+                question=data.get('question'),
+                answer=data.get('answer')
+            )
+            
+            # Auto-determine open status for QA
+            if annotation_type == 'qa':
+                ann.is_open = not bool(data.get('answer'))
+            else:
+                ann.is_open = False
+                
+            db.session.add(ann)
+            db.session.commit()
+            return jsonify(ann.to_dict())
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
+
+@app.route('/api/annotations/<int:ann_id>', methods=['DELETE', 'PUT'])
+def modify_annotation(ann_id):
+    try:
+        ann = NodeAnnotation.query.get(ann_id)
+        if not ann:
+            return jsonify({"error": "Not found"}), 404
+            
+        if request.method == 'DELETE':
+            db.session.delete(ann)
+            db.session.commit()
+            return jsonify({"success": True})
+            
+        elif request.method == 'PUT':
+            data = request.json
+            if 'content' in data: ann.content = data['content']
+            if 'question' in data: ann.question = data['question']
+            if 'answer' in data: 
+                ann.answer = data['answer']
+                if ann.annotation_type == 'qa':
+                    ann.is_open = not bool(ann.answer)
+            
+            db.session.commit()
+            return jsonify(ann.to_dict())
+            
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 
 def apply_purity_rules(val_str, rules):
     """

@@ -90,3 +90,31 @@ class EnrichmentRule(db.Model):
             'parameters': json.loads(self.parameters) if self.parameters else [],
             'purity_rules': json.loads(self.purity_rules) if self.purity_rules else []
         }
+
+class NodeAnnotation(db.Model):
+    __tablename__ = 'node_annotation'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    node_type = db.Column(db.String(50), nullable=False)   # 'brand' or 'material'
+    node_identifier = db.Column(db.String(255), nullable=False) # Brand Name or Material ID (as string)
+    annotation_type = db.Column(db.String(50), default='info') # 'info' or 'qa'
+    
+    content = db.Column(db.Text)          # For 'info'
+    question = db.Column(db.Text)         # For 'qa'
+    answer = db.Column(db.Text)           # For 'qa'
+    
+    is_open = db.Column(db.Boolean, default=True) # Logic: True if QA and no answer
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'node_type': self.node_type,
+            'node_identifier': self.node_identifier,
+            'annotation_type': self.annotation_type,
+            'content': self.content,
+            'question': self.question,
+            'answer': self.answer,
+            'is_open': self.is_open,
+            'created_at': self.created_at.isoformat()
+        }
