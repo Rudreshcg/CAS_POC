@@ -12,6 +12,10 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
     const [newParam, setNewParam] = useState('');
     const [identifierName, setIdentifierName] = useState('CAS'); // Default, though usually static
 
+    // Purity Rules State
+    const [purityRules, setPurityRules] = useState([]);
+    const [newRule, setNewRule] = useState({ label: '', operator: '<', value: '', min: '', max: '' });
+
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
 
@@ -43,15 +47,21 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
                 if (rule) {
                     setParameters(rule.parameters || []);
                     setIdentifierName(rule.identifier_name || 'CAS');
+                    setPurityRules(rule.purity_rules || []);
                 } else {
                     // Default if no rule exists yet
                     setParameters(['Grade', 'Purity', 'Color']);
                     setIdentifierName('CAS');
+                    setPurityRules([]);
                 }
                 setLoading(false);
             })
             .catch(err => {
                 console.error(err);
+                // Fallback to defaults on error
+                setParameters(['Grade', 'Purity', 'Color']);
+                setIdentifierName('CAS');
+                setPurityRules([]);
                 setLoading(false);
             });
     }, [selectedSubcategory]);
@@ -82,6 +92,17 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
         setParameters(newParams);
     };
 
+    const handleAddRule = () => {
+        if (!newRule.label) return;
+        const ruleToAdd = { ...newRule };
+        setPurityRules([...purityRules, ruleToAdd]);
+        setNewRule({ label: '', operator: '<', value: '', min: '', max: '' });
+    };
+
+    const handleRemoveRule = (index) => {
+        setPurityRules(purityRules.filter((_, i) => i !== index));
+    };
+
     const handleSaveConfig = async () => {
         if (!selectedSubcategory) {
             setMessage({ type: 'error', text: 'Please select a subcategory.' });
@@ -89,10 +110,21 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
         }
 
         try {
+            let finalPurityRules = [...purityRules];
+
+            // Check if there's a pending rule that wasn't added
+            if (newRule.label.trim()) {
+                // Determine if it's valid enough to add
+                // Simple check: label exists. Values default to empty string if not filled, 
+                // but maybe we should just auto-add it to avoid user frustration.
+                finalPurityRules.push({ ...newRule });
+            }
+
             const payload = {
                 sub_category: selectedSubcategory,
                 identifier_name: identifierName,
-                parameters: parameters
+                parameters: parameters,
+                purity_rules: finalPurityRules
             };
 
             const res = await fetch('/api/rules', {
@@ -219,6 +251,114 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
                                     </button>
                                 </div>
                             </div>
+
+                            {/* Purity Configuration Section */}
+                            {parameters.some(p => p && p.toString().toLowerCase().trim() === 'purity') && (
+                                <div className="mb-6 border-t border-slate-700 pt-4">
+                                    <label className="block text-sm font-medium text-slate-300 mb-2">Purity Grouping Rules</label>
+                                    <p className="text-xs text-slate-500 mb-3">
+                                        Define how purity ranges should be grouped. Rules are checked in order.
+                                    </p>
+
+                                    <div className="space-y-2 mb-3">
+                                        {purityRules.length === 0 && (
+                                            <div className="text-center p-3 border border-dashed border-slate-700 rounded-lg text-slate-500 text-xs">
+                                                No rules defined. Exact values will be used.
+                                            </div>
+                                        )}
+                                        {purityRules.map((rule, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 p-2 rounded-lg text-sm group hover:border-slate-600 transition-colors">
+                                                <span className="font-mono text-cyan-400 font-bold w-6">{idx + 1}.</span>
+                                                <div className="flex-1 text-slate-200 flex items-center gap-2">
+                                                    <span className="font-bold text-white bg-slate-700 px-2 rounded">{rule.label}</span>
+                                                    <span className="text-slate-500">is</span>
+                                                    <span className="font-mono text-xs bg-slate-900 px-1 py-0.5 rounded border border-slate-700 text-cyan-300">
+                                                        {rule.operator === 'range'
+                                                            ? `${rule.min} - ${rule.max}`
+                                                            : `${rule.operator} ${rule.value}`}
+                                                    </span>
+                                                </div>
+                                                <button onClick={() => handleRemoveRule(idx)} className="text-slate-500 hover:text-red-400 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2 items-end bg-slate-800/30 p-3 rounded-lg border border-slate-700/50">
+                                        <div className="flex-1 min-w-[120px]">
+                                            <label className="text-xs text-slate-500 block mb-1">Label (e.g. &lt; 90)</label>
+                                            <input
+                                                type="text"
+                                                className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white focus:ring-1 focus:ring-cyan-500 outline-none"
+                                                value={newRule.label}
+                                                onChange={e => setNewRule({ ...newRule, label: e.target.value })}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleAddRule()}
+                                                placeholder="Label"
+                                            />
+                                        </div>
+                                        <div className="w-24">
+                                            <label className="text-xs text-slate-500 block mb-1">Condition</label>
+                                            <select
+                                                className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white focus:ring-1 focus:ring-cyan-500 outline-none"
+                                                value={newRule.operator}
+                                                onChange={e => setNewRule({ ...newRule, operator: e.target.value })}
+                                            >
+                                                <option value="<">&lt; Less</option>
+                                                <option value=">">&gt; Greater</option>
+                                                <option value="range">Range</option>
+                                            </select>
+                                        </div>
+
+                                        {newRule.operator === 'range' ? (
+                                            <>
+                                                <div className="w-20">
+                                                    <label className="text-xs text-slate-500 block mb-1">Min</label>
+                                                    <input
+                                                        type="number"
+                                                        className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white focus:ring-1 focus:ring-cyan-500 outline-none"
+                                                        value={newRule.min}
+                                                        onChange={e => setNewRule({ ...newRule, min: e.target.value })}
+                                                        onKeyDown={(e) => e.key === 'Enter' && handleAddRule()}
+                                                        placeholder="0"
+                                                    />
+                                                </div>
+                                                <div className="w-20">
+                                                    <label className="text-xs text-slate-500 block mb-1">Max</label>
+                                                    <input
+                                                        type="number"
+                                                        className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white focus:ring-1 focus:ring-cyan-500 outline-none"
+                                                        value={newRule.max}
+                                                        onChange={e => setNewRule({ ...newRule, max: e.target.value })}
+                                                        onKeyDown={(e) => e.key === 'Enter' && handleAddRule()}
+                                                        placeholder="100"
+                                                    />
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="w-24">
+                                                <label className="text-xs text-slate-500 block mb-1">Value</label>
+                                                <input
+                                                    type="number"
+                                                    className="w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white focus:ring-1 focus:ring-cyan-500 outline-none"
+                                                    value={newRule.value}
+                                                    onChange={e => setNewRule({ ...newRule, value: e.target.value })}
+                                                    onKeyDown={(e) => e.key === 'Enter' && handleAddRule()}
+                                                    placeholder="90"
+                                                />
+                                            </div>
+                                        )}
+
+                                        <button
+                                            onClick={handleAddRule}
+                                            disabled={!newRule.label}
+                                            className="bg-cyan-600 hover:bg-cyan-500 text-white h-[34px] w-[34px] flex items-center justify-center rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <Plus size={18} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
 
                         </div>
                     )}

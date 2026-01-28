@@ -1,4 +1,5 @@
 from flask import Flask, request, Response, send_file, jsonify, send_from_directory
+print("STARTING APP V4 with logging fixes")
 from flask_cors import CORS
 import pandas as pd
 import requests
@@ -68,6 +69,16 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+    # Migration hack: Add purity_rules column if it doesn't exist
+    try:
+        from sqlalchemy import text
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE enrichment_rule ADD COLUMN purity_rules TEXT DEFAULT '[]'"))
+            conn.commit()
+            print("✅ Added purity_rules column to EnrichmentRule")
+    except Exception as e:
+        # Expected if column already exists
+        pass
 
 # ==========================================
 # CAS LOOKUP LOGIC
@@ -616,7 +627,11 @@ def clusters():
     try:
         subcategory = request.args.get('subcategory')
         data = build_db_hierarchy(subcategory)
-        return jsonify(data)
+        data = build_db_hierarchy(subcategory)
+        resp = jsonify(data)
+        resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        resp.headers['Pragma'] = 'no-cache'
+        return resp
     except Exception as e:
         print(f"Cluster Error: {e}")
         return jsonify({"error": str(e)}), 500
@@ -629,19 +644,12 @@ def build_db_hierarchy(filter_subcategory=None):
         
     materials = query.all()
     
-    # Check for Enrichment Rule to determine hierarchy order
-    param_order = ['Grade', 'Purity', 'Color'] # Default fallback
-    if filter_subcategory and filter_subcategory != 'All':
-        rule = EnrichmentRule.query.filter_by(sub_category=filter_subcategory).first()
-        if rule and rule.parameters:
-            try:
-                param_order = json.loads(rule.parameters)
-                # Ensure they are Title case for consistency if needed, or trust DB
-            except:
-                pass
+    # Cache for rules by subcategory
+    # structure: { sub_category: { 'order': [...], 'purity': [...] } }
+    rules_cache = {}
     
-    # Structure: Brand -> CAS -> [Param1] -> [Param2] ... -> Material
-    # Dynamic: If Param is missing/N/A, skip that level.
+    # Pre-fetch rule if specific filter is active (optimization, but we can just use cache logic)
+    # Actually, let's just purely rely on the cache logic inside the loop for simplicity and correctness
     
     root = {"name": f"Material Clusters - {filter_subcategory or 'All'}", "children": []}
     
@@ -655,8 +663,36 @@ def build_db_hierarchy(filter_subcategory=None):
         return new_node
 
     for mat in materials:
-        # Pre-process parameters into dict
-        mat_params = {p.name: p.value for p in mat.parameters}
+        # Pre-process parameters into dict (Case Insensitive Keys)
+        mat_params = {p.name.strip().lower(): p.value for p in mat.parameters}
+        
+        mat_subcat = mat.sub_category or "Uncategorized"
+        
+        # Resolve Rules (Order & Purity) from Cache or DB
+        if mat_subcat not in rules_cache:
+            rule = EnrichmentRule.query.filter_by(sub_category=mat_subcat).first()
+            
+            # Defaults
+            r_order = ['Grade', 'Purity', 'Color']
+            r_purity = []
+            
+            if rule:
+                if rule.parameters:
+                    try:
+                        parsed = json.loads(rule.parameters)
+                        if parsed: r_order = parsed
+                    except: pass
+                if rule.purity_rules:
+                    try:
+                        parsed = json.loads(rule.purity_rules)
+                        if parsed: r_purity = parsed
+                    except: pass
+            
+            rules_cache[mat_subcat] = {'order': r_order, 'purity': r_purity}
+            
+        current_config = rules_cache[mat_subcat]
+        param_order = current_config['order']
+        purity_rules = current_config['purity']
         
         # 1. Brand
         brand_name = mat.brand if mat.brand and mat.brand != 'nan' else "Unknown Brand"
@@ -671,18 +707,24 @@ def build_db_hierarchy(filter_subcategory=None):
         
         # Dynamic Parameters Levels
         for p_name in param_order:
-            # Case insensitive lookup?
-            # Assuming stored as Title Case or consistent.
-            val = mat_params.get(p_name)
+            # Case insensitive lookup
+            val = mat_params.get(p_name.strip().lower(), 'N/A')
             if not val:
-                # Try simple variations?
-                # For now assume exact match
                 pass
             
             if val and val not in ["N/A", "Unspecified", "nan"]:
                 # Check for "Unspecified Grade" legacy
                 if "Unspecified" in val: continue
-                current_node = find_or_create(current_node, f"{p_name}: {val}")
+                
+                # SPECIAL HANDLING FOR PURITY Grouping
+                if p_name.strip().lower() == 'purity' and purity_rules:
+                    grouped_val = apply_purity_rules(val, purity_rules)
+                    # Create grouped node
+                    current_node = find_or_create(current_node, f"{p_name}: {grouped_val}")
+                    # Then create raw value node underneath
+                    current_node = find_or_create(current_node, f"{p_name}: {val}")
+                else:
+                    current_node = find_or_create(current_node, f"{p_name}: {val}")
             
         # Material (Leaf)
         find_or_create(current_node, mat.item_description)
@@ -836,40 +878,6 @@ def serve_static(path):
         return send_from_directory(app.static_folder, path)
     return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/api/rules', methods=['GET'])
-def get_rules():
-    rules = EnrichmentRule.query.all()
-    return jsonify([r.to_dict() for r in rules])
-
-@app.route('/api/rules', methods=['POST'])
-def add_rule():
-    data = request.get_json()
-    sub_category = data.get('sub_category')
-    identifier_name = data.get('identifier_name', 'CAS')
-    parameters = data.get('parameters', []) # List of strings
-
-    if not sub_category:
-        return jsonify({"error": "Sub-category is required"}), 400
-
-    try:
-        existing = EnrichmentRule.query.filter_by(sub_category=sub_category).first()
-        if existing:
-            # Update existing
-            existing.identifier_name = identifier_name
-            existing.parameters = json.dumps(parameters)
-        else:
-            # Create new
-            new_rule = EnrichmentRule(
-                sub_category=sub_category,
-                identifier_name=identifier_name,
-                parameters=json.dumps(parameters)
-            )
-            db.session.add(new_rule)
-        
-        db.session.commit()
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/validate/<int:row_id>', methods=['POST'])
 def validate_cas(row_id):
@@ -935,10 +943,28 @@ def validate_cas(row_id):
                             parts.append(rule.identifier_name.lower())
                             parts.append(row.cas_number)
                         
-                        # Add parameters
-                        for p_name in params:
-                            p_val = extracted_params.get(p_name, "N/A")
+                        # Dynamic Parameters Levels
+                        # Using param_order from Rule
+                        param_order = json.loads(rule.parameters) if rule.parameters else []
+                        mat_params = {p.name.lower(): p.value for p in row.parameters} # Existing material parameters
+                        
+                        for p_name in param_order:
+                            # Case insensitive lookup
+                            p_val = extracted_params.get(p_name, "N/A") # Use extracted from PDF first
+                            if p_val == "N/A":
+                                p_val = mat_params.get(p_name.strip().lower(), 'N/A') # Fallback to existing if not in PDF
+                            
+                            # Skip empty/unspecified
                             if p_val != "N/A":
+                                # Apply purity rules if this is a purity parameter
+                                if p_name.lower() == 'purity' and rule.purity_rules:
+                                    try:
+                                        purity_rules = json.loads(rule.purity_rules)
+                                        p_val = apply_purity_rules(p_val, purity_rules)
+                                        print(f"✨ Applied Purity Rule: {p_name} = {p_val}")
+                                    except Exception as e:
+                                        print(f"Error applying purity rules: {e}")
+
                                 parts.append(p_name.lower())
                                 parts.append(p_val)
 
@@ -1018,6 +1044,94 @@ def delete_rule(rule_id):
         return jsonify({"error": "Rule not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/rules', methods=['GET', 'POST'])
+def handle_rules():
+    if request.method == 'POST':
+        try:
+            print("--- ENTERING handle_rules POST ---")
+            data = request.json
+            print(f"📥 RAW PAYLOAD: {repr(data)}")
+            
+            sub_category = data.get('sub_category')
+            purity_rules = data.get('purity_rules', [])
+            print(f"   SubCategory: {sub_category}")
+            print(f"   New Purity Rules ({len(purity_rules)}): {repr(purity_rules)}")
+            
+            if not sub_category:
+                print("   ❌ Missing sub_category")
+                return jsonify({"error": "Sub-Category is required", "success": False}), 400
+                
+            rule = EnrichmentRule.query.filter_by(sub_category=sub_category).first()
+            if not rule:
+                print(f"   ✨ Creating NEW rule object")
+                rule = EnrichmentRule(sub_category=sub_category)
+                db.session.add(rule)
+            else:
+                print(f"   🔄 Updating EXISTING rule object (ID: {rule.id})")
+            
+            rule.identifier_name = data.get('identifier_name', 'CAS')
+            rule.parameters = json.dumps(data.get('parameters', []))
+            
+            # Serialize
+            dumped_rules = json.dumps(purity_rules)
+            print(f"   📝 Serialized Purity Rules: {dumped_rules}")
+            rule.purity_rules = dumped_rules
+            
+            db.session.add(rule)
+            db.session.commit()
+            print("   ✅ COMMIT SUCCESSFUL")
+            return jsonify({"success": True, "message": "Rule saved"})
+        except Exception as e:
+            print(f"❌ Error saving rule: {e}")
+            db.session.rollback()
+            return jsonify({"error": str(e), "success": False}), 500
+    
+    else:
+        # GET all rules
+        rules = EnrichmentRule.query.all()
+        return jsonify([r.to_dict() for r in rules])
+
+def apply_purity_rules(val_str, rules):
+    """
+    Parses a purity string (e.g. "95%", "90-95%") and buckets it based on rules.
+    Rules example: [{'label': '<90', 'operator': '<', 'value': 90}, ...]
+    """
+    try:
+        # 1. Clean and parse value
+        clean_val = re.sub(r'[^\d.]', '', val_str.split('-')[0]) 
+        if not clean_val:
+            return val_str # Fallback to original string
+            
+        val = float(clean_val)
+        
+        # 2. Check rules in order
+        for i, rule in enumerate(rules):
+            operator = rule.get('operator')
+            t_val = rule.get('value', '0')
+            threshold = float(t_val) if t_val else 0.0
+            label = rule.get('label', '')
+            
+            # Simple operators
+            if operator and operator.strip() == '<' and val < threshold:
+                return label
+            elif operator and operator.strip() == '<=' and val <= threshold:
+                return label
+            elif operator and operator.strip() == '>' and val > threshold:
+                return label
+            elif operator == '>=' and val >= threshold:
+                return label
+            elif operator == 'range':
+                min_v = float(rule.get('min', 0))
+                max_v = float(rule.get('max', 100))
+                if min_v <= val < max_v:
+                    return label
+
+        # If no rule matches, return original or "Other"
+        return val_str
+    except Exception as e:
+        print(f"⚠️ Purity Rule Error for '{val_str}': {e}")
+        return val_str
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

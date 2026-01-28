@@ -1,0 +1,118 @@
+STARTING APP V4 with logging fixes
+🔧 Static folder configured: C:\SMC-MAX\CAS_POC\frontend\dist
+🔍 Static folder exists: True
+⚠️  S3 not configured, using local storage
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.205:5000
+Press CTRL+C to quit
+ * Restarting with stat
+STARTING APP V4 with logging fixes
+🔧 Static folder configured: C:\SMC-MAX\CAS_POC\frontend\dist
+🔍 Static folder exists: True
+⚠️  S3 not configured, using local storage
+ * Debugger is active!
+ * Debugger PIN: 101-622-790
+--- ENTERING handle_rules POST ---
+📥 RAW PAYLOAD: {'sub_category': 'Glycerin', 'identifier_name': 'CAS', 'parameters': ['Grade', 'Purity', 'Color'], 'purity_rules': [{'label': 'High Purity', 'operator': '>', 'value': '90'}, {'label': 'Low Purity', 'operator': '<', 'value': '85'}, {'label': 'Mid Purity', 'operator': 'range', 'value': '', 'min': '85', 'max': '90'}]}
+   SubCategory: Glycerin
+   New Purity Rules (3): [{'label': 'High Purity', 'operator': '>', 'value': '90'}, {'label': 'Low Purity', 'operator': '<', 'value': '85'}, {'label': 'Mid Purity', 'operator': 'range', 'value': '', 'min': '85', 'max': '90'}]
+   🔄 Updating EXISTING rule object (ID: 1)
+   📝 Serialized Purity Rules: [{"label": "High Purity", "operator": ">", "value": "90"}, {"label": "Low Purity", "operator": "<", "value": "85"}, {"label": "Mid Purity", "operator": "range", "value": "", "min": "85", "max": "90"}]
+   ✅ COMMIT SUCCESSFUL
+127.0.0.1 - - [28/Jan/2026 13:02:20] "POST /api/rules HTTP/1.1" 200 -
+🔹 Using Parameters for Glycerin: ['Grade', 'Purity', 'Color']
+🔸 Found Purity Rules for Glycerin: [{'label': 'High Purity', 'operator': '>', 'value': '90'}, {'label': 'Low Purity', 'operator': '<', 'value': '85'}, {'label': 'Mid Purity', 'operator': 'range', 'value': '', 'min': '85', 'max': '90'}]
+  ⚖️ Purity: 99.7% -> High Purity
+  ⚖️ Purity: 99.7% -> High Purity
+  ⚖️ Purity: 99.7% -> High Purity
+  ⚖️ Purity: 99% -> High Purity
+  ⚖️ Purity: 99.8% -> High Purity
+  ⚖️ Purity: 99% -> High Purity
+  ⚖️ Purity: 80% -> Low Purity
+127.0.0.1 - - [28/Jan/2026 13:02:22] "GET /api/clusters?subcategory=Glycerin HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:03:43] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:03:46] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:03:46] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:03:46] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:03:46] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:03:46] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:03:46] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:08] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:09] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:09] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:09] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:09] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:09] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:14] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:15] "GET /api/rules HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:25] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:28] "GET /api/rules HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:38] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:38] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:11:39] "GET /api/results HTTP/1.1" 200 -
+🔹 Using Parameters for Glycerin: ['Grade', 'Purity', 'Color']
+🔸 Found Purity Rules for Glycerin: [{'label': 'High Purity', 'operator': '>', 'value': '90'}, {'label': 'Low Purity', 'operator': '<', 'value': '85'}, {'label': 'Mid Purity', 'operator': 'range', 'value': '', 'min': '85', 'max': '90'}]
+  ⚖️ Purity: 99.7% -> High Purity
+  ⚖️ Purity: 99.7% -> High Purity
+  ⚖️ Purity: 99.7% -> High Purity
+  ⚖️ Purity: 99% -> High Purity
+  ⚖️ Purity: 99.8% -> High Purity
+  ⚖️ Purity: 99% -> High Purity
+127.0.0.1 - - [28/Jan/2026 13:13:50] "GET /api/clusters?subcategory=Glycerin HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:30] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:14:31] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:01] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:01] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:01] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:01] "GET /api/subcategories HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:01] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:01] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:01] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:01] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:02] "GET /api/clusters HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:02] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:02] "GET /api/results HTTP/1.1" 200 -
+127.0.0.1 - - [28/Jan/2026 13:16:02] "GET /api/clusters HTTP/1.1" 200 -
+ * Detected change in 'C:\\SMC-MAX\\CAS_POC\\backend\\app.py', reloading
+ * Restarting with stat
+STARTING APP V4 with logging fixes
+🔧 Static folder configured: C:\SMC-MAX\CAS_POC\frontend\dist
+🔍 Static folder exists: True
+⚠️  S3 not configured, using local storage
+ * Debugger is active!
+ * Debugger PIN: 101-622-790

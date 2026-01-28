@@ -80,11 +80,13 @@ class EnrichmentRule(db.Model):
     sub_category = db.Column(db.String(255), unique=True, nullable=False)
     identifier_name = db.Column(db.String(255), default="CAS")
     parameters = db.Column(db.Text, default="[]") # JSON string of parameter names
+    purity_rules = db.Column(db.Text, default="[]") # JSON string for purity ranges
 
     def to_dict(self):
         return {
             'id': self.id,
             'sub_category': self.sub_category,
             'identifier_name': self.identifier_name,
-            'parameters': json.loads(self.parameters) if self.parameters else []
+            'parameters': json.loads(self.parameters) if self.parameters else [],
+            'purity_rules': json.loads(self.purity_rules) if self.purity_rules else []
         }
