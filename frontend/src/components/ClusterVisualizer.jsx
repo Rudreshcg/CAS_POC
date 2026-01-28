@@ -1,687 +1,148 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, Database, Save, X, Edit2, Settings, MessageSquare, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { DendrogramProvider, useDendrogram } from './dendrogram/DendrogramContext';
+import { TreeNode } from './dendrogram/TreeNode';
+import { AlertCircle, Sliders } from 'lucide-react';
 import GroupingConfigModal from './GroupingConfigModal';
-import AnnotationModal from './AnnotationModal';
+
+function DendrogramView({ initialData, onRefresh, subcategories, selectedSubcategory, setSelectedSubcategory }) {
+    const { tree, setTree, setSelectedNodeId } = useDendrogram();
+    const [isConfigOpen, setIsConfigOpen] = useState(false);
+
+    useEffect(() => {
+        if (initialData) {
+            setTree(initialData);
+        }
+    }, [initialData, setTree]);
+
+    return (
+        <div className="h-full w-full bg-slate-950 p-6 md:p-10 overflow-auto custom-scrollbar">
+            {/* Header */}
+            <div className="max-w-5xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
+                <div>
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 rounded-lg bg-cyan-900/30 border border-cyan-500/30 backdrop-blur-sm">
+                            <AlertCircle className="w-5 h-5 text-cyan-400" />
+                        </div>
+                        <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                            Material Clusters
+                        </h1>
+                    </div>
+                    <p className="text-slate-400 text-sm md:text-base mb-4">
+                        Interactive material grouping. Drag to reorganize. Click to annotate.
+                    </p>
+
+                    {/* SubCategory Filter */}
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm text-slate-500 font-medium">Filter by:</span>
+                        <select
+                            value={selectedSubcategory}
+                            onChange={(e) => setSelectedSubcategory(e.target.value)}
+                            className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2 min-w-[200px]"
+                        >
+                            <option value="All">All Subcategories</option>
+                            {subcategories.map(sub => (
+                                <option key={sub} value={sub}>{sub}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                <button
+                    onClick={() => setIsConfigOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition-colors shadow-sm"
+                >
+                    <Sliders className="w-4 h-4" />
+                    <span>Configure Grouping</span>
+                </button>
+            </div>
+
+            {/* Dendrogram Container */}
+            <div className="max-w-5xl mx-auto">
+                <div
+                    className="p-6 md:p-8 bg-slate-900/50 border border-slate-800 rounded-xl shadow-2xl backdrop-blur-sm min-h-[600px]"
+                    onClick={() => setSelectedNodeId(null)}
+                >
+                    {/* Decorative background elements */}
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-xl">
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl opacity-50" />
+                        <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl opacity-50" />
+                    </div>
+
+                    {/* Tree visualization */}
+                    <div className="relative z-10">
+                        <TreeNode
+                            node={tree}
+                            depth={0}
+                            isLast={true}
+                            parentPath={[]}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <GroupingConfigModal
+                isOpen={isConfigOpen}
+                onClose={() => setIsConfigOpen(false)}
+                onSave={onRefresh} // Trigger refresh on save
+            />
+        </div>
+    );
+}
 
 export default function ClusterVisualizer() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
     const [subcategories, setSubcategories] = useState([]);
     const [selectedSubcategory, setSelectedSubcategory] = useState('All');
 
-    // Legacy: We removed clusterLevel logic, defaulting to the new unified hierarchy
-    // const [clusterLevel, setClusterLevel] = useState('brand'); 
-
-    // Editing and drag-drop state
-    const [pendingChanges, setPendingChanges] = useState([]);
-    const [editingNode, setEditingNode] = useState(null);
-    const [editValue, setEditValue] = useState('');
-    const [isDragging, setIsDragging] = useState(false);
-    const [draggedNode, setDraggedNode] = useState(null);
-    const [dropTarget, setDropTarget] = useState(null);
-
-    // Grouping Config Modal State
-    const [isConfigOpen, setIsConfigOpen] = useState(false);
-
-    // Annotation Modal State
-    const [annotationNode, setAnnotationNode] = useState(null);
-
-    const fetchClusters = () => {
-        setLoading(true);
-        // Build query string
-        let url = '/api/clusters';
-        if (selectedSubcategory && selectedSubcategory !== 'All') {
-            url += `?subcategory=${encodeURIComponent(selectedSubcategory)}`;
-        }
-
-        fetch(url)
-            .then(res => {
-                if (!res.ok) throw new Error('Failed to load cluster data');
-                return res.json();
-            })
-            .then(data => {
-                setData(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error('Cluster load error:', err);
-                setError(err.message);
-                setLoading(false);
-            });
-    };
-
+    // Fetch subcategories
     useEffect(() => {
-        // Fetch subcategories once
         fetch('/api/subcategories')
             .then(res => res.json())
-            .then(data => setSubcategories(['All', ...data]))
+            .then(data => setSubcategories(data))
             .catch(err => console.error(err));
     }, []);
 
+    const fetchClusters = async () => {
+        setLoading(true);
+        try {
+            let url = '/api/clusters';
+            if (selectedSubcategory && selectedSubcategory !== 'All') {
+                url += `?subcategory=${encodeURIComponent(selectedSubcategory)}`;
+            }
+
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Failed to fetch');
+            const json = await res.json();
+            setData(json);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchClusters();
-    }, [selectedSubcategory]); // Re-fetch when subcategory changes
-
-    // Inline editing handlers
-    const handleDoubleClick = (node, nodeData) => {
-        // Only allow editing plant (Depth 2) and material (Leaf/Depth 3)
-        // Note: Plant names usually have '📍 ' prefix in visualization, but raw name in nodeData.plant might be clean.
-        // Let's use clean name.
-        if (node.isLeaf || node.depth === 2) {
-            const cleanName = node.name.replace('📍 ', '');
-            setEditingNode({ ...node, ...nodeData });
-            setEditValue(cleanName);
-        }
-    };
-
-    // Handle Click for Annotations (Single Click)
-    const handleNodeClick = (e, node) => {
-        // Only Brand (Depth 0 usually) and Material (Leaf) support annotations for now
-        // But conceptually any node could. Let's stick to user request: Brand and Material.
-
-        // Check if node is brand or material
-        const isBrand = node.depth === 0;
-        // const isMaterial = node.isLeaf; // Material is leaf
-
-        // NOTE: In `dendrogramData` construction, we set Brand at Depth 0
-        if (isBrand || node.isLeaf) {
-            e.stopPropagation();
-            setAnnotationNode(node);
-        }
-    };
-
-    const handleEditSave = () => {
-        if (!editingNode || !editValue.trim()) {
-            setEditingNode(null);
-            return;
-        }
-
-        const cleanOldName = editingNode.name.replace('📍 ', '');
-        if (cleanOldName === editValue.trim()) {
-            setEditingNode(null);
-            return;
-        }
-
-        // Add to pending changes
-        const change = {
-            type: 'rename',
-            node_type: editingNode.isLeaf ? 'material' : 'plant',
-            old_name: cleanOldName,
-            new_name: editValue.trim(),
-            brand: editingNode.brand,
-            subcategory: editingNode.subcategory,
-            // For material rename, we need its name. For plant rename, we need its name.
-            // But we also need context. 
-            // - If renaming Plant: Need Brand, SubCat, OldName. 
-            // - If renaming Material: Need Brand, SubCat, OldName.
-        };
-
-        setPendingChanges(prev => [...prev, change]);
-        setEditingNode(null);
-        setEditValue('');
-    };
-
-    const handleEditCancel = () => {
-        setEditingNode(null);
-        setEditValue('');
-    };
-
-    // Drag and drop handlers
-    const handleDragStart = (e, node, nodeData) => {
-        if (!node.isLeaf) return; // Only Materials (leaves) are draggable
-
-        e.stopPropagation();
-        e.preventDefault(); // Prevent native drag behavior, we handle it via state
-        setIsDragging(true);
-        setDraggedNode({ ...node, ...nodeData });
-    };
-
-    // Allow dropping on any non-leaf node (except Root maybe, but let's allow all non-leaves)
-    const isNodeValidTarget = (node) => {
-        if (!node) return false;
-        return !node.isLeaf && node.depth > 0; // Don't drop on Root, allow Brand/CAS/Grade/Purity as targets
-    };
-
-    const handleDragOver = (e, node) => {
-        if (!isNodeValidTarget(node)) return;
-        e.preventDefault();
-    };
-
-    const handleDragEnter = (node) => {
-        if (isDragging && draggedNode && isNodeValidTarget(node)) {
-            setDropTarget(node.id);
-        }
-    };
-
-    const handleDragLeave = () => {
-        setDropTarget(null);
-    };
-
-    const handleDrop = (e, targetNode, targetData) => {
-        e.preventDefault();
-        setDropTarget(null);
-
-        if (!isDragging || !draggedNode) {
-            setIsDragging(false);
-            setDraggedNode(null);
-            return;
-        }
-
-        if (!isNodeValidTarget(targetNode)) {
-            setIsDragging(false);
-            setDraggedNode(null);
-            return;
-        }
-
-        // don't drop on self parent
-        // (Simplified check: if target is current parent not easy to check directly without parentId lookup)
-
-        // Traverse up from TARGET to collect new attributes
-        const newAttributes = {};
-        let current = targetNode;
-
-        // We need access to all nodes to traverse up. 
-        // dendrogramData.nodes is accessible via scope if we use it, 
-        // but here we only have targetNode. 
-        // Helper to find node by ID from dendrogramData (we need to ensure it's in scope or passed)
-        // Actually `dendrogramData` is in scope of the component.
-
-        const allNodes = dendrogramData.nodes;
-
-        const getAttributeFromNode = (n) => {
-            // Updated to be generic: "Key: Value"
-            if (n.name.includes(': ')) {
-                const parts = n.name.split(': ');
-                if (parts.length >= 2) {
-                    return { key: parts[0], val: parts.slice(1).join(': ') };
-                }
-            }
-            return null;
-        };
-
-        // Collect attributes from target and its ancestors
-        let tempNode = targetNode;
-        while (tempNode) {
-            const attr = getAttributeFromNode(tempNode);
-            if (attr) {
-                if (!newAttributes[attr.key]) newAttributes[attr.key] = attr.val;
-            }
-            if (tempNode.parentId) {
-                tempNode = allNodes.find(n => n.id === tempNode.parentId);
-            } else {
-                tempNode = null;
-            }
-        }
-
-        // Create change object
-        const change = {
-            type: 'move',
-            node_type: 'material',
-            name: draggedNode.name, // Material Name
-            brand: draggedNode.brand, // Should match current brand
-            new_attributes: newAttributes
-        };
-
-        setPendingChanges(prev => [...prev, change]);
-        setIsDragging(false);
-        setDraggedNode(null);
-    };
-
-    // Save all pending changes
-    const handleSaveAll = async () => {
-        if (pendingChanges.length === 0) return;
-
-        try {
-            const response = await fetch('/api/clusters/update', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ changes: pendingChanges })
-            });
-
-            if (response.ok) {
-                const res = await response.json();
-                alert(`✅ ${res.message || 'Saved successfully!'}`);
-                setPendingChanges([]);
-                fetchClusters();
-            } else {
-                const error = await response.json();
-                alert(`❌ Error: ${error.error}`);
-            }
-        } catch (err) {
-            alert(`❌ Error: ${err.message}`);
-        }
-    };
-
-    // Cancel all pending changes
-    const handleCancelAll = () => {
-        setPendingChanges([]);
-        fetchClusters();
-    };
-
-    // Calculate clean hierarchical layout
-    const dendrogramData = useMemo(() => {
-        if (!data || !data.children) return null;
-
-        const allNodes = [];
-        let leafCount = 0;
-
-        // Collect all nodes with proper IDs and hierarchy tracking
-        // Collect all nodes with proper IDs and hierarchy tracking
-        const collectNodes = (node, depth = 0, parentId = null, brand = null, subcategory = null, plant = null) => {
-            const nodeId = `node-${allNodes.length}`;
-            const nodeData = {
-                id: nodeId,
-                name: node.name,
-                depth,
-                parentId,
-                childIds: [],
-                isLeaf: !node.children || node.children.length === 0,
-                brand: brand || (depth === 0 ? node.name : null),
-                subcategory: subcategory || (depth === 1 ? node.name : null),
-                plant: plant || (depth === 2 ? node.name.replace('📍 ', '') : null),
-                material: depth === 3 ? node.name : null
-            };
-
-            if (nodeData.isLeaf) {
-                nodeData.leafIndex = leafCount++;
-            }
-
-            allNodes.push(nodeData);
-
-            if (node.children) {
-                node.children.forEach(child => {
-                    const childId = collectNodes(
-                        child,
-                        depth + 1,
-                        nodeId,
-                        brand || (depth === 0 ? node.name : null),
-                        subcategory || (depth === 1 ? node.name : null),
-                        plant || (depth === 2 ? node.name.replace('📍 ', '') : null)
-                    );
-                    nodeData.childIds.push(childId);
-                });
-            }
-
-            return nodeId;
-        };
-
-        // Build node tree
-        data.children.forEach(child => collectNodes(child, 0));
-
-        // Layout configuration
-        const VERTICAL_SPACING = 30;
-        const HORIZONTAL_SPACING = 250;
-        const maxDepth = Math.max(...allNodes.map(n => n.depth));
-
-        // Position leaf nodes vertically
-        allNodes.filter(n => n.isLeaf).forEach(node => {
-            // Use actual depth for X position to show hierarchy clearly
-            node.x = node.depth * HORIZONTAL_SPACING;
-            node.y = node.leafIndex * VERTICAL_SPACING + 50;
-        });
-
-        // Position parent nodes (from deepest to root)
-        for (let d = maxDepth - 1; d >= 0; d--) {
-            allNodes.filter(n => n.depth === d).forEach(node => {
-                if (node.childIds.length > 0) {
-                    const children = node.childIds.map(id => allNodes.find(n => n.id === id));
-                    const avgY = children.reduce((sum, c) => sum + c.y, 0) / children.length;
-                    node.x = d * HORIZONTAL_SPACING;
-                    node.y = avgY;
-                }
-            });
-        }
-
-        // Create connections with right-angle paths
-        const links = [];
-        allNodes.forEach(node => {
-            node.childIds.forEach(childId => {
-                const child = allNodes.find(n => n.id === childId);
-                if (child) {
-                    const midX = (node.x + child.x) / 2;
-                    links.push({
-                        source: node,
-                        target: child,
-                        // Right-angle connection for clarity
-                        path: `M ${node.x},${node.y} H ${midX} V ${child.y} H ${child.x}`
-                    });
-                }
-            });
-        });
-
-        const height = leafCount * VERTICAL_SPACING + 100;
-        const width = maxDepth * HORIZONTAL_SPACING + 400;
-
-        // Debug: log nodes to see what's happening
-        console.log('Dendrogram nodes:', allNodes.filter(n => n.depth === 0));
-        console.log('Total nodes:', allNodes.length, 'Leaf count:', leafCount);
-
-        return { nodes: allNodes, links, width, height, leafCount };
-    }, [data]);
+    }, [selectedSubcategory]);
 
     if (loading) {
         return (
-            <div className="w-full h-screen flex items-center justify-center bg-slate-950">
-                <div className="text-center">
-                    <Database size={64} className="mx-auto mb-4 text-cyan-400 animate-pulse" />
-                    <p className="text-slate-400 text-lg font-medium">Loading Cluster Dendrogram</p>
-                    <p className="text-slate-600 text-sm mt-2">Preparing visualization...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="w-full h-screen flex items-center justify-center bg-slate-950">
-                <div className="text-center text-red-400">
-                    <p className="text-lg font-semibold mb-2">Failed to Load Data</p>
-                    <p className="text-sm text-slate-500">{error}</p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
-                    >
-                        Retry
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    if (!dendrogramData) {
-        return (
-            <div className="w-full h-screen flex items-center justify-center bg-slate-950">
-                <p className="text-slate-500">No data available</p>
+            <div className="h-full flex items-center justify-center bg-slate-950 text-cyan-500">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-current"></div>
             </div>
         );
     }
 
     return (
-        <div className="w-full h-screen bg-slate-950 text-slate-200 flex flex-col">
-            {/* Header */}
-            <div className="p-5 border-b border-slate-800 bg-gradient-to-r from-slate-900 to-slate-800 flex-shrink-0 select-none">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link
-                            to="/"
-                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-800 text-cyan-400 rounded-lg border border-slate-700 text-sm font-semibold hover:bg-slate-700 transition-colors"
-                        >
-                            <ArrowLeft size={16} />
-                            Back to Lookup
-                        </Link>
-                        <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-                            <Database size={20} className="text-cyan-400" />
-                            Cluster Dendrogram
-                        </h2>
-                        {/* Subcategory Selector */}
-                        <div className="flex items-center gap-2 ml-4">
-                            <label className="text-sm text-slate-400 font-medium">Filter Subcategory:</label>
-                            <select
-                                value={selectedSubcategory}
-                                onChange={(e) => setSelectedSubcategory(e.target.value)}
-                                className="px-3 py-1.5 bg-slate-800 text-slate-200 border border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-colors cursor-pointer"
-                            >
-                                {subcategories.map(sub => (
-                                    <option key={sub} value={sub}>{sub}</option>
-                                ))}
-                            </select>
-                        </div>
-                        {/* Configure Grouping Button */}
-                        <button
-                            onClick={() => setIsConfigOpen(true)}
-                            className="ml-2 p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition-colors"
-                            title="Configure Grouping Order"
-                        >
-                            <Settings size={20} />
-                        </button>
-                    </div>
-                    <span className="text-xs bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded border border-cyan-500/20">
-                        {dendrogramData.leafCount} Materials
-                    </span>
-                </div>
-                <p className="text-xs text-slate-500 mt-2">
-                    Hierarchical clustering visualization • {data.name}
-                </p>
-            </div>
-
-            {/* Action Bar */}
-            {pendingChanges.length > 0 && (
-                <div className="sticky top-0 z-10 bg-amber-500/10 border-b border-amber-500/30 px-6 py-3">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <span className="text-amber-400 font-semibold">
-                                {pendingChanges.length} Pending Change{pendingChanges.length !== 1 ? 's' : ''}
-                            </span>
-                            <span className="text-slate-400 text-sm">
-                                (Double-click to edit • Drag materials to move)
-                            </span>
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={handleCancelAll}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600 transition-colors"
-                            >
-                                <X size={16} />
-                                Cancel All
-                            </button>
-                            <button
-                                onClick={handleSaveAll}
-                                className="flex items-center gap-2 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors font-semibold"
-                            >
-                                <Save size={16} />
-                                Save All Changes
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Instructions */}
-            {pendingChanges.length === 0 && (
-                <div className="px-6 py-3 bg-slate-800/50 border-b border-slate-700">
-                    <p className="text-slate-400 text-sm text-center">
-                        💡 <span className="text-cyan-400">Double-click</span> plant or material names to edit •
-                        <span className="text-cyan-400 ml-1">Drag</span> material nodes to plants to move
-                    </p>
-                </div>
-            )}
-
-            {/* Dendrogram */}
-            <div className="flex-1 overflow-auto p-8 bg-slate-950">
-                <svg
-                    width={dendrogramData.width + 120}
-                    height={dendrogramData.height}
-                    viewBox={`-120 0 ${dendrogramData.width + 120} ${dendrogramData.height}`}
-                    className="mx-auto select-none"
-                >
-                    <g transform="translate(120, 0)">
-                        {/* Connections */}
-                        <g className="links">
-                            {dendrogramData.links.map((link, i) => (
-                                <path
-                                    key={i}
-                                    d={link.path}
-                                    stroke="rgb(100, 116, 139)"
-                                    strokeWidth="1.5"
-                                    fill="none"
-                                    opacity="0.7"
-                                />
-                            ))}
-                        </g>
-
-                        {/* Nodes and Labels */}
-                        <g className="nodes">
-                            {dendrogramData.nodes.map((node, i) => {
-                                const isEditing = editingNode && editingNode.id === node.id;
-                                const isDragged = draggedNode && draggedNode.id === node.id;
-                                const isDropTarget = dropTarget === node.id;
-                                const isEditable = node.isLeaf || node.depth === 2;
-                                const isDraggable = node.isLeaf;
-                                const isAnnotatable = node.depth === 0 || node.isLeaf;
-
-                                // Annotations
-                                const hasOpenQA = node.annotations?.has_open_qa;
-                                const hasInfo = node.annotations?.has_info || node.annotations?.has_qa;
-
-                                return (
-                                    <g
-                                        key={i}
-                                        transform={`translate(${node.x}, ${node.y})`}
-                                        style={{ cursor: isDraggable ? 'grab' : isEditable || isAnnotatable ? 'pointer' : 'default' }}
-                                        onClick={(e) => handleNodeClick(e, node)}
-                                        onDoubleClick={() => handleDoubleClick(node, node)}
-                                        onMouseDown={(e) => isDraggable && handleDragStart(e, node, node)}
-                                        onMouseEnter={() => handleDragEnter(node)}
-                                        onMouseLeave={handleDragLeave}
-                                        onMouseUp={(e) => handleDrop(e, node, node)}
-                                        onDragOver={(e) => handleDragOver(e, node)}
-                                    >
-                                        {/* Node circle */}
-                                        <circle
-                                            r={node.isLeaf ? 4 : 5}
-                                            fill={
-                                                isDragged ? 'rgb(251, 191, 36)' : // Amber for dragged
-                                                    isDropTarget ? 'rgb(6, 182, 212)' : // Bright cyan for drop target
-                                                        isEditing ? 'rgb(234, 179, 8)' : // Yellow for editing
-                                                            node.isLeaf ? 'rgb(34, 211, 238)' : 'rgb(168, 85, 247)'
-                                            }
-                                            stroke={
-                                                isDragged || isEditing ? 'rgb(245, 158, 11)' :
-                                                    isDropTarget ? 'rgb(6, 182, 212)' :
-                                                        'rgb(15, 23, 42)'
-                                            }
-                                            strokeWidth={isDragged || isEditing || isDropTarget ? '3' : '2'}
-                                        />
-
-                                        {/* Annotation Indicators & Interaction */}
-                                        {/* Status Indicators (Open Question has high priority) */}
-                                        {hasOpenQA && (
-                                            <AlertCircle
-                                                size={16}
-                                                // Position Alert: Leaf (Left of icon), Brand (Right of icon)
-                                                x={node.isLeaf ? -45 : 30}
-                                                y={-8}
-                                                className="text-amber-500 fill-amber-500/10 pointer-events-none"
-                                            />
-                                        )}
-
-                                        {/* Explicit Add/View Note Button */}
-                                        {/* Explicit Add/View Note Button - Native SVG for reliable clicking */}
-                                        {/* Explicit Add/View Note Button - Native SVG for reliable clicking */}
-                                        {isAnnotatable && (
-                                            <g
-                                                className="cursor-pointer hover:opacity-80 transition-opacity"
-                                                onClick={(e) => {
-                                                    console.log('Annotation icon clicked');
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    handleNodeClick(e, node);
-                                                }}
-                                                onMouseDown={(e) => {
-                                                    // Prevent drag start on material nodes
-                                                    e.stopPropagation();
-                                                }}
-                                                onDoubleClick={(e) => {
-                                                    // Prevent edit mode on double click
-                                                    e.stopPropagation();
-                                                }}
-                                                // Position Group: Leaf (Left), Brand (Right)
-                                                transform={`translate(${node.isLeaf ? -25 : 10}, -10)`}
-                                            >
-                                                <rect
-                                                    width="20"
-                                                    height="20"
-                                                    rx="5"
-                                                    // Color Logic: Open QA (Amber) > Info/Answered (Cyan) > Default (Slate)
-                                                    fill={hasOpenQA ? "#f59e0b" : (hasInfo ? "#06b6d4" : "#334155")}
-                                                    className="transition-colors shadow-sm"
-                                                    stroke={hasOpenQA || hasInfo ? "none" : "#475569"}
-                                                    strokeWidth="1"
-                                                />
-                                                <MessageSquare
-                                                    size={12}
-                                                    x={4}
-                                                    y={4}
-                                                    color={hasOpenQA || hasInfo ? "white" : "#94a3b8"}
-                                                    fill={hasOpenQA || hasInfo ? "currentColor" : "none"}
-                                                    style={{ pointerEvents: 'none' }} // Let click pass to group
-                                                />
-                                            </g>
-                                        )}
-
-                                        {/* Node label or input */}
-                                        {isEditing ? (
-                                            <foreignObject x={node.isLeaf ? 10 : (node.depth === 0 ? -150 : 10)} y="-12" width="140" height="24">
-                                                <input
-                                                    type="text"
-                                                    value={editValue}
-                                                    onChange={(e) => setEditValue(e.target.value)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') handleEditSave();
-                                                        if (e.key === 'Escape') handleEditCancel();
-                                                    }}
-                                                    onBlur={handleEditSave}
-                                                    autoFocus
-                                                    className="w-full px-2 py-1 text-xs bg-slate-800 text-white border border-amber-500 rounded focus:outline-none focus:ring-1 focus:ring-amber-500"
-                                                />
-                                            </foreignObject>
-                                        ) : node.depth === 0 && node.name.length > 20 ? (
-                                            // Split long brand names into two lines
-                                            <text
-                                                x="-15"
-                                                y="0"
-                                                fill="rgb(148, 163, 184)"
-                                                fontSize="13"
-                                                fontWeight="bold"
-                                                textAnchor="end"
-                                                className="select-none"
-                                            >
-                                                <tspan x="-15" dy="-0.3em">{node.name.substring(0, 20)}</tspan>
-                                                <tspan x="-15" dy="1.2em">{node.name.substring(20)}</tspan>
-                                            </text>
-                                        ) : (
-                                            <text
-                                                x={node.isLeaf ? 10 : (node.depth === 0 ? -15 : 10)}
-                                                y="4"
-                                                fill={node.depth === 0 ? 'rgb(148, 163, 184)' : 'rgb(203, 213, 225)'}
-                                                fontSize={node.depth === 0 ? '14' : '11'}
-                                                fontWeight={node.depth === 0 ? 'bold' : 'normal'}
-                                                textAnchor={node.isLeaf ? 'start' : (node.depth === 0 ? 'end' : 'start')}
-                                                className="select-none"
-                                            >
-                                                {node.name}
-                                            </text>
-                                        )}
-                                    </g>
-                                );
-                            })}
-                        </g>
-                    </g>
-                </svg>
-            </div>
-
-            {/* Annotation Modal */}
-            <AnnotationModal
-                isOpen={!!annotationNode}
-                onClose={() => setAnnotationNode(null)}
-                node={annotationNode}
-                onSave={() => {
-                    fetchClusters();
-                }}
+        <DendrogramProvider>
+            <DendrogramView
+                initialData={data}
+                onRefresh={fetchClusters}
+                subcategories={subcategories}
+                selectedSubcategory={selectedSubcategory}
+                setSelectedSubcategory={setSelectedSubcategory}
             />
-
-            {/* Configuration Modal */}
-            <GroupingConfigModal
-                isOpen={isConfigOpen}
-                onClose={() => setIsConfigOpen(false)}
-                onSave={() => {
-                    setIsConfigOpen(false);
-                    fetchClusters(); // Refresh to see new hierarchy
-                }}
-            />
-        </div >
+        </DendrogramProvider>
     );
 }

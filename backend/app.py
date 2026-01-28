@@ -627,7 +627,6 @@ def clusters():
     try:
         subcategory = request.args.get('subcategory')
         data = build_db_hierarchy(subcategory)
-        data = build_db_hierarchy(subcategory)
         resp = jsonify(data)
         resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
         resp.headers['Pragma'] = 'no-cache'
@@ -648,114 +647,154 @@ def build_db_hierarchy(filter_subcategory=None):
     # structure: { sub_category: { 'order': [...], 'purity': [...] } }
     rules_cache = {}
     
-    # Pre-fetch all annotations to avoid N+1 queries
-    # Map: (type, identifier) -> {'has_info': bool, 'has_qa': bool, 'has_open_qa': bool}
+    # Pre-fetch all annotations
     annotations_map = {}
     try:
         all_anns = NodeAnnotation.query.all()
         for ann in all_anns:
+            # Store full annotation data
             key = (ann.node_type, ann.node_identifier)
             if key not in annotations_map:
-                annotations_map[key] = {'has_info': False, 'has_qa': False, 'has_open_qa': False}
-            
-            if ann.annotation_type == 'info':
-                annotations_map[key]['has_info'] = True
-            elif ann.annotation_type == 'qa':
-                annotations_map[key]['has_qa'] = True
-                if ann.is_open:
-                    annotations_map[key]['has_open_qa'] = True
+                annotations_map[key] = []
+            annotations_map[key].append(ann.to_dict())
+
     except Exception as e:
         print(f"Error fetching annotations: {e}")
 
-    root = {"name": f"Material Clusters - {filter_subcategory or 'All'}", "children": []}
+    # Root Node
+    root = {"id": "root", "name": f"Material Clusters - {filter_subcategory or 'All'}", "children": []}
     
-    # Helper to find or create a child node
-    def find_or_create(parent, name, node_type=None, node_identifier=None):
+    import uuid
+
+    def get_annotation(node_type, identifier):
+        key = (node_type, identifier)
+        return annotations_map.get(key, {})
+
+    def find_node(parent, name):
         for child in parent['children']:
             if child['name'] == name:
                 return child
+        return None
+
+    def create_node(name, node_id=None, node_type=None, node_identifier=None):
+        if not node_id:
+            node_id = str(uuid.uuid4())
         
-        # New Node
-        new_node = {"name": name, "children": []}
+        node = {"id": node_id, "name": name, "children": []}
+        if node_type: node['type'] = node_type
+        if node_identifier: node['identifier'] = node_identifier
         
-        # Attach annotation status if applicable
         if node_type and node_identifier:
-            key = (node_type, node_identifier)
-            if key in annotations_map:
-                new_node['annotations'] = annotations_map[key]
+            ann_list = get_annotation(node_type, node_identifier)
+            if ann_list:
+                node['annotations'] = ann_list
                 
-        parent['children'].append(new_node)
-        return new_node
+                # Check for any open QA to set flag
+                has_open = any(a.get('annotation_type') == 'qa' and a.get('is_open') for a in ann_list)
+                if has_open:
+                    node['has_open_qa'] = True
+                
+                # Set comment text for badge count
+                count = len(ann_list)
+                if count == 1:
+                    # Backward compat: show preview of single item
+                    first = ann_list[0]
+                    if first.get('annotation_type') == 'qa':
+                         node['comment'] = f"Q: {first.get('question')}"
+                    else:
+                         node['comment'] = first.get('content')
+                else:
+                    node['comment'] = f"{count} annotations"
+        
+        return node
 
     for mat in materials:
-        # Pre-process parameters into dict (Case Insensitive Keys)
         mat_params = {p.name.strip().lower(): p.value for p in mat.parameters}
-        
         mat_subcat = mat.sub_category or "Uncategorized"
-
         
-        # Resolve Rules (Order & Purity) from Cache or DB
+        # 1. Brand Level
+        brand_name = mat.brand if mat.brand and mat.brand != 'nan' else "Unknown Brand"
+        brand_node = find_node(root, brand_name)
+        if not brand_node:
+            brand_node = create_node(brand_name, node_id=f"brand-{brand_name}", node_type='brand', node_identifier=brand_name)
+            root['children'].append(brand_node)
+
+        # 2. Sub-Category Level
+        subcat_node = find_node(brand_node, mat_subcat)
+        if not subcat_node:
+            subcat_node = create_node(mat_subcat, node_id=f"sub-{brand_name}-{mat_subcat}")
+            brand_node['children'].append(subcat_node)
+
+        # 3. Dynamic Rules Logic (Resolution)
         if mat_subcat not in rules_cache:
             rule = EnrichmentRule.query.filter_by(sub_category=mat_subcat).first()
-            
-            # Defaults
             r_order = ['Grade', 'Purity', 'Color']
             r_purity = []
-            
             if rule:
                 if rule.parameters:
-                    try:
-                        parsed = json.loads(rule.parameters)
-                        if parsed: r_order = parsed
-                    except: pass
+                   try: r_order = json.loads(rule.parameters)
+                   except: pass
                 if rule.purity_rules:
-                    try:
-                        parsed = json.loads(rule.purity_rules)
-                        if parsed: r_purity = parsed
-                    except: pass
-            
+                   try: r_purity = json.loads(rule.purity_rules)
+                   except: pass
             rules_cache[mat_subcat] = {'order': r_order, 'purity': r_purity}
             
         current_config = rules_cache[mat_subcat]
         param_order = current_config['order']
         purity_rules = current_config['purity']
+
+        # Determine grouping path (CAS -> Params...)
+        # CAS Logic
+        cas_val = mat.cas_number if mat.cas_number and mat.cas_number != 'NOT FOUND' else "No CAS"
+        current_node = subcat_node
         
-        
-        # 1. Brand
-        brand_name = mat.brand if mat.brand and mat.brand != 'nan' else "Unknown Brand"
-        brand_node = find_or_create(root, brand_name, node_type='brand', node_identifier=brand_name)
-        
-        # 2. CAS
-        cas_name = mat.cas_number if mat.cas_number and mat.cas_number != 'NOT FOUND' else "No CAS"
-        cas_node = find_or_create(brand_node, f"CAS: {cas_name}")
-        
-        # Current node pointer for variable depth
+        # Create CAS Node? Or treat CAS as just another param?
+        # User script didn't explicitly nest CAS heavily but previous design did.
+        # Let's keep CAS as a primary group under SubCat for clarity.
+        cas_node_name = f"CAS: {cas_val}"
+        cas_node = find_node(current_node, cas_node_name)
+        if not cas_node:
+            cas_node = create_node(cas_node_name, node_id=f"cas-{brand_name}-{mat_subcat}-{cas_val}")
+            current_node['children'].append(cas_node)
         current_node = cas_node
-        
-        # Dynamic Parameters Levels
+
+        # Dynamic Params
         for p_name in param_order:
-            # Case insensitive lookup
-            val = mat_params.get(p_name.strip().lower(), 'N/A')
-            if not val:
-                pass
-            
-            if val and val not in ["N/A", "Unspecified", "nan"]:
-                # Check for "Unspecified Grade" legacy
-                if "Unspecified" in val: continue
-                
-                # SPECIAL HANDLING FOR PURITY Grouping
+            val = mat_params.get(p_name.strip().lower())
+            if val and val not in ["N/A", "Unspecified", "nan"] and "Unspecified" not in val:
+                # Purity Grouping
                 if p_name.strip().lower() == 'purity' and purity_rules:
-                    grouped_val = apply_purity_rules(val, purity_rules)
-                    # Create grouped node
-                    current_node = find_or_create(current_node, f"{p_name}: {grouped_val}")
-                    # Then create raw value node underneath
-                    current_node = find_or_create(current_node, f"{p_name}: {val}")
+                     grouped_val = apply_purity_rules(val, purity_rules)
+                     g_name = f"{p_name}: {grouped_val}"
+                     g_node = find_node(current_node, g_name)
+                     if not g_node:
+                         g_node = create_node(g_name, node_id=f"grp-{current_node['id']}-{p_name}-{grouped_val}")
+                         current_node['children'].append(g_node)
+                     current_node = g_node
+                     
+                     # Raw Value
+                     raw_name = f"{p_name}: {val}"
+                     raw_node = find_node(current_node, raw_name)
+                     if not raw_node:
+                         raw_node = create_node(raw_name, node_id=f"raw-{current_node['id']}-{val}")
+                         current_node['children'].append(raw_node)
+                     current_node = raw_node
                 else:
-                    current_node = find_or_create(current_node, f"{p_name}: {val}")
-            
-        # Material (Leaf)
-        find_or_create(current_node, mat.item_description, node_type='material', node_identifier=str(mat.id)) # Use ID for material uniqueness if possible, or name
-    
+                     # Standard Param
+                     p_node_name = f"{p_name}: {val}"
+                     p_node = find_node(current_node, p_node_name)
+                     if not p_node:
+                         p_node = create_node(p_node_name, node_id=f"param-{current_node['id']}-{p_name}-{val}")
+                         current_node['children'].append(p_node)
+                     current_node = p_node
+
+        # Material Leaf
+        # Check if leaf already exists (Deduplication)
+        mat_node = find_node(current_node, mat.item_description)
+        if not mat_node:
+            mat_node = create_node(mat.item_description, node_id=str(mat.id), node_type='material', node_identifier=str(mat.id))
+            current_node['children'].append(mat_node)
+
     return root
 
 
@@ -1208,6 +1247,9 @@ def apply_purity_rules(val_str, rules):
         
         # 2. Check rules in order
         for i, rule in enumerate(rules):
+            if not isinstance(rule, dict):
+                continue
+                
             operator = rule.get('operator')
             t_val = rule.get('value', '0')
             threshold = float(t_val) if t_val else 0.0

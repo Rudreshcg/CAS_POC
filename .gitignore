@@ -21,3 +21,4 @@ override.tf.json
 .terraformrc
 terraform.rc
 __pycache__
+cluster_design
