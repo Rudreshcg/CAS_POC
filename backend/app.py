@@ -742,6 +742,13 @@ def build_db_hierarchy(filter_subcategory=None):
         current_config = rules_cache[mat_subcat]
         param_order = current_config['order']
         purity_rules = current_config['purity']
+        
+        # DEBUG: Print config for first material of this subcat
+        if mat_subcat not in getattr(build_db_hierarchy, '_logged_subcats', set()):
+             print(f"🌲 Hierarchy Config for '{mat_subcat}': Order={param_order}, PurityRules={len(purity_rules)}")
+             if not hasattr(build_db_hierarchy, '_logged_subcats'):
+                 build_db_hierarchy._logged_subcats = set()
+             build_db_hierarchy._logged_subcats.add(mat_subcat)
 
         # Determine grouping path (CAS -> Params...)
         # CAS Logic
@@ -759,34 +766,38 @@ def build_db_hierarchy(filter_subcategory=None):
         current_node = cas_node
 
         # Dynamic Params
-        for p_name in param_order:
-            val = mat_params.get(p_name.strip().lower())
-            if val and val not in ["N/A", "Unspecified", "nan"] and "Unspecified" not in val:
-                # Purity Grouping
-                if p_name.strip().lower() == 'purity' and purity_rules:
-                     grouped_val = apply_purity_rules(val, purity_rules)
-                     g_name = f"{p_name}: {grouped_val}"
-                     g_node = find_node(current_node, g_name)
-                     if not g_node:
-                         g_node = create_node(g_name, node_id=f"grp-{current_node['id']}-{p_name}-{grouped_val}")
-                         current_node['children'].append(g_node)
-                     current_node = g_node
-                     
-                     # Raw Value
-                     raw_name = f"{p_name}: {val}"
-                     raw_node = find_node(current_node, raw_name)
-                     if not raw_node:
-                         raw_node = create_node(raw_name, node_id=f"raw-{current_node['id']}-{val}")
-                         current_node['children'].append(raw_node)
-                     current_node = raw_node
-                else:
-                     # Standard Param
-                     p_node_name = f"{p_name}: {val}"
-                     p_node = find_node(current_node, p_node_name)
-                     if not p_node:
-                         p_node = create_node(p_node_name, node_id=f"param-{current_node['id']}-{p_name}-{val}")
-                         current_node['children'].append(p_node)
-                     current_node = p_node
+        for p_name in (param_order or []):
+            val = mat_params.get(p_name.strip().lower(), "N/A")
+            
+            # Skip if N/A or empty
+            if val in ["nan", "", "N/A", "Unspecified"]:
+                continue
+            
+            # Purity Grouping
+            if p_name.strip().lower() == 'purity' and purity_rules:
+                grouped_val = apply_purity_rules(val, purity_rules)
+                g_name = f"{p_name}: {grouped_val}"
+                g_node = find_node(current_node, g_name)
+                if not g_node:
+                    g_node = create_node(g_name, node_id=f"grp-{current_node['id']}-{p_name}-{grouped_val}")
+                    current_node['children'].append(g_node)
+                current_node = g_node
+                
+                # Raw Value
+                raw_name = f"{p_name}: {val}"
+                raw_node = find_node(current_node, raw_name)
+                if not raw_node:
+                    raw_node = create_node(raw_name, node_id=f"raw-{current_node['id']}-{val}")
+                    current_node['children'].append(raw_node)
+                current_node = raw_node
+            else:
+                # Standard Param
+                p_node_name = f"{p_name}: {val}"
+                p_node = find_node(current_node, p_node_name)
+                if not p_node:
+                    p_node = create_node(p_node_name, node_id=f"param-{current_node['id']}-{p_name}-{val}")
+                    current_node['children'].append(p_node)
+                current_node = p_node
 
         # Material Leaf
         # Check if leaf already exists (Deduplication)
@@ -1157,6 +1168,7 @@ def handle_rules():
     
     else:
         # GET all rules
+        rules = EnrichmentRule.query.all()
         return jsonify([r.to_dict() for r in rules])
 
 @app.route('/api/annotations', methods=['GET', 'POST'])
