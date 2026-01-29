@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '../../lib/utils';
 import { useDendrogram } from './DendrogramContext';
 import { ChevronRight, MessageSquare, GripVertical, Plus, AlertCircle } from 'lucide-react';
@@ -13,9 +13,34 @@ export function TreeNode({ node, depth, isLast, parentPath }) {
         dragState,
         setDragState,
         moveNode,
+        updateNodeName,
         selectedNodeId,
         setSelectedNodeId
     } = useDendrogram();
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [editName, setEditName] = useState(node.name);
+
+    // Sync edit name if node updates from outside
+    useEffect(() => {
+        setEditName(node.name);
+    }, [node.name]);
+
+    const handleSaveEdit = () => {
+        if (editName.trim() && editName !== node.name) {
+            updateNodeName(node, editName.trim());
+        }
+        setIsEditing(false);
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSaveEdit();
+        } else if (e.key === 'Escape') {
+            setEditName(node.name);
+            setIsEditing(false);
+        }
+    };
 
     const hasChildren = node.children && node.children.length > 0;
     // Determine if it's a leaf node. In our new hierarchy (Brand -> SubCat -> ... -> Material), 
@@ -130,7 +155,7 @@ export function TreeNode({ node, depth, isLast, parentPath }) {
             {/* Node content */}
             <div
                 ref={nodeRef}
-                draggable={node.id !== 'root'}
+                draggable={!isEditing && node.id !== 'root'}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
                 onDragOver={handleDragOver}
@@ -184,13 +209,35 @@ export function TreeNode({ node, depth, isLast, parentPath }) {
                 />
 
                 {/* Node name */}
-                <span className={cn(
-                    "font-medium text-sm transition-colors",
-                    isLeaf ? "text-slate-200" : "text-slate-300",
-                    isSelected && "text-cyan-400"
-                )}>
-                    {node.name}
-                </span>
+                {/* Node name or Edit Input */}
+                {isEditing ? (
+                    <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        onBlur={handleSaveEdit}
+                        onKeyDown={handleKeyDown}
+                        autoFocus
+                        className="min-w-[100px] max-w-[300px] bg-slate-900 text-sm text-cyan-400 border border-cyan-500 rounded px-1 -ml-1 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                ) : (
+                    <span
+                        onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            // Only allow editing leaf materials
+                            if (node.type === 'material' || (!hasChildren && node.id !== 'root')) {
+                                setIsEditing(true);
+                            }
+                        }}
+                        className={cn(
+                            "font-medium text-sm transition-colors",
+                            isLeaf ? "text-slate-200" : "text-slate-300",
+                            isSelected && "text-cyan-400"
+                        )}>
+                        {node.name}
+                    </span>
+                )}
 
                 {/* Comment indicator and popover */}
                 {/* Allow comments on any node for now */}

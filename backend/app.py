@@ -820,6 +820,8 @@ def update_result(row_id):
         data = request.json
         
         # Update allowed fields
+        if 'item_description' in data:
+            row.item_description = data['item_description']
         if 'enriched_description' in data:
             row.enriched_description = data['enriched_description']
         if 'cas_number' in data:

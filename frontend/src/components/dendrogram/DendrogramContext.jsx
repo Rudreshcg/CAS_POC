@@ -170,6 +170,27 @@ export function DendrogramProvider({ children }) {
         }
     }, []);
 
+    const updateNodeName = useCallback(async (node, newName) => {
+        if (!node.identifier || node.type !== 'material') return;
+
+        // Optimistic update
+        setTree(prev => updateNode(prev, node.id, (n) => ({
+            name: newName
+        })));
+
+        try {
+            const res = await fetch(`/api/results/${node.identifier}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item_description: newName })
+            });
+            if (!res.ok) throw new Error('Failed to update node name');
+        } catch (err) {
+            console.error(err);
+            // Revert?
+        }
+    }, []);
+
     const moveNode = useCallback((sourceId, targetId, position) => {
         if (sourceId === targetId) return;
         if (sourceId === 'root') return;
@@ -198,6 +219,7 @@ export function DendrogramProvider({ children }) {
                 setDragState,
                 addNodeAnnotation,
                 deleteNodeAnnotation,
+                updateNodeName,
                 moveNode,
                 selectedNodeId,
                 setSelectedNodeId
