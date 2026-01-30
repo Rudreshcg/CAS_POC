@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { DendrogramProvider, useDendrogram } from './dendrogram/DendrogramContext';
 import { TreeNode } from './dendrogram/TreeNode';
-import { AlertCircle, Sliders } from 'lucide-react';
+import { AlertCircle, Sliders, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import GroupingConfigModal from './GroupingConfigModal';
 
 function DendrogramView({ initialData, onRefresh, subcategories, selectedSubcategory, setSelectedSubcategory }) {
@@ -19,6 +20,10 @@ function DendrogramView({ initialData, onRefresh, subcategories, selectedSubcate
             {/* Header */}
             <div className="max-w-5xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
                 <div>
+                    <Link to="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors mb-4 group">
+                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                        <span className="font-medium text-sm">Back to Dashboard</span>
+                    </Link>
                     <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 rounded-lg bg-cyan-900/30 border border-cyan-500/30 backdrop-blur-sm">
                             <AlertCircle className="w-5 h-5 text-cyan-400" />

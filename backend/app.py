@@ -7,6 +7,7 @@ import re
 import time
 import json
 import os
+import hashlib
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from pypdf import PdfReader
@@ -506,6 +507,13 @@ def process_file(filename):
         try:
             if filename.lower().endswith(('.xlsx', '.xls')):
                 df = pd.read_excel(filepath)
+            elif filename.lower().endswith('.pdf'):
+                raw_text = extract_pdf_text(filepath)
+                # Convert PDF text to DataFrame (Line by Line)
+                # Filter out short/empty lines to reduce noise
+                lines = [l.strip() for l in raw_text.split('\n') if len(l.strip()) > 3]
+                df = pd.DataFrame({'Item description': lines})
+                df['Sub-Category'] = 'Unknown' # Default since PDF is unstructured
             else:
                 df = pd.read_csv(filepath, on_bad_lines='skip', encoding='utf-8')
             client = CASClient(CAS_API_KEY)
@@ -783,13 +791,17 @@ def build_db_hierarchy(filter_subcategory=None):
                     current_node['children'].append(g_node)
                 current_node = g_node
                 
-                # Raw Value
+                # Raw Value - Only add if different from group name
                 raw_name = f"{p_name}: {val}"
-                raw_node = find_node(current_node, raw_name)
-                if not raw_node:
-                    raw_node = create_node(raw_name, node_id=f"raw-{current_node['id']}-{val}")
-                    current_node['children'].append(raw_node)
-                current_node = raw_node
+                if raw_name != g_name:
+                    raw_node = find_node(current_node, raw_name)
+                    if not raw_node:
+                        # Use hash for raw node too? Or keep dynamic? 
+                        # Dynamic params don't have stable IDs usually, just param-id-val. 
+                        # Keeping as is for now.
+                        raw_node = create_node(raw_name, node_id=f"raw-{current_node['id']}-{val}")
+                        current_node['children'].append(raw_node)
+                    current_node = raw_node
             else:
                 # Standard Param
                 p_node_name = f"{p_name}: {val}"
@@ -803,7 +815,10 @@ def build_db_hierarchy(filter_subcategory=None):
         # Check if leaf already exists (Deduplication)
         mat_node = find_node(current_node, mat.item_description)
         if not mat_node:
-            mat_node = create_node(mat.item_description, node_id=str(mat.id), node_type='material', node_identifier=str(mat.id))
+            # Code-level Fix: Use Stable Identifier (Hash of content) so annotations persist across re-uploads
+            # even if DB IDs change.
+            stable_ident = hashlib.md5(f"{mat.brand}|{mat.item_description}".encode('utf-8')).hexdigest()
+            mat_node = create_node(mat.item_description, node_id=str(mat.id), node_type='material', node_identifier=stable_ident)
             current_node['children'].append(mat_node)
 
     return root
@@ -1035,14 +1050,14 @@ def validate_cas(row_id):
                             
                             # Skip empty/unspecified
                             if p_val != "N/A":
-                                # Apply purity rules if this is a purity parameter
-                                if p_name.lower() == 'purity' and rule.purity_rules:
-                                    try:
-                                        purity_rules = json.loads(rule.purity_rules)
-                                        p_val = apply_purity_rules(p_val, purity_rules)
-                                        print(f"✨ Applied Purity Rule: {p_name} = {p_val}")
-                                    except Exception as e:
-                                        print(f"Error applying purity rules: {e}")
+                                # DO NOT apply purity rules here - Save RAW value so hierarchy builder can group dynamically
+                                # if p_name.lower() == 'purity' and rule.purity_rules:
+                                #     try:
+                                #         purity_rules = json.loads(rule.purity_rules)
+                                #         p_val = apply_purity_rules(p_val, purity_rules)
+                                #         print(f"✨ Applied Purity Rule: {p_name} = {p_val}")
+                                #     except Exception as e:
+                                #         print(f"Error applying purity rules: {e}")
 
                                 parts.append(p_name.lower())
                                 parts.append(p_val)
@@ -1270,19 +1285,25 @@ def apply_purity_rules(val_str, rules):
             label = rule.get('label', '')
             
             # Simple operators
-            if operator and operator.strip() == '<' and val < threshold:
-                return label
-            elif operator and operator.strip() == '<=' and val <= threshold:
-                return label
-            elif operator and operator.strip() == '>' and val > threshold:
-                return label
-            elif operator == '>=' and val >= threshold:
-                return label
+            # Check logic
+            matched = False
+            if operator and operator.strip() == '<' and val < threshold: matched = True
+            elif operator and operator.strip() == '<=' and val <= threshold: matched = True
+            elif operator and operator.strip() == '>' and val > threshold: matched = True
+            elif operator == '>=' and val >= threshold: matched = True
             elif operator == 'range':
                 min_v = float(rule.get('min', 0))
                 max_v = float(rule.get('max', 100))
-                if min_v <= val < max_v:
-                    return label
+                if min_v <= val < max_v: matched = True
+            
+            if matched:
+                # Code-level Fix: If label is generic "purity", auto-generate a better one
+                if label.strip().lower() == 'purity':
+                    if operator == 'range':
+                         return f"{rule.get('min')} - {rule.get('max')}"
+                    else:
+                         return f"{operator} {t_val}"
+                return label
 
         # If no rule matches, return original or "Other"
         return val_str

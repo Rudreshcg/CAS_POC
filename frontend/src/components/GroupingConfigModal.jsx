@@ -113,11 +113,23 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
             let finalPurityRules = [...purityRules];
 
             // Check if there's a pending rule that wasn't added
-            if (newRule.label.trim()) {
-                // Determine if it's valid enough to add
-                // Simple check: label exists. Values default to empty string if not filled, 
-                // but maybe we should just auto-add it to avoid user frustration.
-                finalPurityRules.push({ ...newRule });
+            let pendingRule = { ...newRule };
+            let hasContent = pendingRule.label.trim() || pendingRule.value || pendingRule.min || pendingRule.max;
+
+            if (hasContent) {
+                // Auto-generate label if missing
+                if (!pendingRule.label.trim()) {
+                    if (pendingRule.operator === 'range') {
+                        pendingRule.label = `${pendingRule.min}-${pendingRule.max}`;
+                    } else {
+                        pendingRule.label = `${pendingRule.operator} ${pendingRule.value}`;
+                    }
+                }
+
+                // Only add if we have a valid label now
+                if (pendingRule.label.trim()) {
+                    finalPurityRules.push(pendingRule);
+                }
             }
 
             const payload = {
@@ -294,7 +306,7 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
                                                 value={newRule.label}
                                                 onChange={e => setNewRule({ ...newRule, label: e.target.value })}
                                                 onKeyDown={(e) => e.key === 'Enter' && handleAddRule()}
-                                                placeholder="Label"
+                                                placeholder="Label (Optional)"
                                             />
                                         </div>
                                         <div className="w-24">
