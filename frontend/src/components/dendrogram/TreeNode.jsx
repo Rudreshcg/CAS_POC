@@ -231,11 +231,16 @@ export function TreeNode({ node, depth, isLast, parentPath }) {
                             }
                         }}
                         className={cn(
-                            "font-medium text-sm transition-colors",
+                            "font-medium text-sm transition-colors flex items-center gap-2",
                             isLeaf ? "text-slate-200" : "text-slate-300",
                             isSelected && "text-cyan-400"
                         )}>
                         {node.name}
+                        {node.count > 1 && (
+                            <span className="text-[10px] bg-slate-700/50 px-1.5 py-0.5 rounded-full text-slate-400 border border-slate-700">
+                                {node.count}
+                            </span>
+                        )}
                     </span>
                 )}
 

@@ -523,6 +523,7 @@ def process_file(filename):
                 try:
                     db.session.query(MaterialParameter).delete()
                     db.session.query(MaterialData).delete()
+                    db.session.query(NodeAnnotation).delete() # Also clear annotations
                     db.session.commit()
                     print("🗑️ Database cleared for new session.")
                 except Exception as e:
@@ -831,7 +832,7 @@ def build_db_hierarchy(filter_subcategory=None):
                 current_node = p_node
 
         # Material Leaf
-        # Use brand-flavored ID to ensure uniqueness in tree
+        # Use simple brand-flavored ID to ensure uniqueness in tree
         unique_id = f"mat-{brand_name}-{mat.id}"
         
         # Use Enriched Description if available, else fallback to Item Description
@@ -842,7 +843,11 @@ def build_db_hierarchy(filter_subcategory=None):
             stable_ident = hashlib.md5(f"{mat.brand}|{display_name}".encode('utf-8')).hexdigest()
             mat_node = create_node(display_name, node_id=unique_id, node_type='material', node_identifier=stable_ident)
             mat_node['db_id'] = mat.id # Important for Frontend API calls
+            mat_node['count'] = 1 # Initialize count
             current_node['children'].append(mat_node)
+        else:
+            # Duplicate found in this cluster - increment count
+            mat_node['count'] = mat_node.get('count', 1) + 1
 
     return root
 
