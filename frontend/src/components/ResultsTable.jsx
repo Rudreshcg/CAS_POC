@@ -88,7 +88,7 @@ export default function ResultsTable({ results, totalRows }) {
             if (res.ok) {
                 // Optimistic Update
                 setLocalResults(prev => prev.map(r =>
-                    r.row_number === rowId ? { ...r, ...data } : r
+                    r.id === rowId ? { ...r, ...data } : r
                 ));
                 const message = documentType === 'manual' ? 'Manually validated!' : `${documentType} verified!`;
                 setValidationMessage({ id: rowId, type: 'success', text: message });
@@ -267,8 +267,8 @@ export default function ResultsTable({ results, totalRows }) {
                         <thead className="text-xs text-cyan-400 uppercase bg-slate-900 sticky top-0 z-10 shadow-sm">
                             {/* Column Headers */}
                             <tr>
-                                <th className="px-6 py-3 cursor-pointer hover:bg-slate-800 select-none" onClick={() => requestSort('row_number')}>
-                                    # {getSortIcon('row_number')}
+                                <th className="px-6 py-3 cursor-pointer hover:bg-slate-800 select-none" onClick={() => requestSort('id')}>
+                                    ID {getSortIcon('id')}
                                 </th>
                                 <th className="px-6 py-3 cursor-pointer hover:bg-slate-800 select-none" onClick={() => requestSort('commodity')}>
                                     Commodity {getSortIcon('commodity')}
@@ -326,7 +326,7 @@ export default function ResultsTable({ results, totalRows }) {
 
                                 return (
                                     <tr key={idx} className={`border-b border-slate-700 hover:bg-slate-700/50 ${!found ? 'opacity-70' : ''}`}>
-                                        <td className="px-6 py-4 font-mono text-slate-500">{row.row_number}</td>
+                                        <td className="px-6 py-4 font-mono text-slate-500">{row.id}</td>
                                         <td className="px-6 py-4 truncate max-w-[150px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Commodity', row.commodity)}>{row.commodity}</td>
                                         <td className="px-6 py-4 truncate max-w-[150px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Sub-Category', row.sub_category)}>{row.sub_category}</td>
                                         <td className="px-6 py-4 truncate max-w-[150px] cursor-pointer hover:text-cyan-400" onClick={() => openModal('Brand', row.brand)}>{row.brand}</td>
@@ -365,14 +365,14 @@ export default function ResultsTable({ results, totalRows }) {
                                                     {/* Add more documents */}
                                                     <div className="flex gap-1">
                                                         {['MSDS', 'CoS'].map(docType => (
-                                                            <label key={docType} className={`cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold bg-slate-700 hover:bg-slate-600 text-white transition-colors ${uploadingId === row.row_number ? 'opacity-50 pointer-events-none' : ''}`}>
+                                                            <label key={docType} className={`cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold bg-slate-700 hover:bg-slate-600 text-white transition-colors ${uploadingId === row.id ? 'opacity-50 pointer-events-none' : ''}`}>
                                                                 +{docType}
                                                                 <input
                                                                     type="file"
                                                                     className="hidden"
                                                                     accept=".pdf"
                                                                     onChange={(e) => {
-                                                                        if (e.target.files?.[0]) handleValidationUpload(row.row_number, e.target.files[0], docType);
+                                                                        if (e.target.files?.[0]) handleValidationUpload(row.id, e.target.files[0], docType);
                                                                     }}
                                                                 />
                                                             </label>
@@ -383,15 +383,15 @@ export default function ResultsTable({ results, totalRows }) {
                                                 <div className="flex flex-col gap-1">
                                                     <div className="flex gap-1">
                                                         {['MSDS', 'CoS', 'Other'].map(docType => (
-                                                            <label key={docType} className={`cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-colors ${uploadingId === row.row_number ? 'opacity-50 pointer-events-none' : ''}`}>
-                                                                {uploadingId === row.row_number ? 'Verifying...' : docType}
+                                                            <label key={docType} className={`cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-colors ${uploadingId === row.id ? 'opacity-50 pointer-events-none' : ''}`}>
+                                                                {uploadingId === row.id ? 'Verifying...' : docType}
                                                                 {!uploadingId && <Upload size={10} />}
                                                                 <input
                                                                     type="file"
                                                                     className="hidden"
                                                                     accept=".pdf"
                                                                     onChange={(e) => {
-                                                                        if (e.target.files?.[0]) handleValidationUpload(row.row_number, e.target.files[0], docType);
+                                                                        if (e.target.files?.[0]) handleValidationUpload(row.id, e.target.files[0], docType);
                                                                     }}
                                                                 />
                                                             </label>
@@ -399,12 +399,12 @@ export default function ResultsTable({ results, totalRows }) {
                                                     </div>
                                                     {/* Manual Confirm Button */}
                                                     <button
-                                                        onClick={() => handleValidationUpload(row.row_number, null, 'manual')}
+                                                        onClick={() => handleValidationUpload(row.id, null, 'manual')}
                                                         className="px-2 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded text-xs font-semibold"
                                                     >
                                                         ✓ Confirm
                                                     </button>
-                                                    {validationMessage?.id === row.row_number && (
+                                                    {validationMessage?.id === row.id && (
                                                         <span className={`text-[10px] ${validationMessage.type === 'error' ? 'text-red-400' : 'text-green-400'}`}>
                                                             {validationMessage.text}
                                                         </span>

@@ -170,6 +170,27 @@ export function DendrogramProvider({ children }) {
         }
     }, []);
 
+    const updateNodeAnnotation = useCallback(async (node, annotationId, updates) => {
+        // updates: { answer: "..." }
+        // Optimistic Update
+        setTree(prev => updateNode(prev, node.id, (n) => ({
+            annotations: (n.annotations || []).map(a =>
+                a.id === annotationId ? { ...a, ...updates, is_open: !updates.answer } : a
+            )
+        })));
+
+        try {
+            const res = await fetch(`/api/annotations/${annotationId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates)
+            });
+            if (!res.ok) throw new Error('Failed to update annotation');
+        } catch (err) {
+            console.error(err);
+        }
+    }, []);
+
     const updateNodeName = useCallback(async (node, newName) => {
         if (!node.identifier || node.type !== 'material') return;
 
@@ -179,7 +200,8 @@ export function DendrogramProvider({ children }) {
         })));
 
         try {
-            const res = await fetch(`/api/results/${node.identifier}`, {
+            const targetId = node.db_id || node.id;
+            const res = await fetch(`/api/results/${targetId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ item_description: newName })
@@ -219,6 +241,7 @@ export function DendrogramProvider({ children }) {
                 setDragState,
                 addNodeAnnotation,
                 deleteNodeAnnotation,
+                updateNodeAnnotation,
                 updateNodeName,
                 moveNode,
                 selectedNodeId,

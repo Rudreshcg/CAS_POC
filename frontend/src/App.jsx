@@ -12,7 +12,7 @@ function Dashboard({
   uploadedFile, setUploadedFile,
   originalFilename, setOriginalFilename,
   isProcessing, startProcessing,
-  logs, results, totalRows, foundCount, completionData, handleUploadComplete
+  logs, results, totalRows, processedCount, foundCount, completionData, handleUploadComplete
 }) {
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -54,15 +54,15 @@ function Dashboard({
                 <p className="text-slate-400 text-sm">Validating chemical data with AI</p>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-cyan-400">{Math.round((results.length / (totalRows || 1)) * 100)}%</div>
-                <div className="text-xs text-slate-500">{results.length} / {totalRows} processed</div>
+                <div className="text-3xl font-bold text-cyan-400">{Math.round((processedCount / (totalRows || 1)) * 100)}%</div>
+                <div className="text-xs text-slate-500">{processedCount} / {totalRows} processed</div>
               </div>
             </div>
 
             <div className="h-2 bg-slate-700 rounded-full overflow-hidden mb-8">
               <div
                 className="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-300 ease-out"
-                style={{ width: `${(results.length / (totalRows || 1)) * 100}%` }}
+                style={{ width: `${(processedCount / (totalRows || 1)) * 100}%` }}
               />
             </div>
 
@@ -102,6 +102,8 @@ function App() {
   const [foundCount, setFoundCount] = useState(0);
   const [completionData, setCompletionData] = useState(null);
 
+  const [processedRowIndices, setProcessedRowIndices] = useState(new Set()); // Track unique original rows
+
   useEffect(() => {
     fetchSessionData();
   }, []);
@@ -112,7 +114,9 @@ function App() {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         setResults(data);
-        setTotalRows(data.length);
+        setTotalRows(data.length); // For session reload, we don't know total original rows easily unless backend returns metadata. 
+        // Assuming complete load implies 100% or we just show results count.
+        setProcessedRowIndices(new Set(data.map(r => r.row_number)));
         setFoundCount(data.filter(r => r.cas_number !== 'NOT FOUND').length);
         setOriginalFilename(data[0].filename);
         setUploadedFile(data[0].filename);
@@ -127,6 +131,7 @@ function App() {
     setOriginalFilename(originalName);
     setLogs([]);
     setResults([]);
+    setProcessedRowIndices(new Set());
     setCompletionData(null);
   };
 
@@ -134,6 +139,7 @@ function App() {
     if (!uploadedFile) return;
     setIsProcessing(true);
     setResults([]); // Clear previous results to avoid duplication
+    setProcessedRowIndices(new Set());
     setLogs([{ message: 'Initializing connection...', type: 'info' }]);
 
     const eventSource = new EventSource(`/process/${uploadedFile}`);
@@ -152,6 +158,11 @@ function App() {
 
       if (data.type === 'row') {
         setResults(prev => [...prev, data.data]);
+        setProcessedRowIndices(prev => {
+          const newSet = new Set(prev);
+          newSet.add(data.data.row_number);
+          return newSet;
+        });
         if (data.data.cas_number !== 'NOT FOUND') {
           setFoundCount(prev => prev + 1);
         }
@@ -192,6 +203,7 @@ function App() {
               logs={logs}
               results={results}
               totalRows={totalRows}
+              processedCount={processedRowIndices.size}
               foundCount={foundCount}
               completionData={completionData}
               handleUploadComplete={handleUploadComplete}
@@ -207,7 +219,7 @@ function App() {
             <div className="w-8 h-8 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin"></div>
             <div>
               <p className="text-white font-bold text-sm">Processing Data...</p>
-              <p className="text-xs text-slate-400">{results.length} / {totalRows}</p>
+              <p className="text-xs text-slate-400">{processedRowIndices.size} / {totalRows}</p>
             </div>
           </div>
         )}

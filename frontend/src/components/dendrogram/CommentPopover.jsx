@@ -4,14 +4,21 @@ import { useDendrogram } from './DendrogramContext';
 import { MessageSquare, Check, X, Trash2, Plus } from 'lucide-react';
 
 export function CommentPopover({ node, children, open, onOpenChange }) {
-    const { addNodeAnnotation, deleteNodeAnnotation } = useDendrogram();
+    const { addNodeAnnotation, deleteNodeAnnotation, updateNodeAnnotation } = useDendrogram();
     const [viewMode, setViewMode] = useState('list'); // 'list' | 'add'
+    const [replyingTo, setReplyingTo] = useState(null); // ID of annotation being answered
 
     // Add Form State
     const [isQuestion, setIsQuestion] = useState(false);
     const [commentText, setCommentText] = useState('');
     const [questionText, setQuestionText] = useState('');
     const [answerText, setAnswerText] = useState('');
+
+    const handleSubmitAnswer = (id, answer) => {
+        if (!answer.trim()) return;
+        updateNodeAnnotation(node, id, { answer });
+        setReplyingTo(null);
+    };
 
     // Position state
     const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -146,14 +153,14 @@ export function CommentPopover({ node, children, open, onOpenChange }) {
                                                 <Trash2 className="w-3.5 h-3.5" />
                                             </button>
 
-                                            <div className="flex items-start gap-2 pr-4">
+                                            <div className="flex items-start gap-2 pr-4 w-full">
                                                 {ann.annotation_type === 'qa' ? (
                                                     <div className={`mt-0.5 w-2 h-2 rounded-full ${ann.is_open ? 'bg-amber-500' : 'bg-cyan-500'}`} />
                                                 ) : (
                                                     <div className="mt-0.5 w-2 h-2 rounded-full bg-slate-400" />
                                                 )}
 
-                                                <div className="text-sm">
+                                                <div className="text-sm w-full">
                                                     {ann.annotation_type === 'qa' ? (
                                                         <>
                                                             <div className="font-medium text-slate-200 mb-1">{ann.question}</div>
@@ -162,7 +169,48 @@ export function CommentPopover({ node, children, open, onOpenChange }) {
                                                                     {ann.answer}
                                                                 </div>
                                                             ) : (
-                                                                <div className="text-amber-500/70 text-xs italic">Open Question</div>
+                                                                <div className="mt-2">
+                                                                    {replyingTo === ann.id ? (
+                                                                        <div className="flex flex-col gap-2 animate-in fade-in slide-in-from-top-1">
+                                                                            <textarea
+                                                                                placeholder="Type your answer..."
+                                                                                className="w-full bg-slate-900/50 border border-slate-600 rounded p-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                                                                                rows={2}
+                                                                                autoFocus
+                                                                                onKeyDown={(e) => {
+                                                                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                                                                        e.preventDefault();
+                                                                                        handleSubmitAnswer(ann.id, e.target.value);
+                                                                                    }
+                                                                                }}
+                                                                            />
+                                                                            <div className="flex gap-2 justify-end">
+                                                                                <button
+                                                                                    onClick={() => setReplyingTo(null)}
+                                                                                    className="text-[10px] text-slate-400 hover:text-slate-200"
+                                                                                >
+                                                                                    Cancel
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={(e) => {
+                                                                                        const textarea = e.currentTarget.parentElement.previousSibling;
+                                                                                        handleSubmitAnswer(ann.id, textarea.value);
+                                                                                    }}
+                                                                                    className="text-[10px] bg-cyan-600 text-white px-2 py-0.5 rounded hover:bg-cyan-500"
+                                                                                >
+                                                                                    Save Answer
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <button
+                                                                            onClick={() => setReplyingTo(ann.id)}
+                                                                            className="text-amber-500/70 text-xs italic hover:text-amber-400 hover:underline flex items-center gap-1"
+                                                                        >
+                                                                            Open Question - Click to Answer
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                             )}
                                                         </>
                                                     ) : (

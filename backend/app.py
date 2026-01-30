@@ -546,46 +546,68 @@ def process_file(filename):
                     if event['type'] == 'log':
                         yield f"data: {json.dumps(event)}\n\n"
                     elif event['type'] == 'result':
-                        result = event['data']
-                        results.append(result)
-                        yield f"data: {json.dumps({'type': 'row', 'data': result})}\n\n"
+                        base_result = event['data']
                         
-                        # Save to Database
-                        with app.app_context():
-                            try:
-                                # Create MaterialData
-                                material_entry = MaterialData(
-                                    filename=filename,
-                                    row_number=result['row_number'],
-                                    commodity=result['commodity'],
-                                    sub_category=result['sub_category'],
-                                    item_description=result['item_description'],
-                                    brand=row.get('Item used for Brand(s)', 'N/A'),
-                                    item_code=str(row.get('Item code', 'N/A')),
-                                    plant=row.get('Factory/Country', 'N/A'),
-                                    cluster=row.get('Cluster', 'N/A'),
-                                    enriched_description=result['enriched_description'],
-                                    final_search_term=result['final_search_term'],
-                                    cas_number=result['cas_number'],
-                                    inci_name=result['inci_name'],
-                                    synonyms=result['synonyms']
-                                )
-                                db.session.add(material_entry)
-                                db.session.flush() # Get ID
-                                
-                                params_to_save = result.get('extracted_parameters', {}).copy()
-                                
-                                for k, v in params_to_save.items():
-                                    param_entry = MaterialParameter(
-                                        material_id=material_entry.id,
-                                        name=k,
-                                        value=v
+                        # Split Brands Logic
+                        raw_brand_str = str(row.get('Item used for Brand(s)', 'N/A'))
+                        brands = [b.strip() for b in raw_brand_str.split(',')] if raw_brand_str != 'N/A' else ['N/A']
+                        
+                        # Process each brand as a separate entity
+                        for brand_name in brands:
+                            if not brand_name: continue
+                            
+                            # Clone result for this brand
+                            result = base_result.copy()
+                            # Do not store raw comma-separated brand in DB, store the single split brand
+                            # But keep other fields same
+                            
+                            # Save to Database
+                            with app.app_context():
+                                try:
+                                    # Create MaterialData
+                                    material_entry = MaterialData(
+                                        filename=filename,
+                                        row_number=result['row_number'],
+                                        commodity=result['commodity'],
+                                        sub_category=result['sub_category'],
+                                        item_description=result['item_description'],
+                                        brand=brand_name, # Use split brand
+                                        item_code=str(row.get('Item code', 'N/A')),
+                                        plant=row.get('Factory/Country', 'N/A'),
+                                        cluster=row.get('Cluster', 'N/A'),
+                                        enriched_description=result['enriched_description'],
+                                        final_search_term=result['final_search_term'],
+                                        cas_number=result['cas_number'],
+                                        inci_name=result['inci_name'],
+                                        synonyms=result['synonyms']
                                     )
-                                    db.session.add(param_entry)
+                                    db.session.add(material_entry)
+                                    db.session.flush() # Get ID
                                     
-                                db.session.commit()
-                            except Exception as db_err:
-                                print(f"Database Error: {db_err}")
+                                    # Add ID to result so frontend has correct reference for this specific brand-row
+                                    result['id'] = material_entry.id 
+                                    result['brand'] = brand_name # Update result to show single brand
+                                    
+                                    params_to_save = result.get('extracted_parameters', {}).copy()
+                                    
+                                    for k, v in params_to_save.items():
+                                        param_entry = MaterialParameter(
+                                            material_id=material_entry.id,
+                                            name=k,
+                                            value=v
+                                        )
+                                        db.session.add(param_entry)
+                                        
+                                    db.session.commit()
+                                    
+                                    # Add to results list for CSV output
+                                    results.append(result)
+                                    
+                                    # Yield row event to frontend
+                                    yield f"data: {json.dumps({'type': 'row', 'data': result})}\n\n"
+                                    
+                                except Exception as db_err:
+                                    print(f"Database Error: {db_err}")
             
             # Save output file
             output_df = pd.DataFrame([{
@@ -720,18 +742,28 @@ def build_db_hierarchy(filter_subcategory=None):
         mat_params = {p.name.strip().lower(): p.value for p in mat.parameters}
         mat_subcat = mat.sub_category or "Uncategorized"
         
+        # Determine Brand
+        # Upload splitting now ensures mat.brand is a single brand entry
+        brand_name = mat.brand.strip() if mat.brand and mat.brand != 'nan' else "Unknown Brand"
+        
         # 1. Brand Level
-        brand_name = mat.brand if mat.brand and mat.brand != 'nan' else "Unknown Brand"
         brand_node = find_node(root, brand_name)
         if not brand_node:
             brand_node = create_node(brand_name, node_id=f"brand-{brand_name}", node_type='brand', node_identifier=brand_name)
             root['children'].append(brand_node)
 
-        # 2. Sub-Category Level
-        subcat_node = find_node(brand_node, mat_subcat)
-        if not subcat_node:
-            subcat_node = create_node(mat_subcat, node_id=f"sub-{brand_name}-{mat_subcat}")
-            brand_node['children'].append(subcat_node)
+        # 2. Sub-Category Level Logic
+        # If specific filter is active AND matches this item's subcat, SKIP creating the subcat node
+        # allowing direct attachment to Brand.
+        if filter_subcategory and filter_subcategory != 'All' and filter_subcategory == mat_subcat:
+            current_node = brand_node
+        else:
+            # Normal behavior: Create Sub-Category Node
+            subcat_node = find_node(brand_node, mat_subcat)
+            if not subcat_node:
+                subcat_node = create_node(mat_subcat, node_id=f"sub-{brand_name}-{mat_subcat}")
+                brand_node['children'].append(subcat_node)
+            current_node = subcat_node
 
         # 3. Dynamic Rules Logic (Resolution)
         if mat_subcat not in rules_cache:
@@ -751,21 +783,11 @@ def build_db_hierarchy(filter_subcategory=None):
         param_order = current_config['order']
         purity_rules = current_config['purity']
         
-        # DEBUG: Print config for first material of this subcat
-        if mat_subcat not in getattr(build_db_hierarchy, '_logged_subcats', set()):
-             print(f"🌲 Hierarchy Config for '{mat_subcat}': Order={param_order}, PurityRules={len(purity_rules)}")
-             if not hasattr(build_db_hierarchy, '_logged_subcats'):
-                 build_db_hierarchy._logged_subcats = set()
-             build_db_hierarchy._logged_subcats.add(mat_subcat)
-
         # Determine grouping path (CAS -> Params...)
         # CAS Logic
         cas_val = mat.cas_number if mat.cas_number and mat.cas_number != 'NOT FOUND' else "No CAS"
-        current_node = subcat_node
+        # current_node is already set to either brand or subcat above
         
-        # Create CAS Node? Or treat CAS as just another param?
-        # User script didn't explicitly nest CAS heavily but previous design did.
-        # Let's keep CAS as a primary group under SubCat for clarity.
         cas_node_name = f"CAS: {cas_val}"
         cas_node = find_node(current_node, cas_node_name)
         if not cas_node:
@@ -796,9 +818,6 @@ def build_db_hierarchy(filter_subcategory=None):
                 if raw_name != g_name:
                     raw_node = find_node(current_node, raw_name)
                     if not raw_node:
-                        # Use hash for raw node too? Or keep dynamic? 
-                        # Dynamic params don't have stable IDs usually, just param-id-val. 
-                        # Keeping as is for now.
                         raw_node = create_node(raw_name, node_id=f"raw-{current_node['id']}-{val}")
                         current_node['children'].append(raw_node)
                     current_node = raw_node
@@ -812,13 +831,17 @@ def build_db_hierarchy(filter_subcategory=None):
                 current_node = p_node
 
         # Material Leaf
-        # Check if leaf already exists (Deduplication)
-        mat_node = find_node(current_node, mat.item_description)
+        # Use brand-flavored ID to ensure uniqueness in tree
+        unique_id = f"mat-{brand_name}-{mat.id}"
+        
+        # Use Enriched Description if available, else fallback to Item Description
+        display_name = mat.enriched_description if mat.enriched_description and mat.enriched_description != 'nan' else mat.item_description
+        
+        mat_node = find_node(current_node, display_name)
         if not mat_node:
-            # Code-level Fix: Use Stable Identifier (Hash of content) so annotations persist across re-uploads
-            # even if DB IDs change.
-            stable_ident = hashlib.md5(f"{mat.brand}|{mat.item_description}".encode('utf-8')).hexdigest()
-            mat_node = create_node(mat.item_description, node_id=str(mat.id), node_type='material', node_identifier=stable_ident)
+            stable_ident = hashlib.md5(f"{mat.brand}|{display_name}".encode('utf-8')).hexdigest()
+            mat_node = create_node(display_name, node_id=unique_id, node_type='material', node_identifier=stable_ident)
+            mat_node['db_id'] = mat.id # Important for Frontend API calls
             current_node['children'].append(mat_node)
 
     return root
@@ -976,7 +999,9 @@ def serve_static(path):
 @app.route('/api/validate/<int:row_id>', methods=['POST'])
 def validate_cas(row_id):
     try:
-        row = MaterialData.query.filter_by(row_number=row_id).first()
+        # Key Fix: Use .get(row_id) to look up by Primary Key (ID), NOT row_number
+        # This allows accurate targeting of split rows.
+        row = MaterialData.query.get(row_id)
         if not row:
             return jsonify({"error": "Row not found"}), 404
 
