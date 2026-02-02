@@ -364,7 +364,7 @@ export default function ResultsTable({ results, totalRows }) {
                                                     )}
                                                     {/* Add more documents */}
                                                     <div className="flex gap-1">
-                                                        {['MSDS', 'CoS'].map(docType => (
+                                                        {['MSDS', 'COA'].map(docType => (
                                                             <label key={docType} className={`cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold bg-slate-700 hover:bg-slate-600 text-white transition-colors ${uploadingId === row.id ? 'opacity-50 pointer-events-none' : ''}`}>
                                                                 +{docType}
                                                                 <input
@@ -382,7 +382,7 @@ export default function ResultsTable({ results, totalRows }) {
                                             ) : found ? (
                                                 <div className="flex flex-col gap-1">
                                                     <div className="flex gap-1">
-                                                        {['MSDS', 'CoS', 'Other'].map(docType => (
+                                                        {['MSDS', 'COA', 'Other'].map(docType => (
                                                             <label key={docType} className={`cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition-colors ${uploadingId === row.id ? 'opacity-50 pointer-events-none' : ''}`}>
                                                                 {uploadingId === row.id ? 'Verifying...' : docType}
                                                                 {!uploadingId && <Upload size={10} />}

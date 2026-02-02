@@ -1,13 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DendrogramProvider, useDendrogram } from './dendrogram/DendrogramContext';
 import { TreeNode } from './dendrogram/TreeNode';
-import { AlertCircle, Sliders, ArrowLeft } from 'lucide-react';
+import { AlertCircle, Sliders, ArrowLeft, Undo } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import GroupingConfigModal from './GroupingConfigModal';
 
 function DendrogramView({ initialData, onRefresh, subcategories, selectedSubcategory, setSelectedSubcategory }) {
-    const { tree, setTree, setSelectedNodeId } = useDendrogram();
+    const { tree, setTree, setSelectedNodeId, undo, canUndo, moveNode, dragState, saveLayout } = useDendrogram();
     const [isConfigOpen, setIsConfigOpen] = useState(false);
+    const scrollContainerRef = useRef(null);
+
+    const handleAutoScroll = (e) => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        const { top, bottom } = container.getBoundingClientRect();
+        const y = e.clientY;
+        const threshold = 100; // px from edge triggers scroll
+        const speed = 15;      // Scroll speed
+
+        if (y < top + threshold) {
+            container.scrollTop -= speed;
+        } else if (y > bottom - threshold) {
+            container.scrollTop += speed;
+        }
+    };
 
     useEffect(() => {
         if (initialData) {
@@ -16,55 +33,80 @@ function DendrogramView({ initialData, onRefresh, subcategories, selectedSubcate
     }, [initialData, setTree]);
 
     return (
-        <div className="h-full w-full bg-slate-950 p-6 md:p-10 overflow-auto custom-scrollbar">
+        <div
+            ref={scrollContainerRef}
+            onDragOver={handleAutoScroll}
+            className="h-full w-full bg-slate-950 p-6 md:p-10 overflow-auto custom-scrollbar"
+        >
             {/* Header */}
-            <div className="max-w-5xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-end gap-4">
-                <div>
-                    <Link to="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors mb-4 group">
-                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                        <span className="font-medium text-sm">Back to Dashboard</span>
-                    </Link>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2 rounded-lg bg-cyan-900/30 border border-cyan-500/30 backdrop-blur-sm">
-                            <AlertCircle className="w-5 h-5 text-cyan-400" />
-                        </div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                            Material Clusters
-                        </h1>
-                    </div>
-                    <p className="text-slate-400 text-sm md:text-base mb-4">
-                        Interactive material grouping. Drag to reorganize. Click to annotate.
-                    </p>
+            <div className="max-w-5xl mx-auto mb-8">
+                <Link to="/" className="inline-flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors mb-6 group">
+                    <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                    <span className="font-medium text-sm">Back to Dashboard</span>
+                </Link>
 
-                    {/* SubCategory Filter */}
-                    <div className="flex items-center gap-3">
-                        <span className="text-sm text-slate-500 font-medium">Filter by:</span>
-                        <select
-                            value={selectedSubcategory}
-                            onChange={(e) => setSelectedSubcategory(e.target.value)}
-                            className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2 min-w-[200px]"
+                <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 rounded-lg bg-cyan-900/30 border border-cyan-500/30 backdrop-blur-sm">
+                                <AlertCircle className="w-5 h-5 text-cyan-400" />
+                            </div>
+                            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                                Material Clusters
+                            </h1>
+                        </div>
+                        <p className="text-slate-400 text-sm md:text-base mb-6 max-w-2xl">
+                            Interactive material grouping. Drag to reorganize. Click to annotate.
+                            Manual save required to persist changes.
+                        </p>
+
+                        {/* SubCategory Filter */}
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm text-slate-500 font-medium">Filter by:</span>
+                            <select
+                                value={selectedSubcategory}
+                                onChange={(e) => setSelectedSubcategory(e.target.value)}
+                                className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block p-2 min-w-[200px]"
+                            >
+                                <option value="All">All Subcategories</option>
+                                {subcategories.map(sub => (
+                                    <option key={sub} value={sub}>{sub}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-2 shrink-0">
+                        <button
+                            onClick={undo}
+                            disabled={!canUndo}
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-200 rounded-lg border border-slate-700 transition-colors shadow-sm"
+                            title="Undo last action"
                         >
-                            <option value="All">All Subcategories</option>
-                            {subcategories.map(sub => (
-                                <option key={sub} value={sub}>{sub}</option>
-                            ))}
-                        </select>
+                            <Undo className="w-4 h-4" />
+                            <span>Undo</span>
+                        </button>
+                        <button
+                            onClick={saveLayout}
+                            className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg border border-cyan-500 transition-colors shadow-sm font-medium"
+                        >
+                            <span>Save Layout</span>
+                        </button>
+                        <button
+                            onClick={() => setIsConfigOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition-colors shadow-sm"
+                        >
+                            <Sliders className="w-4 h-4" />
+                            <span>Configure Grouping</span>
+                        </button>
                     </div>
                 </div>
-
-                <button
-                    onClick={() => setIsConfigOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition-colors shadow-sm"
-                >
-                    <Sliders className="w-4 h-4" />
-                    <span>Configure Grouping</span>
-                </button>
             </div>
 
             {/* Dendrogram Container */}
             <div className="max-w-5xl mx-auto">
                 <div
-                    className="p-6 md:p-8 bg-slate-900/50 border border-slate-800 rounded-xl shadow-2xl backdrop-blur-sm min-h-[600px]"
+                    className="p-6 md:p-8 bg-slate-900/50 border border-slate-800 rounded-xl shadow-2xl backdrop-blur-sm min-h-[600px] relative"
                     onClick={() => setSelectedNodeId(null)}
                 >
                     {/* Decorative background elements */}

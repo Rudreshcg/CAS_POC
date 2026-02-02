@@ -65,7 +65,7 @@ if app.config['USE_S3']:
 else:
     print("⚠️  S3 not configured, using local storage")
 
-from models import db, MaterialData, MaterialParameter, EnrichmentRule, NodeAnnotation
+from models import db, MaterialData, MaterialParameter, EnrichmentRule, NodeAnnotation, ClusterOverride
 db.init_app(app)
 
 with app.app_context():
@@ -666,6 +666,75 @@ def clusters():
         print(f"Cluster Error: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/clusters/sync', methods=['POST'])
+def sync_cluster_layout():
+    """
+    Batch update override table with full current layout state.
+    Expected Payload: [ { "node_id": "...", "parent_id": "..." }, ... ]
+    """
+    try:
+        data = request.json
+        print(f"🔄 SYNC REQUEST RECEIVED. Payload size: {len(data) if data else 0}")
+        if not isinstance(data, list):
+            return jsonify({"error": "Payload must be a list"}), 400
+        
+        # Clear existing overrides? Or Update?
+        # Safe strategy: Upsert/Update provided ones.
+        
+        count = 0
+        for item in data:
+            node_id = item.get('node_id')
+            parent_id = item.get('parent_id')
+            
+            # Debug log for first few
+            if count < 5:
+                print(f"   Processing Override: Node='{node_id}' -> Parent='{parent_id}'")
+            
+            if not node_id or not parent_id: continue
+            
+            # Upsert
+            override = ClusterOverride.query.filter_by(node_id=node_id).first()
+            if not override:
+                override = ClusterOverride(node_id=node_id, target_parent_id=parent_id)
+                db.session.add(override)
+            else:
+                override.target_parent_id = parent_id
+            
+            count += 1
+
+        db.session.commit()
+        print(f"✅ SYNC COMPLETE. Updated {count} overrides.")
+        return jsonify({"success": True, "message": f"Synced {count} overrides."})
+    except Exception as e:
+        print(f"Sync Error: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/cluster/move', methods=['POST'])
+def move_cluster_node():
+    try:
+        data = request.json
+        source_id = data.get('source_id')
+        target_id = data.get('target_id')
+        
+        if not source_id or not target_id:
+            return jsonify({"error": "Missing source_id or target_id"}), 400
+            
+        # Update or create override
+        override = ClusterOverride.query.filter_by(node_id=source_id).first()
+        if not override:
+            override = ClusterOverride(node_id=source_id, target_parent_id=target_id)
+            db.session.add(override)
+        else:
+            override.target_parent_id = target_id
+            
+        db.session.commit()
+        return jsonify({"success": True, "message": "Moved successfully"})
+    except Exception as e:
+        print(f"Move Error: {e}")
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 def build_db_hierarchy(filter_subcategory=None):
     # Fetch all data with specs
     query = MaterialData.query
@@ -678,8 +747,10 @@ def build_db_hierarchy(filter_subcategory=None):
     # structure: { sub_category: { 'order': [...], 'purity': [...] } }
     rules_cache = {}
     
-    # Pre-fetch all annotations
+    # Pre-fetch all annotations & overrides
     annotations_map = {}
+    overrides_map = {}
+    
     try:
         all_anns = NodeAnnotation.query.all()
         for ann in all_anns:
@@ -688,9 +759,13 @@ def build_db_hierarchy(filter_subcategory=None):
             if key not in annotations_map:
                 annotations_map[key] = []
             annotations_map[key].append(ann.to_dict())
+            
+        all_overrides = ClusterOverride.query.all()
+        for ov in all_overrides:
+            overrides_map[ov.node_id] = ov.target_parent_id
 
     except Exception as e:
-        print(f"Error fetching annotations: {e}")
+        print(f"Error fetching metadata: {e}")
 
     # Root Node
     root = {"id": "root", "name": f"Material Clusters - {filter_subcategory or 'All'}", "children": []}
@@ -849,7 +924,65 @@ def build_db_hierarchy(filter_subcategory=None):
             # Duplicate found in this cluster - increment count
             mat_node['count'] = mat_node.get('count', 1) + 1
 
+    # POST-PROCESSING: Apply Overrides
+    if overrides_map:
+        print(f"Applying {len(overrides_map)} overrides...")
+        
+        # Recursive function to find parent of a node
+        def find_parent_of_node(parent, target_child_id):
+            if 'children' in parent:
+                for i, child in enumerate(parent['children']):
+                    if child['id'] == target_child_id:
+                        return parent, i
+                    found = find_parent_of_node(child, target_child_id)
+                    if found: return found
+            return None
+
+        # Process overrides
+        success_count = 0
+        fail_count = 0
+        for node_id, target_parent_id in overrides_map.items():
+            # 1. Find the node and its current parent
+            result = find_parent_of_node(root, node_id)
+            if result:
+                current_parent, idx = result
+                
+                # Check if it's already in the right place (optimization)
+                if current_parent.get('id') == target_parent_id:
+                     continue
+
+                # 2. Detach
+                node_to_move = current_parent['children'].pop(idx)
+                
+                # 3. Find target parent
+                target_parent = find_node_by_id(root, target_parent_id)
+                if target_parent:
+                    if 'children' not in target_parent:
+                        target_parent['children'] = []
+                    target_parent['children'].append(node_to_move)
+                    success_count += 1
+                else:
+                    # Fallback: Re-attach to root if target missing
+                    print(f"⚠️ Target parent '{target_parent_id}' not found for node '{node_id}'. Moving to root.")
+                    root['children'].append(node_to_move)
+                    fail_count += 1
+            else:
+                # Node not found in tree (might be filtered out or ID mismatch)
+                # print(f"⚠️ Node '{node_id}' not found in tree. Cannot apply override.")
+                pass
+        
+        print(f"✅ Applied {success_count} overrides. {fail_count} failed/fallback.")
+
     return root
+
+def find_node_by_id(node, target_id):
+    if node.get('id') == target_id:
+        return node
+    for child in node.get('children', []):
+        found = find_node_by_id(child, target_id)
+        if found:
+            return found
+    return None
 
 
 

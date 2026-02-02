@@ -83,7 +83,9 @@ export function TreeNode({ node, depth, isLast, parentPath }) {
         const height = rect.height;
 
         let position;
-        if (y < height * 0.25) {
+        if (node.id === 'root') {
+            position = 'inside';
+        } else if (y < height * 0.25) {
             position = 'before';
         } else if (y > height * 0.75) {
             position = 'after';

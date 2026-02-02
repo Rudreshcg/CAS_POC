@@ -109,8 +109,27 @@ const initialTree = {
 };
 
 export function DendrogramProvider({ children }) {
+    // Standard setTree
     const [tree, setTree] = useState(initialTree);
+    const [history, setHistory] = useState([]);
     const [selectedNodeId, setSelectedNodeId] = useState(null);
+
+    // Helper to push to history manually
+    const pushHistory = useCallback((oldTree) => {
+        setHistory(prev => [...prev, oldTree]);
+    }, []);
+
+    const undo = useCallback(() => {
+        setHistory(prev => {
+            if (prev.length === 0) return prev;
+            const previousTree = prev[prev.length - 1];
+            const newHistory = prev.slice(0, -1);
+            setTree(previousTree);
+            return newHistory;
+        });
+    }, []);
+
+    const canUndo = history.length > 0;
     const [dragState, setDragState] = useState({
         draggedNodeId: null,
         targetNodeId: null,
@@ -147,6 +166,8 @@ export function DendrogramProvider({ children }) {
             if (!res.ok) throw new Error('Failed to save annotation');
             const newAnn = await res.json();
 
+            // Push history before update
+            pushHistory(tree);
             // Update local tree with new annotation
             setTree(prev => updateNode(prev, node.id, (n) => ({
                 annotations: [...(n.annotations || []), newAnn]
@@ -154,7 +175,7 @@ export function DendrogramProvider({ children }) {
         } catch (err) {
             console.error(err);
         }
-    }, []);
+    }, [tree, pushHistory]);
 
     const deleteNodeAnnotation = useCallback(async (node, annotationId) => {
         // Optimistic delete
@@ -168,7 +189,7 @@ export function DendrogramProvider({ children }) {
             console.error(err);
             // Revert?
         }
-    }, []);
+    }, [tree, pushHistory]);
 
     const updateNodeAnnotation = useCallback(async (node, annotationId, updates) => {
         // updates: { answer: "..." }
@@ -189,7 +210,7 @@ export function DendrogramProvider({ children }) {
         } catch (err) {
             console.error(err);
         }
-    }, []);
+    }, [tree, pushHistory]);
 
     const updateNodeName = useCallback(async (node, newName) => {
         if (!node.identifier || node.type !== 'material') return;
@@ -211,26 +232,82 @@ export function DendrogramProvider({ children }) {
             console.error(err);
             // Revert?
         }
-    }, []);
+    }, [tree, pushHistory]);
 
     const moveNode = useCallback((sourceId, targetId, position) => {
         if (sourceId === targetId) return;
         if (sourceId === 'root') return;
 
-        setTree(prev => {
-            // Prevent moving a node into its own descendant
-            if (isDescendant(prev, sourceId, targetId)) return prev;
+        // Calculate new tree from current tree (closure) to check validity
+        // Note: We need 'tree' in dependency to have fresh closure
 
-            const nodeToMove = findNode(prev, sourceId);
-            if (!nodeToMove) return prev;
+        // Prevent moving a node into its own descendant
+        if (isDescendant(tree, sourceId, targetId)) return;
+
+        const nodeToMove = findNode(tree, sourceId);
+        if (!nodeToMove) return;
+
+        // Push history
+        pushHistory(tree);
+
+        setTree(prev => {
+            console.log(`[Dendrogram] Moving ${sourceId} to ${targetId} (${position})`);
 
             // Remove the node from its current position
             const treeWithoutNode = removeNode(prev, sourceId);
+            console.log('[Dendrogram] Tree after removal:', treeWithoutNode);
 
             // Insert the node at the new position
-            return insertNode(treeWithoutNode, nodeToMove, targetId, position);
+            const newTree = insertNode(treeWithoutNode, nodeToMove, targetId, position);
+            console.log('[Dendrogram] Tree after insertion:', newTree);
+
+            return newTree;
         });
-    }, []);
+
+        // AUTO-SAVE REMOVED.
+        // User must click "Save Layout" to persist.
+    }, [tree, pushHistory]);
+
+    // Manual Save Function
+    const saveLayout = useCallback(async () => {
+        // We need to extract all Manual Overrides from the current tree.
+        // Traverse tree, finding all 'material' nodes (or any moved node).
+        // Since we don't track *which* are moved locally vs original, 
+        // we can just sync ALL material positions.
+        // Or better: We specifically look for materials and send their current parent.
+
+        const overrides = [];
+
+        const traverse = (node, parentId) => {
+            if (node.id !== 'root' && parentId) {
+                // Save ALL nodes allowing groups/params to be moved and persisted.
+                // We capture the entire current state.
+                overrides.push({ node_id: node.id, parent_id: parentId });
+            }
+            if (node.children) {
+                node.children.forEach(child => traverse(child, node.id));
+            }
+        };
+
+        if (tree.children) {
+            tree.children.forEach(child => traverse(child, tree.id));
+        }
+
+        console.log("Saving Layout Overrides:", overrides);
+
+        try {
+            const res = await fetch('/api/clusters/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(overrides)
+            });
+            if (!res.ok) throw new Error("Failed to save layout");
+            alert("Layout saved successfully!");
+        } catch (e) {
+            console.error(e);
+            alert("Error saving layout.");
+        }
+    }, [tree]);
 
     return (
         <DendrogramContext.Provider
@@ -245,7 +322,10 @@ export function DendrogramProvider({ children }) {
                 updateNodeName,
                 moveNode,
                 selectedNodeId,
-                setSelectedNodeId
+                setSelectedNodeId,
+                undo,
+                canUndo,
+                saveLayout // Exported
             }}
         >
             {children}

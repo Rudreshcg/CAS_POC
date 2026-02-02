@@ -118,3 +118,18 @@ class NodeAnnotation(db.Model):
             'is_open': self.is_open,
             'created_at': self.created_at.isoformat()
         }
+
+class ClusterOverride(db.Model):
+    __tablename__ = 'cluster_override'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    node_id = db.Column(db.String(255), nullable=False, unique=True) # The ID of the node being moved
+    target_parent_id = db.Column(db.String(255), nullable=False) # The ID of the new parent
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'node_id': self.node_id,
+            'target_parent_id': self.target_parent_id,
+            'created_at': self.created_at.isoformat()
+        }
