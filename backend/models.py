@@ -18,6 +18,7 @@ class MaterialData(db.Model):
     brand = db.Column(db.String(255))  # Item used for Brand(s)
     item_code = db.Column(db.String(100))
     plant = db.Column(db.String(255))  # Factory/Country
+    region = db.Column(db.String(255)) # Region (NAC, ASEAN, etc.)
     cluster = db.Column(db.String(255))
     
     # Enriched Data
@@ -48,6 +49,7 @@ class MaterialData(db.Model):
             'brand': self.brand,
             'item_code': self.item_code,
             'plant': self.plant,
+            'region': self.region,
             'cluster': self.cluster,
             'enriched_description': self.enriched_description,
             'final_search_term': self.final_search_term,

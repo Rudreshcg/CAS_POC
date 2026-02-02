@@ -575,6 +575,7 @@ def process_file(filename):
                                         brand=brand_name, # Use split brand
                                         item_code=str(row.get('Item code', 'N/A')),
                                         plant=row.get('Factory/Country', 'N/A'),
+                                        region=row.get('Region', 'N/A'), # Populate Region
                                         cluster=row.get('Cluster', 'N/A'),
                                         enriched_description=result['enriched_description'],
                                         final_search_term=result['final_search_term'],
@@ -818,27 +819,26 @@ def build_db_hierarchy(filter_subcategory=None):
         mat_params = {p.name.strip().lower(): p.value for p in mat.parameters}
         mat_subcat = mat.sub_category or "Uncategorized"
         
-        # Determine Brand
-        # Upload splitting now ensures mat.brand is a single brand entry
-        brand_name = mat.brand.strip() if mat.brand and mat.brand != 'nan' else "Unknown Brand"
+        # Determine Region (New Top Level)
+        region_name = mat.region.strip() if mat.region and mat.region != 'nan' else "Unknown Region"
         
-        # 1. Brand Level
-        brand_node = find_node(root, brand_name)
-        if not brand_node:
-            brand_node = create_node(brand_name, node_id=f"brand-{brand_name}", node_type='brand', node_identifier=brand_name)
-            root['children'].append(brand_node)
+        # 1. Region Level
+        region_node = find_node(root, region_name)
+        if not region_node:
+            region_node = create_node(region_name, node_id=f"region-{region_name}", node_type='region', node_identifier=region_name)
+            root['children'].append(region_node)
 
         # 2. Sub-Category Level Logic
         # If specific filter is active AND matches this item's subcat, SKIP creating the subcat node
-        # allowing direct attachment to Brand.
+        # allowing direct attachment to Region.
         if filter_subcategory and filter_subcategory != 'All' and filter_subcategory == mat_subcat:
-            current_node = brand_node
+            current_node = region_node
         else:
             # Normal behavior: Create Sub-Category Node
-            subcat_node = find_node(brand_node, mat_subcat)
+            subcat_node = find_node(region_node, mat_subcat)
             if not subcat_node:
-                subcat_node = create_node(mat_subcat, node_id=f"sub-{brand_name}-{mat_subcat}")
-                brand_node['children'].append(subcat_node)
+                subcat_node = create_node(mat_subcat, node_id=f"sub-{region_name}-{mat_subcat}")
+                region_node['children'].append(subcat_node)
             current_node = subcat_node
 
         # 3. Dynamic Rules Logic (Resolution)
@@ -867,7 +867,7 @@ def build_db_hierarchy(filter_subcategory=None):
         cas_node_name = f"CAS: {cas_val}"
         cas_node = find_node(current_node, cas_node_name)
         if not cas_node:
-            cas_node = create_node(cas_node_name, node_id=f"cas-{brand_name}-{mat_subcat}-{cas_val}")
+            cas_node = create_node(cas_node_name, node_id=f"cas-{region_name}-{mat_subcat}-{cas_val}")
             current_node['children'].append(cas_node)
         current_node = cas_node
 
@@ -908,7 +908,7 @@ def build_db_hierarchy(filter_subcategory=None):
 
         # Material Leaf
         # Use simple brand-flavored ID to ensure uniqueness in tree
-        unique_id = f"mat-{brand_name}-{mat.id}"
+        unique_id = f"mat-{region_name}-{mat.id}"
         
         # Use Enriched Description if available, else fallback to Item Description
         display_name = mat.enriched_description if mat.enriched_description and mat.enriched_description != 'nan' else mat.item_description
