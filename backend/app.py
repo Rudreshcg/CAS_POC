@@ -828,20 +828,24 @@ def build_db_hierarchy(filter_subcategory=None):
             region_node = create_node(region_name, node_id=f"region-{region_name}", node_type='region', node_identifier=region_name)
             root['children'].append(region_node)
 
-        # 2. Sub-Category Level Logic
-        # If specific filter is active AND matches this item's subcat, SKIP creating the subcat node
-        # allowing direct attachment to Region.
-        if filter_subcategory and filter_subcategory != 'All' and filter_subcategory == mat_subcat:
-            current_node = region_node
-        else:
-            # Normal behavior: Create Sub-Category Node
-            subcat_node = find_node(region_node, mat_subcat)
-            if not subcat_node:
-                subcat_node = create_node(mat_subcat, node_id=f"sub-{region_name}-{mat_subcat}")
-                region_node['children'].append(subcat_node)
-            current_node = subcat_node
+        # 2. CAS Level (Direct Child of Region due to user request)
+        cas_val = mat.cas_number if mat.cas_number and mat.cas_number != 'NOT FOUND' else "No CAS"
+        cas_node_name = f"CAS: {cas_val}"
+        cas_node = find_node(region_node, cas_node_name)
+        if not cas_node:
+            cas_node = create_node(cas_node_name, node_id=f"cas-{region_name}-{cas_val}")
+            region_node['children'].append(cas_node)
+        current_node = cas_node
 
-        # 3. Dynamic Rules Logic (Resolution)
+        # 3. Factory/Plant Level (Inside CAS)
+        plant_val = mat.plant.strip() if mat.plant and mat.plant != 'nan' else "Unknown Factory"
+        plant_node = find_node(current_node, plant_val)
+        if not plant_node:
+            plant_node = create_node(plant_val, node_id=f"plant-{region_name}-{cas_val}-{plant_val}", node_type='cluster')
+            current_node['children'].append(plant_node)
+        current_node = plant_node
+
+        # 4. Dynamic Rules Logic (Resolution)
         if mat_subcat not in rules_cache:
             rule = EnrichmentRule.query.filter_by(sub_category=mat_subcat).first()
             r_order = ['Grade', 'Purity', 'Color']
@@ -858,18 +862,6 @@ def build_db_hierarchy(filter_subcategory=None):
         current_config = rules_cache[mat_subcat]
         param_order = current_config['order']
         purity_rules = current_config['purity']
-        
-        # Determine grouping path (CAS -> Params...)
-        # CAS Logic
-        cas_val = mat.cas_number if mat.cas_number and mat.cas_number != 'NOT FOUND' else "No CAS"
-        # current_node is already set to either brand or subcat above
-        
-        cas_node_name = f"CAS: {cas_val}"
-        cas_node = find_node(current_node, cas_node_name)
-        if not cas_node:
-            cas_node = create_node(cas_node_name, node_id=f"cas-{region_name}-{mat_subcat}-{cas_val}")
-            current_node['children'].append(cas_node)
-        current_node = cas_node
 
         # Dynamic Params
         for p_name in (param_order or []):
