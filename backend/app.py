@@ -600,7 +600,7 @@ def process_file(filename):
                                         )
                                         db.session.add(param_entry)
                                         
-                                    db.session.add(param_entry)
+
                                         
                                     # Update Quantity and Spend Value
                                     # Try to find columns case-insensitively
@@ -913,7 +913,9 @@ def build_db_hierarchy(filter_subcategory=None):
         cas_node_name = f"CAS: {cas_val}"
         cas_node = find_node(region_node, cas_node_name)
         if not cas_node:
-            cas_node = create_node(cas_node_name, node_id=f"cas-{region_name}-{cas_val}")
+            # Use unique ID as identifier to scope annotations to this exact node
+            cas_unique_id = f"cas-{region_name}-{cas_val}"
+            cas_node = create_node(cas_node_name, node_id=cas_unique_id, node_type='cas', node_identifier=cas_unique_id)
             region_node['children'].append(cas_node)
         current_node = cas_node
 
@@ -921,8 +923,9 @@ def build_db_hierarchy(filter_subcategory=None):
         plant_val = mat.plant.strip() if mat.plant and mat.plant != 'nan' else "Unknown Factory"
         plant_node = find_node(current_node, plant_val)
         if not plant_node:
-            plant_node = create_node(plant_val, node_id=f"plant-{region_name}-{cas_val}-{plant_val}", node_type='cluster')
-            current_node['children'].append(plant_node)
+             plant_unique_id = f"plant-{region_name}-{cas_val}-{plant_val}"
+             plant_node = create_node(plant_val, node_id=plant_unique_id, node_type='plant', node_identifier=plant_unique_id)
+             current_node['children'].append(plant_node)
         current_node = plant_node
 
         # 4. Dynamic Rules Logic (Resolution)
@@ -956,8 +959,12 @@ def build_db_hierarchy(filter_subcategory=None):
                 grouped_val = apply_purity_rules(val, purity_rules)
                 g_name = f"{p_name}: {grouped_val}"
                 g_node = find_node(current_node, g_name)
+                
+                # Unique ID for grouping node
+                grp_unique_id = f"grp-{current_node['id']}-{p_name}-{grouped_val}"
+                
                 if not g_node:
-                    g_node = create_node(g_name, node_id=f"grp-{current_node['id']}-{p_name}-{grouped_val}")
+                    g_node = create_node(g_name, node_id=grp_unique_id, node_type='cluster_group', node_identifier=grp_unique_id)
                     current_node['children'].append(g_node)
                 current_node = g_node
                 
@@ -966,7 +973,8 @@ def build_db_hierarchy(filter_subcategory=None):
                 if raw_name != g_name:
                     raw_node = find_node(current_node, raw_name)
                     if not raw_node:
-                        raw_node = create_node(raw_name, node_id=f"raw-{current_node['id']}-{val}")
+                        raw_unique_id = f"raw-{current_node['id']}-{val}"
+                        raw_node = create_node(raw_name, node_id=raw_unique_id, node_type='cluster_param', node_identifier=raw_unique_id)
                         current_node['children'].append(raw_node)
                     current_node = raw_node
             else:
@@ -974,7 +982,8 @@ def build_db_hierarchy(filter_subcategory=None):
                 p_node_name = f"{p_name}: {val}"
                 p_node = find_node(current_node, p_node_name)
                 if not p_node:
-                    p_node = create_node(p_node_name, node_id=f"param-{current_node['id']}-{p_name}-{val}")
+                    param_unique_id = f"param-{current_node['id']}-{p_name}-{val}"
+                    p_node = create_node(p_node_name, node_id=param_unique_id, node_type='cluster_param', node_identifier=param_unique_id)
                     current_node['children'].append(p_node)
                 current_node = p_node
 

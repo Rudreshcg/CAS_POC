@@ -178,23 +178,23 @@ export default function AnnotationModal({ isOpen, onClose, node, onSave, onDelet
                                                                     if (e.key === 'Enter' && e.target.value.trim()) {
                                                                         const newAnswer = e.target.value.trim();
                                                                         try {
-                                                                            // Update the annotation with the answer
-                                                                            // We need a PUT endpoint or just delete/re-create. 
-                                                                            // Actually we implemented PUT /api/annotations/<id> in app.py? 
-                                                                            // Let's check app.py. Assuming we did or will double check.
-                                                                            // Current implementation might only support DELETE. 
-                                                                            // Wait, I recall seeing PUT in previous diffs?
-                                                                            // Let's rely on standard practice: If PUT exists use it, if not report.
-                                                                            // Based on context, I should probably check if PUT is available. 
-                                                                            // But for now, let's assume valid invalidation.
-                                                                            // Actually, simpler: Use special handler.
-
-                                                                            // Quick fix: Since I can't confirm PUT right now without view, 
-                                                                            // I will use a special "Answer" handler that calls a helper.
-                                                                        } catch (err) { }
+                                                                            const res = await fetch(`/api/annotations/${ann.id}`, {
+                                                                                method: 'PUT',
+                                                                                headers: { 'Content-Type': 'application/json' },
+                                                                                body: JSON.stringify({
+                                                                                    answer: newAnswer,
+                                                                                    is_open: false
+                                                                                })
+                                                                            });
+                                                                            if (res.ok) {
+                                                                                fetchAnnotations();
+                                                                                if (onSave) onSave();
+                                                                            }
+                                                                        } catch (err) {
+                                                                            console.error(err);
+                                                                        }
                                                                     }
                                                                 }}
-                                                                // Temporary: Just basic UI for now, logic below
                                                                 id={`answer-input-${ann.id}`}
                                                             />
                                                             <button
@@ -214,7 +214,9 @@ export default function AnnotationModal({ isOpen, onClose, node, onSave, onDelet
                                                                                 fetchAnnotations();
                                                                                 if (onSave) onSave();
                                                                             }
-                                                                        } catch (e) { console.error(e); }
+                                                                        } catch (e) {
+                                                                            console.error(e);
+                                                                        }
                                                                     }
                                                                 }}
                                                                 className="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs rounded transition-colors"
