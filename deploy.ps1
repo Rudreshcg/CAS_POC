@@ -78,6 +78,8 @@ Copy-Item "backend/llm_helper.py" -Destination $stagingDir
 Copy-Item "backend/models.py" -Destination $stagingDir
 Copy-Item "backend/requirements.txt" -Destination $stagingDir
 Copy-Item "backend/material_clusters.json" -Destination $stagingDir -ErrorAction SilentlyContinue
+Copy-Item "backend/reset_db.py" -Destination $stagingDir
+Copy-Item "backend/migrate_db.py" -Destination $stagingDir
 
 # Copy Frontend Build (Maintain directory structure: frontend/dist)
 if (Test-Path "frontend/dist") {

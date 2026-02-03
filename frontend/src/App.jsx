@@ -5,7 +5,8 @@ import ResultsTable from './components/ResultsTable';
 import LogConsole from './components/LogConsole';
 import EnrichmentRules from './components/EnrichmentRules';
 import ClusterVisualizer from './components/ClusterVisualizer';
-import { Boxes, Settings } from 'lucide-react';
+import SpendAnalysis from './components/SpendAnalysis';
+import { Boxes, Settings, PieChart } from 'lucide-react';
 
 // Dashboard Component - Pure UI now
 function Dashboard({
@@ -28,6 +29,9 @@ function Dashboard({
           </Link>
           <Link to="/rules" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full text-cyan-400 text-sm font-semibold hover:bg-slate-700 transition-colors">
             <Settings size={16} /> Enrichment Rules
+          </Link>
+          <Link to="/spend-analysis/Glycerine" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-full text-cyan-400 text-sm font-semibold hover:bg-slate-700 transition-colors">
+            <PieChart size={16} /> Spend Analysis (Demo)
           </Link>
         </div>
       </div>
@@ -211,6 +215,7 @@ function App() {
           } />
           <Route path="/clusters" element={<ClustersPage />} />
           <Route path="/rules" element={<EnrichmentRules />} />
+          <Route path="/spend-analysis/:material" element={<SpendAnalysis />} />
         </Routes>
 
         {/* Global Progress Indicator (Toast style) */}

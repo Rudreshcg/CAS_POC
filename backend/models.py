@@ -34,6 +34,10 @@ class MaterialData(db.Model):
     confidence_score = db.Column(db.Integer, default=70)
     validation_status = db.Column(db.String(50), default='Pending')
     validation_documents = db.Column(db.Text, default='[]')
+    
+    # Spend Analysis Fields
+    quantity = db.Column(db.Float, default=0.0)
+    spend_value = db.Column(db.Float, default=0.0)
 
     # Relationship to Dynamic Parameters
     parameters = db.relationship('MaterialParameter', backref='material', lazy=True, cascade="all, delete-orphan")
@@ -59,6 +63,8 @@ class MaterialData(db.Model):
             'created_at': self.created_at.isoformat(),
             'confidence_score': self.confidence_score,
             'validation_status': self.validation_status,
+            'quantity': self.quantity,
+            'spend_value': self.spend_value,
             'parameters': {p.name: p.value for p in self.parameters},
             'validation_documents': json.loads(self.validation_documents) if self.validation_documents else []
         }

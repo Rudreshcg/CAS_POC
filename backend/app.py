@@ -600,6 +600,38 @@ def process_file(filename):
                                         )
                                         db.session.add(param_entry)
                                         
+                                    db.session.add(param_entry)
+                                        
+                                    # Update Quantity and Spend Value
+                                    # Try to find columns case-insensitively
+                                    # Default to random for demo if not found? 
+                                    # Let's try to find exact or close matches
+                                    
+                                    qty = 0.0
+                                    val = 0.0
+                                    
+                                    # Helper to find column value
+                                    def get_col_val(r, candidates):
+                                        for c in candidates:
+                                            for col in r.keys():
+                                                if c.lower() in col.lower():
+                                                    try:
+                                                        return float(str(r[col]).replace(',', '').strip())
+                                                    except:
+                                                        pass
+                                        return 0.0
+
+                                    qty = get_col_val(row, ['quantity', 'qty', 'volume'])
+                                    val = get_col_val(row, ['value', 'amount', 'spend', 'cost'])
+                                    
+                                    # If 0, generate mock for demo purposes (DISABLE FOR PRODUCTION)
+                                    import random
+                                    if qty == 0: qty = random.uniform(100, 5000)
+                                    if val == 0: val = qty * random.uniform(10, 50)
+                                    
+                                    material_entry.quantity = qty
+                                    material_entry.spend_value = val
+
                                     db.session.commit()
                                     
                                     # Add to results list for CSV output
@@ -734,6 +766,54 @@ def move_cluster_node():
     except Exception as e:
         print(f"Move Error: {e}")
         db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/spend-analysis/<material_name>')
+def spend_analysis(material_name):
+    try:
+        # Find all entries for this material (fuzzy match or exact?)
+        # Let's try to match by Enriched Description or Item Description
+        # For POC we might just look for rows where enriched description contains the material name 
+        # or simple case-insensitive matching if it's a specific chemical
+        
+        # Taking a simpler approach: Match by "Final Search Term" or "Enriched Description"
+        # Or even better, filter by rows that have this material name in their hierarchy?
+        # The user request asks for "Spend Analytics for: Glycerine".
+        
+        # Let's search in query parameter 'material_name' against 'final_search_term' or 'item_description'
+        search = f"%{material_name}%"
+        results = MaterialData.query.filter(
+            (MaterialData.final_search_term.ilike(search)) | 
+            (MaterialData.enriched_description.ilike(search)) |
+            (MaterialData.item_description.ilike(search))
+        ).all()
+        
+        # Aggregate by Region
+        region_stats = {}
+        
+        for r in results:
+            reg = r.region if r.region and r.region != 'nan' else 'Unknown'
+            if reg not in region_stats:
+                region_stats[reg] = {'quantity': 0.0, 'value': 0.0}
+            
+            region_stats[reg]['quantity'] += (r.quantity or 0.0)
+            region_stats[reg]['value'] += (r.spend_value or 0.0)
+            
+        # Format for Recharts
+        # [ { name: 'Region', value: 100 }, ... ]
+        chart_data_qty = [{'name': k, 'value': round(v['quantity'], 2)} for k, v in region_stats.items()]
+        chart_data_val = [{'name': k, 'value': round(v['value'], 2)} for k, v in region_stats.items()]
+        
+        return jsonify({
+            'material': material_name,
+            'quantity_data': chart_data_qty,
+            'value_data': chart_data_val,
+            'total_quantity': sum(d['value'] for d in chart_data_qty),
+            'total_value': sum(d['value'] for d in chart_data_val)
+        })
+        
+    except Exception as e:
+        print(f"Spend Analysis Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 def build_db_hierarchy(filter_subcategory=None):

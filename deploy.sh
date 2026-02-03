@@ -69,6 +69,8 @@ cp backend/llm_helper.py $STAGING_DIR/
 cp backend/models.py $STAGING_DIR/
 cp backend/requirements.txt $STAGING_DIR/
 cp backend/material_clusters.json $STAGING_DIR/ 2>/dev/null || true
+cp backend/reset_db.py $STAGING_DIR/
+cp backend/migrate_db.py $STAGING_DIR/
 
 # Copy Frontend Build
 if [ -d "frontend/dist" ]; then
