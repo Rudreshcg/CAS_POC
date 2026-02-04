@@ -89,6 +89,7 @@ class EnrichmentRule(db.Model):
     identifier_name = db.Column(db.String(255), default="CAS")
     parameters = db.Column(db.Text, default="[]") # JSON string of parameter names
     purity_rules = db.Column(db.Text, default="[]") # JSON string for purity ranges
+    hierarchy = db.Column(db.Text, default='["Region", "Identifier", "Factory"]') # JSON string for hierarchy order
 
     def to_dict(self):
         return {
@@ -96,7 +97,8 @@ class EnrichmentRule(db.Model):
             'sub_category': self.sub_category,
             'identifier_name': self.identifier_name,
             'parameters': json.loads(self.parameters) if self.parameters else [],
-            'purity_rules': json.loads(self.purity_rules) if self.purity_rules else []
+            'purity_rules': json.loads(self.purity_rules) if self.purity_rules else [],
+            'hierarchy': json.loads(self.hierarchy) if self.hierarchy else ["Region", "Identifier", "Factory"]
         }
 
 class NodeAnnotation(db.Model):

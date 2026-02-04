@@ -78,7 +78,16 @@ with app.app_context():
             conn.commit()
             print("✅ Added purity_rules column to EnrichmentRule")
     except Exception as e:
-        # Expected if column already exists
+        pass
+
+    # Migration hack: Add hierarchy column if it doesn't exist
+    try:
+        from sqlalchemy import text
+        with db.engine.connect() as conn:
+            conn.execute(text("ALTER TABLE enrichment_rule ADD COLUMN hierarchy TEXT DEFAULT '[\"Region\", \"Identifier\", \"Factory\"]'"))
+            conn.commit()
+            print("✅ Added hierarchy column to EnrichmentRule")
+    except Exception as e:
         pass
 
 # ==========================================
@@ -899,40 +908,11 @@ def build_db_hierarchy(filter_subcategory=None):
         mat_params = {p.name.strip().lower(): p.value for p in mat.parameters}
         mat_subcat = mat.sub_category or "Uncategorized"
         
-        # Determine Region (New Top Level)
-        region_name = mat.region.strip() if mat.region and mat.region != 'nan' else "Unknown Region"
-        
-        # 1. Region Level
-        region_node = find_node(root, region_name)
-        if not region_node:
-            region_node = create_node(region_name, node_id=f"region-{region_name}", node_type='region', node_identifier=region_name)
-            root['children'].append(region_node)
-
-        # 2. CAS Level (Direct Child of Region due to user request)
-        cas_val = mat.cas_number if mat.cas_number and mat.cas_number != 'NOT FOUND' else "No CAS"
-        cas_node_name = f"CAS: {cas_val}"
-        cas_node = find_node(region_node, cas_node_name)
-        if not cas_node:
-            # Use unique ID as identifier to scope annotations to this exact node
-            cas_unique_id = f"cas-{region_name}-{cas_val}"
-            cas_node = create_node(cas_node_name, node_id=cas_unique_id, node_type='cas', node_identifier=cas_unique_id)
-            region_node['children'].append(cas_node)
-        current_node = cas_node
-
-        # 3. Factory/Plant Level (Inside CAS)
-        plant_val = mat.plant.strip() if mat.plant and mat.plant != 'nan' else "Unknown Factory"
-        plant_node = find_node(current_node, plant_val)
-        if not plant_node:
-             plant_unique_id = f"plant-{region_name}-{cas_val}-{plant_val}"
-             plant_node = create_node(plant_val, node_id=plant_unique_id, node_type='plant', node_identifier=plant_unique_id)
-             current_node['children'].append(plant_node)
-        current_node = plant_node
-
-        # 4. Dynamic Rules Logic (Resolution)
         if mat_subcat not in rules_cache:
             rule = EnrichmentRule.query.filter_by(sub_category=mat_subcat).first()
             r_order = ['Grade', 'Purity', 'Color']
             r_purity = []
+            r_hierarchy = ["Region", "Identifier", "Factory"]
             if rule:
                 if rule.parameters:
                    try: r_order = json.loads(rule.parameters)
@@ -940,11 +920,54 @@ def build_db_hierarchy(filter_subcategory=None):
                 if rule.purity_rules:
                    try: r_purity = json.loads(rule.purity_rules)
                    except: pass
-            rules_cache[mat_subcat] = {'order': r_order, 'purity': r_purity}
+                if rule.hierarchy:
+                   try: r_hierarchy = json.loads(rule.hierarchy)
+                   except: pass
+            rules_cache[mat_subcat] = {'order': r_order, 'purity': r_purity, 'hierarchy': r_hierarchy}
             
         current_config = rules_cache[mat_subcat]
         param_order = current_config['order']
         purity_rules = current_config['purity']
+        hierarchy_order = current_config['hierarchy']
+
+        # Start from root
+        current_node = root
+        
+        # Build Initial Hierarchy Levels based on config
+        for level_type in hierarchy_order:
+            level_name = "Unknown"
+            node_type = level_type.lower()
+            
+            if level_type == 'Region':
+                level_name = mat.region.strip() if mat.region and mat.region != 'nan' else "Unknown Region"
+                node_id = f"region-{level_name}"
+            elif level_type == 'Brand':
+                level_name = mat.brand.strip() if mat.brand and mat.brand != 'nan' else "Unknown Brand"
+                node_id = f"brand-{level_name}"
+            elif level_type == 'Factory':
+                level_name = mat.plant.strip() if mat.plant and mat.plant != 'nan' else "Unknown Factory"
+                node_id = f"plant-{level_name}"
+            elif level_type == 'Identifier' or level_type == 'CAS':
+                 val = mat.cas_number if mat.cas_number and mat.cas_number != 'NOT FOUND' else "No CAS"
+                 level_name = f"CAS: {val}"
+                 node_type = 'cas'
+                 node_id = f"cas-{val}"
+            else:
+                 continue
+
+            # Ensure unique path-based ID to allow same name in different branches
+            # BUT we want to merge if it's the same logical group
+            # Actually, standardizing on path-based IDs is safer for dendrogram state
+            # Let's create a unique ID by combining parent ID and this node ID
+            unique_node_id = f"{current_node['id']}-{node_id}"
+            
+            # Find or create
+            found_node = find_node(current_node, level_name)
+            if not found_node:
+                found_node = create_node(level_name, node_id=unique_node_id, node_type=node_type, node_identifier=level_name)
+                current_node['children'].append(found_node)
+            
+            current_node = found_node
 
         # Dynamic Params
         for p_name in (param_order or []):
@@ -989,7 +1012,8 @@ def build_db_hierarchy(filter_subcategory=None):
 
         # Material Leaf
         # Use simple brand-flavored ID to ensure uniqueness in tree
-        unique_id = f"mat-{region_name}-{mat.id}"
+        r_name = mat.region.strip() if mat.region and mat.region != 'nan' else "Unknown"
+        unique_id = f"mat-{r_name}-{mat.id}"
         
         # Use Enriched Description if available, else fallback to Item Description
         display_name = mat.enriched_description if mat.enriched_description and mat.enriched_description != 'nan' else mat.item_description
@@ -1415,6 +1439,12 @@ def handle_rules():
             dumped_rules = json.dumps(purity_rules)
             print(f"   📝 Serialized Purity Rules: {dumped_rules}")
             rule.purity_rules = dumped_rules
+            
+            # Hierarchy
+            hierarchy = data.get('hierarchy')
+            if hierarchy:
+                 rule.hierarchy = json.dumps(hierarchy)
+                 print(f"   📚 Serialized Hierarchy: {rule.hierarchy}")
             
             db.session.add(rule)
             db.session.commit()

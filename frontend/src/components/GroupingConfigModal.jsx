@@ -16,6 +16,10 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
     const [purityRules, setPurityRules] = useState([]);
     const [newRule, setNewRule] = useState({ label: '', operator: '<', value: '', min: '', max: '' });
 
+    // Hierarchy State
+    const availableLevels = ["Brand", "Factory", "Identifier", "Region"];
+    const [hierarchy, setHierarchy] = useState(["Region", "Identifier", "Factory"]); // Default
+
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
 
@@ -48,11 +52,13 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
                     setParameters(rule.parameters || []);
                     setIdentifierName(rule.identifier_name || 'CAS');
                     setPurityRules(rule.purity_rules || []);
+                    setHierarchy(rule.hierarchy || ["Region", "Identifier", "Factory"]);
                 } else {
                     // Default if no rule exists yet
                     setParameters(['Grade', 'Purity', 'Color']);
                     setIdentifierName('CAS');
                     setPurityRules([]);
+                    setHierarchy(["Region", "Identifier", "Factory"]);
                 }
                 setLoading(false);
             })
@@ -62,6 +68,7 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
                 setParameters(['Grade', 'Purity', 'Color']);
                 setIdentifierName('CAS');
                 setPurityRules([]);
+                setHierarchy(["Region", "Identifier", "Factory"]);
                 setLoading(false);
             });
     }, [selectedSubcategory]);
@@ -103,6 +110,27 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
         setPurityRules(purityRules.filter((_, i) => i !== index));
     };
 
+    // Hierarchy Handlers
+    const toggleLevel = (level) => {
+        if (hierarchy.includes(level)) {
+            setHierarchy(hierarchy.filter(l => l !== level));
+        } else {
+            setHierarchy([...hierarchy, level]);
+        }
+    };
+
+    const moveLevel = (index, direction) => {
+        if (direction === 'up' && index > 0) {
+            const newH = [...hierarchy];
+            [newH[index - 1], newH[index]] = [newH[index], newH[index - 1]];
+            setHierarchy(newH);
+        } else if (direction === 'down' && index < hierarchy.length - 1) {
+            const newH = [...hierarchy];
+            [newH[index + 1], newH[index]] = [newH[index], newH[index + 1]];
+            setHierarchy(newH);
+        }
+    };
+
     const handleSaveConfig = async () => {
         if (!selectedSubcategory) {
             setMessage({ type: 'error', text: 'Please select a subcategory.' });
@@ -136,7 +164,8 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
                 sub_category: selectedSubcategory,
                 identifier_name: identifierName,
                 parameters: parameters,
-                purity_rules: finalPurityRules
+                purity_rules: finalPurityRules,
+                hierarchy: hierarchy
             };
 
             const res = await fetch('/api/rules', {
@@ -194,13 +223,55 @@ export default function GroupingConfigModal({ isOpen, onClose, onSave }) {
                                 <option key={sub} value={sub}>{sub}</option>
                             ))}
                         </select>
-                        <p className="text-xs text-slate-500 mt-2">
-                            Rules define the hierarchy: Brand → CAS → <span className="text-cyan-400">[Your Params]</span> → Material
-                        </p>
                     </div>
 
                     {selectedSubcategory && (
-                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 space-y-8">
+
+                            {/* Hierarchy Configuration */}
+                            <div className="p-4 bg-slate-800/20 border border-slate-700 rounded-xl">
+                                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                                    <span className="w-1 h-4 bg-cyan-500 rounded-full"></span>
+                                    Hierarchy Structure
+                                </h3>
+                                <div className="text-xs text-slate-400 mb-4 bg-yellow-900/10 border border-yellow-700/20 p-2 rounded text-yellow-500/80">
+                                    ⚠️ Changing hierarchy structure will reset comments on group nodes.
+                                </div>
+
+                                <div className="space-y-2">
+                                    {/* Active Levels Reordering */}
+                                    {hierarchy.map((level, idx) => (
+                                        <div key={level} className="flex items-center gap-3 p-3 bg-slate-800 border border-slate-700 rounded-lg shadow-sm">
+                                            <div className="flex flex-col gap-0.5 text-slate-500">
+                                                <button onClick={() => moveLevel(idx, 'up')} disabled={idx === 0} className="hover:text-cyan-400 disabled:opacity-20"><ArrowUp size={14} /></button>
+                                                <button onClick={() => moveLevel(idx, 'down')} disabled={idx === hierarchy.length - 1} className="hover:text-cyan-400 disabled:opacity-20"><ArrowDown size={14} /></button>
+                                            </div>
+                                            <div className="flex-1 font-medium text-slate-200">{level}</div>
+                                            <div className="flex items-center">
+                                                <label className="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" checked={true} onChange={() => toggleLevel(level)} className="sr-only peer" />
+                                                    <div className="w-9 h-5 bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    ))}
+
+                                    {/* Inactive Levels */}
+                                    {availableLevels.filter(l => !hierarchy.includes(l)).map(level => (
+                                        <div key={level} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700/50 rounded-lg opacity-60 hover:opacity-100 transition-opacity">
+                                            <div className="w-4"></div> {/* Spacer for arrows */}
+                                            <div className="flex-1 font-medium text-slate-400">{level}</div>
+                                            <div className="flex items-center">
+                                                <label className="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" checked={false} onChange={() => toggleLevel(level)} className="sr-only peer" />
+                                                    <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-600"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
 
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-slate-300 mb-2">Hierarchy Parameters (In Order)</label>
