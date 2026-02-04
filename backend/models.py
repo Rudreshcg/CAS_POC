@@ -146,12 +146,69 @@ class ClusterOverride(db.Model):
 
 class SpendRecord(db.Model):
     __tablename__ = 'spend_record'
+    
     id = db.Column(db.Integer, primary_key=True)
-    operating_unit = db.Column(db.String(100))
-    po_number = db.Column(db.String(50))
-    po_date = db.Column(db.String(50), nullable=True) # Check date format later
-    vendor_name = db.Column(db.String(255))
-    item_category = db.Column(db.String(100), nullable=True)
-    item_description = db.Column(db.String(500))
-    amount = db.Column(db.Float)
+    
+    # Excel Column Mappings (25 columns total)
+    operating_unit = db.Column(db.String(100))           # Col 0: OPERATING_UNIT
+    po_number = db.Column(db.String(50))                 # Col 1: PO_NUMBER
+    po_date = db.Column(db.String(50))                   # Col 2: CREATION_DATE
+    line_number = db.Column(db.String(20))               # Col 3: LINE_NUMBER
+    shipment_number = db.Column(db.String(20))           # Col 4: SHIPMENT_NUMBER
+    distribution_number = db.Column(db.String(20))       # Col 5: DISTRIBUTION_NUMBER
+    release_number = db.Column(db.String(20))            # Col 6: RELEASE_NUMBER
+    po_version = db.Column(db.String(20))                # Col 7: PO_VERSION
+    supplier_number = db.Column(db.String(50))           # Col 8: SUPPLIER_NUMBER
+    vendor_name = db.Column(db.String(255))              # Col 9: VENDOR_NAME
+    buyer_name = db.Column(db.String(100))               # Col 10: BUYER_NAME
+    item_category = db.Column(db.String(100))            # Col 11: ITEM_CATEGORY
+    item_description = db.Column(db.String(500))         # Col 12: ITEM_DESCRIPTION
+    quantity = db.Column(db.Float)                       # Col 13: QUANTITY
+    uom = db.Column(db.String(20))                       # Col 14: UOM (Unit of Measure)
+    unit_price_fc = db.Column(db.Float)                  # Col 15: UNIT_PRICE_FC
+    unit_price_inr = db.Column(db.Float)                 # Col 16: UNIT_PRICE_INR
+    currency_code = db.Column(db.String(10))             # Col 17: CURRENCY_CODE
+    base_price_fc = db.Column(db.Float)                  # Col 18: BASE_PRICE_FC
+    base_price_inr = db.Column(db.Float)                 # Col 19: BASE_PRICE_INR
+    amount = db.Column(db.Float)                         # Col 20: PRICE_INR (Main amount field)
+    tax_amount = db.Column(db.Float)                     # Col 21: TAX_AMOUNT
+    total_amount = db.Column(db.Float)                   # Col 22: TOTAL_AMOUNT
+    fob_dsp = db.Column(db.String(50))                   # Col 23: FOB_DSP
+    additional_info = db.Column(db.String(255))          # Col 24: Additional column
+    
+    # Metadata
     is_contract = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'operating_unit': self.operating_unit,
+            'po_number': self.po_number,
+            'po_date': self.po_date,
+            'line_number': self.line_number,
+            'shipment_number': self.shipment_number,
+            'distribution_number': self.distribution_number,
+            'release_number': self.release_number,
+            'po_version': self.po_version,
+            'supplier_number': self.supplier_number,
+            'vendor_name': self.vendor_name,
+            'buyer_name': self.buyer_name,
+            'item_category': self.item_category,
+            'item_description': self.item_description,
+            'quantity': self.quantity,
+            'uom': self.uom,
+            'unit_price_fc': self.unit_price_fc,
+            'unit_price_inr': self.unit_price_inr,
+            'currency_code': self.currency_code,
+            'base_price_fc': self.base_price_fc,
+            'base_price_inr': self.base_price_inr,
+            'amount': self.amount,
+            'tax_amount': self.tax_amount,
+            'total_amount': self.total_amount,
+            'fob_dsp': self.fob_dsp,
+            'additional_info': self.additional_info,
+            'is_contract': self.is_contract,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+

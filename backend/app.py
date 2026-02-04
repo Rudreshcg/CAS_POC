@@ -11,6 +11,8 @@ import hashlib
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from pypdf import PdfReader
+from sqlalchemy import func
+
 
 app = Flask(__name__)
 
@@ -65,7 +67,7 @@ if app.config['USE_S3']:
 else:
     print("⚠️  S3 not configured, using local storage")
 
-from models import db, MaterialData, MaterialParameter, EnrichmentRule, NodeAnnotation, ClusterOverride
+from models import db, MaterialData, MaterialParameter, EnrichmentRule, NodeAnnotation, ClusterOverride, SpendRecord
 db.init_app(app)
 
 with app.app_context():
@@ -89,6 +91,106 @@ with app.app_context():
             print("✅ Added hierarchy column to EnrichmentRule")
     except Exception as e:
         pass
+
+# ==========================================
+# SPEND DATA INGESTION
+# ==========================================
+def init_spend_data():
+    """Initialize spend data from Excel file into database"""
+    try:
+        # Check if data already exists
+        if SpendRecord.query.first():
+            print("✅ Spend Database already populated. Skipping ingestion.")
+            return
+        
+        print("🚀 Starting Spend Data Ingestion from Excel...")
+        
+        # Load Excel file
+        xlsx_path = os.path.join(current_dir, 'Purchase History.xlsx')
+        if not os.path.exists(xlsx_path):
+            print("❌ Purchase History.xlsx not found")
+            return
+        
+        # Read Excel with no header (we'll map manually)
+        df = pd.read_excel(xlsx_path, sheet_name='Sheet1', header=None, engine='openpyxl')
+        
+        print(f"📊 Processing {len(df)} rows from Excel...")
+        
+        # Helper function to safely parse float values
+        def parse_float(val):
+            try:
+                if pd.isna(val):
+                    return 0.0
+                return float(str(val).replace(',', '').strip())
+            except:
+                return 0.0
+        
+        # Helper function to safely get string values
+        def parse_str(val):
+            if pd.isna(val):
+                return None
+            return str(val).strip()
+        
+        records = []
+        skipped = 0
+        
+        for idx, row in df.iterrows():
+            # Skip header row or empty rows
+            if idx == 0 or (pd.isna(row[9]) and pd.isna(row[12])):
+                skipped += 1
+                continue
+            
+            try:
+                record = SpendRecord(
+                    operating_unit=parse_str(row[0]),
+                    po_number=parse_str(row[1]),
+                    po_date=parse_str(row[2]),
+                    line_number=parse_str(row[3]),
+                    shipment_number=parse_str(row[4]),
+                    distribution_number=parse_str(row[5]),
+                    release_number=parse_str(row[6]),
+                    po_version=parse_str(row[7]),
+                    supplier_number=parse_str(row[8]),
+                    vendor_name=parse_str(row[9]) or "Unknown",
+                    buyer_name=parse_str(row[10]),
+                    item_category=parse_str(row[11]),
+                    item_description=parse_str(row[12]) or "Unknown",
+                    quantity=parse_float(row[13]),
+                    uom=parse_str(row[14]),
+                    unit_price_fc=parse_float(row[15]),
+                    unit_price_inr=parse_float(row[16]),
+                    currency_code=parse_str(row[17]),
+                    base_price_fc=parse_float(row[18]),
+                    base_price_inr=parse_float(row[19]),
+                    amount=parse_float(row[20]),  # Main amount field
+                    tax_amount=parse_float(row[21]) if len(row) > 21 else 0.0,
+                    total_amount=parse_float(row[22]) if len(row) > 22 else 0.0,
+                    fob_dsp=parse_str(row[23]) if len(row) > 23 else None,
+                    additional_info=parse_str(row[24]) if len(row) > 24 else None,
+                    is_contract=False  # Default, can be updated later
+                )
+                records.append(record)
+            except Exception as e:
+                print(f"⚠️ Error processing row {idx}: {e}")
+                skipped += 1
+                continue
+        
+        if records:
+            db.session.bulk_save_objects(records)
+            db.session.commit()
+            print(f"✅ Successfully ingested {len(records)} spend records into database.")
+            if skipped > 0:
+                print(f"⚠️ Skipped {skipped} rows (header or invalid data)")
+        else:
+            print("⚠️ No valid records found to ingest.")
+    
+    except Exception as e:
+        print(f"❌ Spend Data Ingestion Failed: {e}")
+        db.session.rollback()
+
+# Initialize spend data - Moved to main block to verify context
+# with app.app_context():
+#     init_spend_data()
 
 # ==========================================
 # CAS LOOKUP LOGIC
@@ -1588,182 +1690,105 @@ def apply_purity_rules(val_str, rules):
 @app.route('/api/spend-analysis/dashboard')
 def advanced_spend_dashboard():
     try:
-        # Load Data (Prioritize Excel)
-        xlsx_path = os.path.join(current_dir, 'Purchase History.xlsx')
-        csv_path = os.path.join(current_dir, 'Purchase History(Sheet1).csv')
+        # Query from Database using SQLAlchemy ORM
+        total_spend = db.session.query(func.sum(SpendRecord.amount)).scalar() or 0
+        total_suppliers = db.session.query(func.count(func.distinct(SpendRecord.vendor_name))).scalar() or 0
+        total_transactions = db.session.query(func.count(SpendRecord.id)).scalar() or 0
+        po_count = db.session.query(func.count(func.distinct(SpendRecord.po_number))).scalar() or 0
         
-        target_path = csv_path
-        if os.path.exists(xlsx_path):
-            target_path = xlsx_path
-        elif not os.path.exists(csv_path):
-             return jsonify({"error": "Data source not found"}), 404
-             
-        print(f"🎯 DEBUG: Target Path: {target_path}")
-        print(f"🎯 DEBUG: Exists: {os.path.exists(target_path)}")
-        
-        try:
-            # Try reading Excel first
-            if target_path.endswith('.xlsx'):
-                 # Inspect sheet names first to be safe
-                 xls = pd.ExcelFile(target_path, engine='openpyxl')
-                 sheet_to_read = 'Sheet1' if 'Sheet1' in xls.sheet_names else 0
-                 
-                 df = pd.read_excel(target_path, sheet_name=sheet_to_read, header=None, engine='openpyxl')
-                 
-                 # Force Manual Mapping (Verified correct for this dataset)
-                 # Previous header detection was flaky with false positives
-                 new_cols = [f"COL_{i}" for i in range(len(df.columns))]
-                 
-                 # Assign broadly based on observed indices from debug
-                 if len(new_cols) > 0: new_cols[0] = 'OPERATING_UNIT'
-                 if len(new_cols) > 1: new_cols[1] = 'PO_NUMBER'
-                 if len(new_cols) > 2: new_cols[2] = 'CREATION_DATE'
-                 # if len(new_cols) > 8: new_cols[8] = 'ITEM_CATEGORY' # Index 8 is Supplier Number, not Category
-                 if len(new_cols) > 9: new_cols[9] = 'VENDOR_NAME' # Verified Index 9
-                 if len(new_cols) > 12: new_cols[12] = 'ITEM_DESCRIPTION' # Material / Item Description
-                 if len(new_cols) > 20: new_cols[20] = 'PRICE_INR' # Base Price INR (Accurate)
-                 elif len(new_cols) > 19: new_cols[19] = 'PRICE_INR' # Fallback to Base Price FC
-                 elif len(new_cols) > 12: new_cols[12] = 'PRICE_INR' # Legacy Fallback
-                 
-                 df.columns = new_cols
-                    
-            else:
-                df = pd.read_csv(csv_path, encoding='utf-8')
-        except Exception as e:
-             print(f"❌ DATA LOAD ERROR (Falling back to CSV): {e}")
-             try:
-                df = pd.read_csv(csv_path, encoding='cp1252')
-             except:
-                try: 
-                    df = pd.read_csv(csv_path, encoding='latin1')
-                except:
-                     # Final fallback for Excel if extension was wrong or something
-                     df = pd.read_excel(csv_path, header=None, engine='openpyxl')
-                     # ... repeat manual mapping logic or generic
+        # Mocks for PR and Invoice counts
+        pr_count = int(po_count * 1.1)
+        invoice_count = int(total_transactions * 0.8)
 
+        # 1. Spend by Material/Item Description (Top 8)
+        cat_result = db.session.query(
+            SpendRecord.item_description, 
+            func.sum(SpendRecord.amount)
+        ).group_by(SpendRecord.item_description).order_by(
+            func.sum(SpendRecord.amount).desc()
+        ).limit(8).all()
+        category_data = [{"name": str(r[0]), "value": float(r[1])} for r in cat_result]
 
-        # Normalize Columns
-        df.columns = [c.strip().upper() for c in df.columns]
-        
-        print(f"🎯 DEBUG: DF Shape: {df.shape}")
-        
-        # Helper to safely get float
-        def parse_currency(val):
+        # 2. Market Trend (Aggregated by Month)
+        trend_query = db.session.query(
+            SpendRecord.po_date, 
+            SpendRecord.amount
+        ).filter(
+            SpendRecord.po_date != None,
+            SpendRecord.po_date != 'CREATION_DATE'  # Skip header
+        ).all()
+
+        trend_map = {}
+        for date_str, amt in trend_query:
             try:
-                if pd.isna(val): return 0.0
-                return float(str(val).replace(',', '').replace('$', '').strip())
+                # Expected format: 2023-01-02 or similar
+                if date_str and len(str(date_str)) >= 7:
+                    month_key = str(date_str)[:7]  # '2023-01'
+                    trend_map[month_key] = trend_map.get(month_key, 0) + (amt or 0)
             except:
-                return 0.0
+                continue
+        
+        # Convert to list and sort
+        trend_sorted = sorted(trend_map.items())
+        trend_data = [{"name": k, "value": float(v)} for k, v in trend_sorted]
 
-        # AMOUNT Mapping (Try various names)
-        # Added PRICE_INR based on debug output
-        amount_col = next((c for c in df.columns if c in ['AMOUNT', 'SPEND', 'VALUE', 'COST', 'TOTAL_AMOUNT', 'PRICE_INR', 'LINE_AMOUNT']), None)
-        
-        print(f"🎯 DEBUG: Detected Amount Column: {amount_col}")
-        
-        df['PROCESSED_AMOUNT'] = df[amount_col].apply(parse_currency) if amount_col else 0.0
-        
-        print(f"🎯 DEBUG: Total Spend Calculated: {df['PROCESSED_AMOUNT'].sum()}")
-        if amount_col:
-             print(f"🎯 DEBUG: Sample Amount Values: {df[amount_col].head(5).tolist()}")
-        
-        # DATE Mapping
-        date_col = next((c for c in df.columns if 'DATE' in c), None)
-        if date_col:
-             df['PROCESSED_DATE'] = pd.to_datetime(df[date_col], errors='coerce')
-        
-        # 1. KPIs
-        total_spend = df['PROCESSED_AMOUNT'].sum()
-        
-        # Supplier Count (Using VENDOR_NAME)
-        supplier_col = next((c for c in df.columns if 'VENDOR' in c or 'SUPPLIER' in c), 'VENDOR_NAME')
-        total_suppliers = df[supplier_col].nunique() if supplier_col in df.columns else 0
-        
-        # Transactions & PO Count
-        total_transactions = len(df)
-        po_col = next((c for c in df.columns if 'PO' in c and 'NUMBER' in c), 'PO_NUMBER')
-        po_count = df[po_col].nunique() if po_col in df.columns else total_transactions
-        
-        # Invoice Count (Mock or Real)
-        inv_col = next((c for c in df.columns if 'INVOICE' in c), None)
-        inv_count = df[inv_col].nunique() if inv_col else int(total_transactions * 0.8) # Mock estimate if missing
-        
-        # PR Count (Mock or Real)
-        pr_count = int(po_count * 1.1) 
+        # 3. Spend by Region (Operating Unit)
+        reg_result = db.session.query(
+            SpendRecord.operating_unit, 
+            func.sum(SpendRecord.amount)
+        ).group_by(SpendRecord.operating_unit).order_by(
+            func.sum(SpendRecord.amount).desc()
+        ).all()
+        region_data = [{"name": str(r[0]), "value": float(r[1])} for r in reg_result]
 
+        # 4. Spend by Supplier (Top 10)
+        sup_result = db.session.query(
+            SpendRecord.vendor_name, 
+            func.sum(SpendRecord.amount)
+        ).group_by(SpendRecord.vendor_name).order_by(
+            func.sum(SpendRecord.amount).desc()
+        ).limit(10).all()
+        supplier_data = [{"name": str(r[0]), "value": float(r[1])} for r in sup_result]
 
-        # 2. Spend by Category (Now Material / Item Description)
-        # Use ITEM_DESCRIPTION as primary key
-        cat_col = next((c for c in df.columns if c in ['ITEM_DESCRIPTION', 'DESCRIPTION', 'MATERIAL']), 'ITEM_DESCRIPTION')
-        cat_data = []
-        if cat_col in df.columns:
-            # Group by Material/Description
-            cat_group = df.groupby(cat_col)['PROCESSED_AMOUNT'].sum().sort_values(ascending=False).head(8)
-            cat_data = [{"name": str(k), "value": v} for k, v in cat_group.items()]
-
-        # 3. Spend Trend (Monthly)
-        trend_data = []
-        if date_col:
-             # Group by Month-Year
-             monthly = df.groupby(df['PROCESSED_DATE'].dt.to_period('M'))['PROCESSED_AMOUNT'].sum()
-             # Convert Period to String
-             trend_data = [{"name": str(p), "value": v} for p, v in monthly.items()]
-             # Sort by date
-             trend_data.sort(key=lambda x: x['name'])
-
-        # 4. Spend by Region
-        region_col = next((c for c in df.columns if c in ['OPERATING_UNIT', 'REGION', 'LOCATION', 'PLANT']), 'OPERATING_UNIT')
-        region_data = []
-        if region_col in df.columns:
-             reg_group = df.groupby(region_col)['PROCESSED_AMOUNT'].sum().sort_values(ascending=False)
-             region_data = [{"name": k, "value": v} for k, v in reg_group.items()]
-
-        # 5. Spend by Supplier (Top 10)
-        supplier_data = []
-        if supplier_col in df.columns:
-             sup_group = df.groupby(supplier_col)['PROCESSED_AMOUNT'].sum().sort_values(ascending=False).head(10)
-             supplier_data = [{"name": k, "value": v} for k, v in sup_group.items()]
-
-        # 6. Pareto (Pareto of Suppliers)
+        # 5. Pareto Analysis (Suppliers)
+        pareto_raw = db.session.query(
+            SpendRecord.vendor_name, 
+            func.sum(SpendRecord.amount)
+        ).group_by(SpendRecord.vendor_name).order_by(
+            func.sum(SpendRecord.amount).desc()
+        ).limit(20).all()
+        
         pareto_data = []
-        if supplier_col in df.columns:
-             # Total spend already calc
-             # Sort all suppliers
-             all_sups = df.groupby(supplier_col)['PROCESSED_AMOUNT'].sum().sort_values(ascending=False)
-             cum_spend = 0
-             
-             # Take top 20 for chart clarity
-             # Take top 20 for chart clarity
-             for name, val in all_sups.head(20).items():
-                 cum_spend += val
-                 cum_pct = (cum_spend / total_spend) * 100 if total_spend > 0 else 0
-                 
-                 # Sanitize NaN/Inf
-                 val = 0.0 if pd.isna(val) else val
-                 cum_pct = 0.0 if pd.isna(cum_pct) else cum_pct
-                 
-                 pareto_data.append({
-                     "name": str(name), # Ensure name is string
-                     "spend": float(val),
-                     "cumulativePercentage": round(float(cum_pct), 1)
-                 })
+        cum_spend = 0
+        for name, val in pareto_raw:
+            cum_spend += (val or 0)
+            cum_pct = (cum_spend / total_spend) * 100 if total_spend > 0 else 0
+            pareto_data.append({
+                "name": str(name),
+                "spend": float(val or 0),
+                "cumulativePercentage": round(float(cum_pct), 1)
+            })
 
-        # 7. Spend by Contract (Mock if missing)
+        # 6. Contract vs Non-Contract Spend
+        contract_spend = db.session.query(func.sum(SpendRecord.amount)).filter(
+            SpendRecord.is_contract == True
+        ).scalar() or 0
+        non_contract_spend = total_spend - contract_spend
         contract_data = [
-             {"name": "Contracted", "value": total_spend * 0.31},
-             {"name": "Non-contract", "value": total_spend * 0.69}
+            {"name": "Contracted", "value": float(contract_spend)},
+            {"name": "Non-contract", "value": float(non_contract_spend)}
         ]
 
         return jsonify({
             "kpis": {
-                "spend": total_spend,
+                "spend": float(total_spend),
                 "suppliers": total_suppliers,
                 "transactions": total_transactions,
                 "po_count": po_count,
                 "pr_count": pr_count,
-                "invoice_count": inv_count
+                "invoice_count": invoice_count
             },
-            "category_data": cat_data,
+            "category_data": category_data,
             "trend_data": trend_data,
             "region_data": region_data,
             "supplier_data": supplier_data,
@@ -1773,7 +1798,13 @@ def advanced_spend_dashboard():
 
     except Exception as e:
         print(f"Stats Dashboard Error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
+    # Initialize spend data on startup
+    with app.app_context():
+        init_spend_data()
+        
     app.run(debug=True, host='0.0.0.0', port=5000)
