@@ -1,0 +1,60 @@
+from flask import Flask, request, Response, send_file, jsonify, send_from_directory
+print("STARTING APP V4 with logging fixes")
+from flask_cors import CORS
+import pandas as pd
+import requests
+import re
+import time
+import json
+import os
+import hashlib
+from datetime import datetime
+from werkzeug.utils import secure_filename
+from pypdf import PdfReader
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func, text
+
+app = Flask(__name__)
+
+# Database Config - SQLite
+db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cas_database.db')
+spend_db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'spend_analysis.db')
+
+# Use multiple databases via binds if needed, or single DB. 
+# For simplicity, let's use the main URI for spend app if it's the primary, 
+# but there is existing code using 'cas_database.db' later in the file.
+# To avoid conflict, we will use ONE database file 'cas_database.db' for everything if possible, 
+# or use binds. But existing code initializes `db.init_app(app)` later.
+# Wait, I must be careful not to break existing `models` import.
+# The existing `models.py` defines `db`.
+# Check line 216: `from models import db, ...`
+# This means `db` is already defined in `models.py`!
+# I SHOULD NOT redefine `db = SQLAlchemy(app)` here.
+# I should import `db` from `models` or use the one created there.
+# Let's check `models.py` content first? No, I'll rely on what I see.
+# Line 216 imports `db`. Line 217 does `db.init_app(app)`.
+# So I should define `SpendRecord` AFTER imports from `models`.
+# And `init_db_data` should also be called after `db.create_all()` at line 220.
+
+# REVISED PLAN for write_to_file:
+# 1. Keep imports.
+# 2. Keep App Config.
+# 3. Keep S3 config.
+# 4. Keep `from models import db...` (Line 216).
+# 5. Define `SpendRecord` AFTER line 216 using that `db`.
+# 6. Call `init_db_data` inside the `with app.app_context()` block at line 219.
+# 7. Update `/api/spend-analysis/dashboard` to use `SpendRecord`.
+
+# I need to see `models.py` to be sure, but assuming it's standard SQLAlchemy.
+# I will proceed with this safe integration.
+
+# ACTUALLY, strict overwrite is risky without seeing `models.py`.
+# But `app.py` previously had `db = SQLAlchemy(app)` injected by me in previous steps? 
+# No, those steps failed or were reverted/conflicted.
+# The `view_file` at step 1080 shows lines 16-24 were added by me in a previous successful step (1043)! 
+# "16: from flask_sqlalchemy import SQLAlchemy... 24: db = SQLAlchemy(app)"
+# BUT line 216 says `from models import db`. This causes CONFLICT/Double Init.
+# I MUST REMOVE my lines 16-24 and integrate properly.
+
+# Let's write the CLEAN version.
+

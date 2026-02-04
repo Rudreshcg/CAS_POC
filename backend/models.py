@@ -143,3 +143,15 @@ class ClusterOverride(db.Model):
             'target_parent_id': self.target_parent_id,
             'created_at': self.created_at.isoformat()
         }
+
+class SpendRecord(db.Model):
+    __tablename__ = 'spend_record'
+    id = db.Column(db.Integer, primary_key=True)
+    operating_unit = db.Column(db.String(100))
+    po_number = db.Column(db.String(50))
+    po_date = db.Column(db.String(50), nullable=True) # Check date format later
+    vendor_name = db.Column(db.String(255))
+    item_category = db.Column(db.String(100), nullable=True)
+    item_description = db.Column(db.String(500))
+    amount = db.Column(db.Float)
+    is_contract = db.Column(db.Boolean, default=False)
