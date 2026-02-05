@@ -65,7 +65,7 @@ const SpendTableView = () => {
         if (data.length === 0) return;
 
         const headers = [
-            'PO Number', 'Vendor Name', 'Item Description', 'Operating Unit',
+            'PO Number', 'Vendor Name', 'Item Description', 'Enriched Description', 'Operating Unit',
             'Quantity', 'Amount (INR)', 'PO Date', 'Buyer Name', 'Currency'
         ];
 
@@ -73,6 +73,7 @@ const SpendTableView = () => {
             row.po_number || '',
             row.vendor_name || '',
             row.item_description || '',
+            row.enriched_description || '',
             row.operating_unit || '',
             row.quantity || 0,
             row.amount || 0,
@@ -188,6 +189,15 @@ const SpendTableView = () => {
                                     </div>
                                 </th>
                                 <th
+                                    className="px-4 py-3 text-left text-xs font-semibold text-cyan-400 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition-colors"
+                                    onClick={() => handleSort('enriched_description')}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        Enriched Desc
+                                        <SortIcon column="enriched_description" />
+                                    </div>
+                                </th>
+                                <th
                                     className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition-colors"
                                     onClick={() => handleSort('operating_unit')}
                                 >
@@ -240,8 +250,11 @@ const SpendTableView = () => {
                                     <td className="px-4 py-3 text-sm text-slate-200 font-medium">
                                         {row.vendor_name || 'Unknown'}
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-slate-300 max-w-xs truncate" title={row.item_description}>
+                                    <td className="px-4 py-3 text-sm text-slate-300 max-w-[200px] truncate" title={row.item_description}>
                                         {row.item_description || '-'}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-cyan-400 font-medium max-w-[200px] truncate" title={row.enriched_description}>
+                                        {row.enriched_description || '-'}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-slate-300">
                                         {row.operating_unit || '-'}
@@ -300,8 +313,8 @@ const SpendTableView = () => {
                                     key={pageNum}
                                     onClick={() => setCurrentPage(pageNum)}
                                     className={`px-3 py-2 rounded-lg text-sm transition-colors ${currentPage === pageNum
-                                            ? 'bg-cyan-600 text-white font-semibold'
-                                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
+                                        ? 'bg-cyan-600 text-white font-semibold'
+                                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700'
                                         }`}
                                 >
                                     {pageNum}

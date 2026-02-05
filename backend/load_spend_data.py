@@ -37,11 +37,7 @@ def load_spend_data():
             # Check if data already exists
             existing_count = SpendRecord.query.count()
             if existing_count > 0:
-                print(f"⚠️  Database already contains {existing_count} spend records.")
-                response = input("Do you want to clear and reload? (y/n): ")
-                if response.lower() != 'y':
-                    print("❌ Operation cancelled")
-                    return
+                print(f"⚠️  Database already contains {existing_count} spend records. Clearing and reloading...")
                 clear_spend_data()
             
             # Load Excel file

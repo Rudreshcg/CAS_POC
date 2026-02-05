@@ -30,7 +30,7 @@ Write-Host ""
 Write-Host "[0/6] Provisioning S3 bucket..." -ForegroundColor Cyan
 Push-Location terraform
 terraform init -upgrade > $null 2>&1
-$applyResult = terraform apply -auto-approve 2>&1
+terraform apply -auto-approve 2>&1
 if ($LASTEXITCODE -eq 0) {
     $S3Bucket = (terraform output -raw s3_validation_bucket 2>$null)
 }
@@ -76,6 +76,7 @@ New-Item -ItemType Directory -Path $stagingDir | Out-Null
 Copy-Item "backend/app.py" -Destination $stagingDir
 Copy-Item "backend/llm_helper.py" -Destination $stagingDir
 Copy-Item "backend/models.py" -Destination $stagingDir
+Copy-Item "backend/geocoding_data.py" -Destination $stagingDir
 Copy-Item "backend/requirements.txt" -Destination $stagingDir
 Copy-Item "backend/material_clusters.json" -Destination $stagingDir -ErrorAction SilentlyContinue
 Copy-Item "backend/reset_db.py" -Destination $stagingDir
@@ -135,10 +136,10 @@ ssh -i terraform\ec2\cas_app_key ec2-user@$ServerIP $extractCmd
 # Install dependencies and set environment variables
 Write-Host "[5/6] Installing dependencies and configuring S3..." -ForegroundColor Yellow
 if ($S3Bucket -ne "") {
-    $installCmd = "cd /opt/cas-lookup && python3.11 -m pip install --user -r requirements.txt && grep -q 'S3_VALIDATION_BUCKET' ~/.bashrc || echo 'export S3_VALIDATION_BUCKET=$S3Bucket' >> ~/.bashrc"
+    $installCmd = "cd /opt/cas-lookup && python3.11 -m pip install --user -r requirements.txt && grep -q 'S3_VALIDATION_BUCKET' ~/.bashrc || echo 'export S3_VALIDATION_BUCKET=$S3Bucket' >> ~/.bashrc && python3.11 reset_db.py && python3.11 load_spend_data.py"
 }
 else {
-    $installCmd = "cd /opt/cas-lookup && python3.11 -m pip install --user -r requirements.txt"
+    $installCmd = "cd /opt/cas-lookup && python3.11 -m pip install --user -r requirements.txt && python3.11 reset_db.py && python3.11 load_spend_data.py"
 }
 ssh -i terraform\ec2\cas_app_key ec2-user@$ServerIP $installCmd
 

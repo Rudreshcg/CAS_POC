@@ -68,7 +68,7 @@ if app.config['USE_S3']:
 else:
     print("⚠️  S3 not configured, using local storage")
 
-from models import db, MaterialData, MaterialParameter, EnrichmentRule, NodeAnnotation, ClusterOverride, SpendRecord
+from models import db, MaterialData, MaterialParameter, EnrichmentRule, NodeAnnotation, ClusterOverride, SpendRecord, UserPreference
 db.init_app(app)
 
 with app.app_context():
@@ -1803,6 +1803,40 @@ def advanced_spend_dashboard():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/spend-analysis/enriched-insights')
+def enriched_spend_insights():
+    """
+    Endpoint that joins spend records with enriched material data
+    to show spend analysis by standardized category
+    """
+    try:
+        from models import MaterialData
+        
+        results = db.session.query(
+            MaterialData.enriched_description,
+            func.sum(SpendRecord.amount).label('total_spend'),
+            func.count(SpendRecord.id).label('transaction_count')
+        ).join(
+            SpendRecord, MaterialData.item_code == SpendRecord.item_code
+        ).group_by(
+            MaterialData.enriched_description
+        ).order_by(
+            func.sum(SpendRecord.amount).desc()
+        ).limit(20).all()
+        
+        data = [
+            {
+                "name": str(r[0] or "Unmapped/Unknown"),
+                "value": float(r[1] or 0),
+                "count": r[2]
+            } for r in results
+        ]
+        
+        return jsonify(data)
+    except Exception as e:
+        print(f"Enriched Insights Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/spend-analysis/table')
 def spend_table_view():
     """
@@ -1816,8 +1850,16 @@ def spend_table_view():
         sort_order = request.args.get('sort_order', 'desc')  # desc or asc
         search = request.args.get('search', '')
         
-        # Build query
-        query = SpendRecord.query
+        # Build query with join to potentially get enriched description
+        from models import MaterialData
+        
+        # Use session.query to allow joining
+        query = db.session.query(
+            SpendRecord,
+            MaterialData.enriched_description
+        ).outerjoin(
+            MaterialData, SpendRecord.item_code == MaterialData.item_code
+        )
         
         # Apply search filter if provided
         if search:
@@ -1827,12 +1869,17 @@ def spend_table_view():
                     SpendRecord.vendor_name.ilike(search_filter),
                     SpendRecord.item_description.ilike(search_filter),
                     SpendRecord.po_number.ilike(search_filter),
-                    SpendRecord.operating_unit.ilike(search_filter)
+                    SpendRecord.operating_unit.ilike(search_filter),
+                    MaterialData.enriched_description.ilike(search_filter)
                 )
             )
         
         # Apply sorting
-        sort_column = getattr(SpendRecord, sort_by, SpendRecord.amount)
+        if sort_by == 'enriched_description':
+            sort_column = MaterialData.enriched_description
+        else:
+            sort_column = getattr(SpendRecord, sort_by, SpendRecord.amount)
+            
         if sort_order == 'desc':
             query = query.order_by(sort_column.desc())
         else:
@@ -1841,8 +1888,15 @@ def spend_table_view():
         # Paginate
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         
+        # Format results
+        records = []
+        for record, enriched in pagination.items:
+            record_dict = record.to_dict()
+            record_dict['enriched_description'] = enriched or "Not Enriched"
+            records.append(record_dict)
+            
         return jsonify({
-            "records": [record.to_dict() for record in pagination.items],
+            "records": records,
             "total": pagination.total,
             "pages": pagination.pages,
             "current_page": page,
@@ -1947,6 +2001,38 @@ def categorize_spend(amount):
     else:
         return 'very_high'
 
+
+@app.route('/api/user-preferences', methods=['GET'])
+def get_user_preferences():
+    """Fetch user preferences, optionally filtered by key"""
+    key = request.args.get('key')
+    if key:
+        pref = UserPreference.query.filter_by(key=key).first()
+        return jsonify(pref.to_dict() if pref else None)
+    
+    prefs = UserPreference.query.all()
+    return jsonify({p.key: p.value for p in prefs})
+
+@app.route('/api/user-preferences', methods=['POST'])
+def save_user_preference():
+    """Save or update a user preference"""
+    try:
+        data = request.json
+        if not data or 'key' not in data or 'value' not in data:
+            return jsonify({"error": "Key and value are required"}), 400
+        
+        pref = UserPreference.query.filter_by(key=data['key']).first()
+        if pref:
+            pref.value = str(data['value'])
+        else:
+            pref = UserPreference(key=data['key'], value=str(data['value']))
+            db.session.add(pref)
+        
+        db.session.commit()
+        return jsonify(pref.to_dict())
+    except Exception as e:
+        print(f"Error saving preference: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     # Initialize spend data on startup

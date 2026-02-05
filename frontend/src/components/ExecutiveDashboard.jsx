@@ -12,6 +12,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'
 
 const ExecutiveDashboard = () => {
     const [data, setData] = useState(null);
+    const [enrichedData, setEnrichedData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -22,6 +23,13 @@ const ExecutiveDashboard = () => {
                 if (!res.ok) throw new Error('Failed to fetch dashboard data');
                 const json = await res.json();
                 setData(json);
+
+                // Fetch enriched insights as well
+                const enrichedRes = await fetch('/api/spend-analysis/enriched-insights');
+                if (enrichedRes.ok) {
+                    const enrichedJson = await enrichedRes.json();
+                    setEnrichedData(enrichedJson);
+                }
             } catch (err) {
                 console.error(err);
                 setError(err.message);
@@ -39,10 +47,10 @@ const ExecutiveDashboard = () => {
     const { kpis, category_data, trend_data, region_data, supplier_data, pareto_data, contract_data } = data;
 
     const formatCurrency = (val) => {
-        if (val >= 1000000000) return `$${(val / 1000000000).toFixed(2)}bn`;
-        if (val >= 1000000) return `$${(val / 1000000).toFixed(2)}M`;
-        if (val >= 1000) return `$${(val / 1000).toFixed(0)}k`;
-        return `$${val.toFixed(0)}`;
+        if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
+        if (val >= 100000) return `₹${(val / 100000).toFixed(2)} L`;
+        if (val >= 1000) return `₹${(val / 1000).toFixed(1)}k`;
+        return `₹${val.toFixed(0)}`;
     };
 
     const KPICard = ({ title, value, icon: Icon, color }) => (
@@ -75,6 +83,40 @@ const ExecutiveDashboard = () => {
             );
         }
         return null;
+    };
+
+    const CustomTreemapContent = (props) => {
+        const { root, depth, x, y, width, height, index, payload, rank, name } = props;
+
+        return (
+            <g>
+                <rect
+                    x={x}
+                    y={y}
+                    width={width}
+                    height={height}
+                    style={{
+                        fill: depth < 2 ? COLORS[index % COLORS.length] : 'none',
+                        stroke: '#1e293b',
+                        strokeWidth: 2 / (depth + 1),
+                        strokeOpacity: 1 / (depth + 1),
+                    }}
+                />
+                {width > 50 && height > 30 && (
+                    <text
+                        x={x + width / 2}
+                        y={y + height / 2 + 4}
+                        textAnchor="middle"
+                        fill="#fff"
+                        fontSize={11}
+                        fontWeight="bold"
+                        className="pointer-events-none"
+                    >
+                        {name}
+                    </text>
+                )}
+            </g>
+        );
     };
 
     return (
@@ -151,7 +193,65 @@ const ExecutiveDashboard = () => {
                 </div>
             </div>
 
-            {/* Row 2: Region, Supplier, Pareto */}
+            {/* Row 2: Enriched Spend & Category Analysis */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Enriched Spend Chart */}
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-lg">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                            <FileBarChart className="w-5 h-5 text-cyan-400" />
+                            Spend by Enriched Category
+                        </h3>
+                        {enrichedData.length === 0 && (
+                            <span className="text-[10px] bg-slate-700 text-slate-400 px-2 py-1 rounded">
+                                No mapping available
+                            </span>
+                        )}
+                    </div>
+                    <div className="h-[350px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={enrichedData} layout="vertical" margin={{ left: 40, right: 30 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={true} vertical={false} />
+                                <XAxis type="number" hide />
+                                <YAxis
+                                    dataKey="name"
+                                    type="category"
+                                    stroke="#94a3b8"
+                                    fontSize={10}
+                                    width={140}
+                                    tickFormatter={(value) => value.length > 25 ? `${value.substring(0, 25)}...` : value}
+                                />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Bar dataKey="value" name="Total Spend" radius={[0, 4, 4, 0]}>
+                                    {enrichedData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Legacy Category Analysis (Treemap) */}
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-lg">
+                    <h3 className="text-xl font-bold text-white mb-6">Spend by Item Description (Top 10)</h3>
+                    <div className="h-[350px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <Treemap
+                                data={category_data}
+                                dataKey="value"
+                                stroke="#1e293b"
+                                fill="#334155"
+                                content={<CustomTreemapContent />}
+                            >
+                                <Tooltip content={<CustomTooltip />} />
+                            </Treemap>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+
+            {/* Row 3: Region, Supplier, Pareto */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Spend by Region */}
                 <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">

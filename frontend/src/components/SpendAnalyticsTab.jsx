@@ -11,11 +11,30 @@ const SpendAnalyticsTab = () => {
 
     // Load saved preference on mount
     useEffect(() => {
-        const saved = localStorage.getItem('dashboard_style_preference');
-        if (saved) {
-            setSavedPreference(saved);
-            setActiveStyle(saved);
-        }
+        const fetchPreference = async () => {
+            try {
+                const res = await fetch('/api/user-preferences?key=dashboard_style_preference');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && json.value) {
+                        setSavedPreference(json.value);
+                        setActiveStyle(json.value);
+                    } else {
+                        // Fallback to localStorage if server has no pref yet (migration)
+                        const saved = localStorage.getItem('dashboard_style_preference');
+                        if (saved) {
+                            setSavedPreference(saved);
+                            setActiveStyle(saved);
+                            // Optionally sync back to DB
+                            savePreference(saved);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch preferences:", err);
+            }
+        };
+        fetchPreference();
     }, []);
 
     const dashboardStyles = [
@@ -50,10 +69,24 @@ const SpendAnalyticsTab = () => {
         setShowStyleSelector(false);
     };
 
-    const savePreference = (styleId) => {
-        localStorage.setItem('dashboard_style_preference', styleId);
-        setSavedPreference(styleId);
-        setActiveStyle(styleId);
+    const savePreference = async (styleId) => {
+        try {
+            const res = await fetch('/api/user-preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    key: 'dashboard_style_preference',
+                    value: styleId
+                })
+            });
+            if (res.ok) {
+                localStorage.setItem('dashboard_style_preference', styleId); // Keep local as cache
+                setSavedPreference(styleId);
+                setActiveStyle(styleId);
+            }
+        } catch (err) {
+            console.error("Failed to save preference:", err);
+        }
     };
 
     return (
@@ -170,37 +203,6 @@ const SpendAnalyticsTab = () => {
                 </div>
             )}
 
-            {/* Quick Style Switcher (Compact) */}
-            {!showStyleSelector && (
-                <div className="mb-6 bg-slate-800 border border-slate-700 rounded-xl p-2 inline-flex gap-2">
-                    {dashboardStyles.map((style) => {
-                        const Icon = style.icon;
-                        const isActive = activeStyle === style.id;
-
-                        return (
-                            <button
-                                key={style.id}
-                                onClick={() => setActiveStyle(style.id)}
-                                className={`
-                                    flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200
-                                    ${isActive
-                                        ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/20'
-                                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
-                                    }
-                                `}
-                            >
-                                <Icon className="w-5 h-5" />
-                                <div className="text-left">
-                                    <div className="font-semibold text-sm">{style.name.replace(' Dashboard', '')}</div>
-                                    <div className={`text-xs ${isActive ? 'text-cyan-100' : 'text-slate-500'}`}>
-                                        {style.description.split(' ').slice(0, 3).join(' ')}...
-                                    </div>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-            )}
 
             {/* Dashboard Content with Fade Transition */}
             <div className="transition-opacity duration-300">
