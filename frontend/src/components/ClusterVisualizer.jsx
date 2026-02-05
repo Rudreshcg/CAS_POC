@@ -9,21 +9,85 @@ function DendrogramView({ initialData, onRefresh, subcategories, selectedSubcate
     const [isConfigOpen, setIsConfigOpen] = useState(false);
     const scrollContainerRef = useRef(null);
 
-    const handleAutoScroll = (e) => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
+    const scrollSpeedRef = useRef(0);
+    const rafRef = useRef(null);
 
-        const { top, bottom } = container.getBoundingClientRect();
-        const y = e.clientY;
-        const threshold = 100; // px from edge triggers scroll
-        const speed = 15;      // Scroll speed
+    // Global auto-scroll handler using window listener for better coverage
+    useEffect(() => {
+        if (!dragState.draggedNodeId) return;
 
-        if (y < top + threshold) {
-            container.scrollTop -= speed;
-        } else if (y > bottom - threshold) {
-            container.scrollTop += speed;
-        }
+        const handleWindowDragOver = (e) => {
+            e.preventDefault();
+            const container = scrollContainerRef.current;
+            if (!container) return;
+
+            // Use viewport coordinates for maximum reliability
+            const y = e.clientY;
+            const viewportHeight = window.innerHeight;
+
+            // Large active zones at top/bottom of screen. 
+            // 200px guarantees we cover headers/toolbars at the top.
+            const topZone = 200;
+            const bottomZone = 200;
+            const maxSpeed = 50;
+
+            if (y < topZone) {
+                // Scroll Up (Top of Screen)
+                // Distance from top edge
+                const distance = Math.max(0, topZone - y);
+                // Normalized intensity (0 to 1)
+                const intensity = Math.min(1, distance / topZone);
+                // Aggressive response: start at 30% speed immediately
+                scrollSpeedRef.current = -maxSpeed * (0.3 + 0.7 * intensity);
+            } else if (y > viewportHeight - bottomZone) {
+                // Scroll Down (Bottom of Screen)
+                // Distance from bottom edge
+                const distance = Math.max(0, y - (viewportHeight - bottomZone));
+                const intensity = Math.min(1, distance / bottomZone);
+                scrollSpeedRef.current = maxSpeed * (0.3 + 0.7 * intensity);
+            } else {
+                scrollSpeedRef.current = 0;
+            }
+
+            // Start loop if needed
+            if (scrollSpeedRef.current !== 0 && !rafRef.current) {
+                performScroll();
+            }
+        };
+
+        const performScroll = () => {
+            if (scrollContainerRef.current && scrollSpeedRef.current !== 0) {
+                scrollContainerRef.current.scrollTop += scrollSpeedRef.current;
+                rafRef.current = requestAnimationFrame(performScroll);
+            } else {
+                rafRef.current = null;
+                scrollSpeedRef.current = 0;
+            }
+        };
+
+        // Use capture phase to ensure we catch events even if stopped by children
+        window.addEventListener('dragover', handleWindowDragOver, true);
+
+        return () => {
+            window.removeEventListener('dragover', handleWindowDragOver, true);
+            if (rafRef.current) {
+                cancelAnimationFrame(rafRef.current);
+                rafRef.current = null;
+            }
+            scrollSpeedRef.current = 0;
+        };
+    }, [dragState.draggedNodeId]);
+
+    const handleDragLeave = () => {
+        scrollSpeedRef.current = 0;
     };
+
+    // Cleanup RAF on unmount
+    useEffect(() => {
+        return () => {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        };
+    }, []);
 
     useEffect(() => {
         if (initialData) {
@@ -34,8 +98,7 @@ function DendrogramView({ initialData, onRefresh, subcategories, selectedSubcate
     return (
         <div
             ref={scrollContainerRef}
-            onDragOver={handleAutoScroll}
-            className="h-full w-full bg-slate-950 p-6 md:p-10 overflow-auto custom-scrollbar"
+            className="h-full w-full bg-slate-950 p-6 md:p-10 overflow-auto custom-scrollbar relative"
         >
             {/* Header */}
             <div className="max-w-5xl mx-auto mb-8">

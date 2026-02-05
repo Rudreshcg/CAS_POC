@@ -79,32 +79,35 @@ def load_spend_data():
                     continue
                 
                 try:
+                    # Amount is base_price_inr (Index 20)
+                    base_price_inr = parse_float(row[20])
+                    
                     record = SpendRecord(
                         operating_unit=parse_str(row[0]),
                         po_number=parse_str(row[1]),
                         po_date=parse_str(row[2]),
-                        line_number=parse_str(row[3]),
-                        shipment_number=parse_str(row[4]),
-                        distribution_number=parse_str(row[5]),
-                        release_number=parse_str(row[6]),
-                        po_version=parse_str(row[7]),
+                        month=parse_str(row[3]),
+                        year=parse_str(row[4]),
+                        po_type=parse_str(row[5]),
+                        po_status=parse_str(row[6]),
+                        buyer_name=parse_str(row[7]),
                         supplier_number=parse_str(row[8]),
                         vendor_name=parse_str(row[9]) or "Unknown",
-                        buyer_name=parse_str(row[10]),
-                        item_category=parse_str(row[11]),
+                        supplier_site=parse_str(row[10]),
+                        item_code=parse_str(row[11]),
                         item_description=parse_str(row[12]) or "Unknown",
                         quantity=parse_float(row[13]),
                         uom=parse_str(row[14]),
-                        unit_price_fc=parse_float(row[15]),
-                        unit_price_inr=parse_float(row[16]),
-                        currency_code=parse_str(row[17]),
-                        base_price_fc=parse_float(row[18]),
-                        base_price_inr=parse_float(row[19]),
-                        amount=parse_float(row[20]),
-                        tax_amount=parse_float(row[21]) if len(row) > 21 else 0.0,
-                        total_amount=parse_float(row[22]) if len(row) > 22 else 0.0,
+                        currency=parse_str(row[15]),
+                        exchange_rate=parse_float(row[16]),
+                        price=parse_float(row[17]),
+                        payment_term=parse_str(row[18]),
+                        base_price_fc=parse_float(row[19]),
+                        base_price_inr=base_price_inr,
+                        amount=base_price_inr, # Compatibility alias
+                        freight_terms=parse_str(row[21]) if len(row) > 21 else None,
+                        ship_via=parse_str(row[22]) if len(row) > 22 else None,
                         fob_dsp=parse_str(row[23]) if len(row) > 23 else None,
-                        additional_info=parse_str(row[24]) if len(row) > 24 else None,
                         is_contract=False
                     )
                     records.append(record)

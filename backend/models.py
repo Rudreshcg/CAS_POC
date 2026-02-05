@@ -149,34 +149,34 @@ class SpendRecord(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     
-    # Excel Column Mappings (25 columns total)
+    # Excel Column Mappings (24 columns found in header)
     operating_unit = db.Column(db.String(100))           # Col 0: OPERATING_UNIT
-    po_number = db.Column(db.String(50))                 # Col 1: PO_NUMBER
-    po_date = db.Column(db.String(50))                   # Col 2: CREATION_DATE
-    line_number = db.Column(db.String(20))               # Col 3: LINE_NUMBER
-    shipment_number = db.Column(db.String(20))           # Col 4: SHIPMENT_NUMBER
-    distribution_number = db.Column(db.String(20))       # Col 5: DISTRIBUTION_NUMBER
-    release_number = db.Column(db.String(20))            # Col 6: RELEASE_NUMBER
-    po_version = db.Column(db.String(20))                # Col 7: PO_VERSION
+    po_number = db.Column(db.String(100))                # Col 1: PO_NUMBER
+    po_date = db.Column(db.String(50))                   # Col 2: PO_DATE
+    month = db.Column(db.String(20))                     # Col 3: Month
+    year = db.Column(db.String(10))                      # Col 4: year
+    po_type = db.Column(db.String(50))                   # Col 5: PO_TYPE
+    po_status = db.Column(db.String(50))                 # Col 6: PO_STATUS
+    buyer_name = db.Column(db.String(100))               # Col 7: BUYER_NAME
     supplier_number = db.Column(db.String(50))           # Col 8: SUPPLIER_NUMBER
-    vendor_name = db.Column(db.String(255))              # Col 9: VENDOR_NAME
-    buyer_name = db.Column(db.String(100))               # Col 10: BUYER_NAME
-    item_category = db.Column(db.String(100))            # Col 11: ITEM_CATEGORY
+    vendor_name = db.Column(db.String(255))              # Col 9: SUPPLIER_NAME
+    supplier_site = db.Column(db.String(255))            # Col 10: SUPPLIER_SITE
+    item_code = db.Column(db.String(100))                # Col 11: ITEM_CODE
     item_description = db.Column(db.String(500))         # Col 12: ITEM_DESCRIPTION
     quantity = db.Column(db.Float)                       # Col 13: QUANTITY
-    uom = db.Column(db.String(20))                       # Col 14: UOM (Unit of Measure)
-    unit_price_fc = db.Column(db.Float)                  # Col 15: UNIT_PRICE_FC
-    unit_price_inr = db.Column(db.Float)                 # Col 16: UNIT_PRICE_INR
-    currency_code = db.Column(db.String(10))             # Col 17: CURRENCY_CODE
-    base_price_fc = db.Column(db.Float)                  # Col 18: BASE_PRICE_FC
-    base_price_inr = db.Column(db.Float)                 # Col 19: BASE_PRICE_INR
-    amount = db.Column(db.Float)                         # Col 20: PRICE_INR (Main amount field)
-    tax_amount = db.Column(db.Float)                     # Col 21: TAX_AMOUNT
-    total_amount = db.Column(db.Float)                   # Col 22: TOTAL_AMOUNT
-    fob_dsp = db.Column(db.String(50))                   # Col 23: FOB_DSP
-    additional_info = db.Column(db.String(255))          # Col 24: Additional column
+    uom = db.Column(db.String(20))                       # Col 14: UOM
+    currency = db.Column(db.String(10))                  # Col 15: CURRENCY
+    exchange_rate = db.Column(db.Float)                  # Col 16: EXCHANGE_RATE
+    price = db.Column(db.Float)                          # Col 17: PRICE
+    payment_term = db.Column(db.String(100))             # Col 18: PAYMENT_TERM
+    base_price_fc = db.Column(db.Float)                  # Col 19: BASE_PRICE_FC
+    base_price_inr = db.Column(db.Float)                 # Col 20: BASE_PRICE_INR
+    freight_terms = db.Column(db.String(100))            # Col 21: FREIGHT_TERMS_DSP
+    ship_via = db.Column(db.String(100))                 # Col 22: SHIP_VIA_LOOKUP_CODE
+    fob_dsp = db.Column(db.String(100))                  # Col 23: FOB_DSP
     
     # Metadata
+    amount = db.Column(db.Float)                         # Duplicate of base_price_inr for compatibility
     is_contract = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -186,28 +186,28 @@ class SpendRecord(db.Model):
             'operating_unit': self.operating_unit,
             'po_number': self.po_number,
             'po_date': self.po_date,
-            'line_number': self.line_number,
-            'shipment_number': self.shipment_number,
-            'distribution_number': self.distribution_number,
-            'release_number': self.release_number,
-            'po_version': self.po_version,
+            'month': self.month,
+            'year': self.year,
+            'po_type': self.po_type,
+            'po_status': self.po_status,
+            'buyer_name': self.buyer_name,
             'supplier_number': self.supplier_number,
             'vendor_name': self.vendor_name,
-            'buyer_name': self.buyer_name,
-            'item_category': self.item_category,
+            'supplier_site': self.supplier_site,
+            'item_code': self.item_code,
             'item_description': self.item_description,
             'quantity': self.quantity,
             'uom': self.uom,
-            'unit_price_fc': self.unit_price_fc,
-            'unit_price_inr': self.unit_price_inr,
-            'currency_code': self.currency_code,
+            'currency': self.currency,
+            'exchange_rate': self.exchange_rate,
+            'price': self.price,
+            'payment_term': self.payment_term,
             'base_price_fc': self.base_price_fc,
             'base_price_inr': self.base_price_inr,
             'amount': self.amount,
-            'tax_amount': self.tax_amount,
-            'total_amount': self.total_amount,
+            'freight_terms': self.freight_terms,
+            'ship_via': self.ship_via,
             'fob_dsp': self.fob_dsp,
-            'additional_info': self.additional_info,
             'is_contract': self.is_contract,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }

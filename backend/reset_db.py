@@ -1,9 +1,9 @@
 from app import app, db
-from models import MaterialData, MaterialParameter, NodeAnnotation, ClusterOverride
+from models import SpendRecord
 
 with app.app_context():
     print("Dropping all tables...")
     db.drop_all()
-    print("Recreating all tables with new schema...")
+    print("Creating all tables...")
     db.create_all()
-    print("✅ Database schema updated successfully (Region column added).")
+    print("Done!")

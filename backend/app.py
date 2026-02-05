@@ -12,6 +12,7 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from pypdf import PdfReader
 from sqlalchemy import func
+from geocoding_data import CITY_COORDS
 
 
 app = Flask(__name__)
@@ -1801,6 +1802,151 @@ def advanced_spend_dashboard():
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/spend-analysis/table')
+def spend_table_view():
+    """
+    Endpoint for tabular view of spend data with pagination and sorting
+    """
+    try:
+        # Get query parameters
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 50, type=int)
+        sort_by = request.args.get('sort_by', 'amount')  # Default sort by amount
+        sort_order = request.args.get('sort_order', 'desc')  # desc or asc
+        search = request.args.get('search', '')
+        
+        # Build query
+        query = SpendRecord.query
+        
+        # Apply search filter if provided
+        if search:
+            search_filter = f"%{search}%"
+            query = query.filter(
+                db.or_(
+                    SpendRecord.vendor_name.ilike(search_filter),
+                    SpendRecord.item_description.ilike(search_filter),
+                    SpendRecord.po_number.ilike(search_filter),
+                    SpendRecord.operating_unit.ilike(search_filter)
+                )
+            )
+        
+        # Apply sorting
+        sort_column = getattr(SpendRecord, sort_by, SpendRecord.amount)
+        if sort_order == 'desc':
+            query = query.order_by(sort_column.desc())
+        else:
+            query = query.order_by(sort_column.asc())
+        
+        # Paginate
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        return jsonify({
+            "records": [record.to_dict() for record in pagination.items],
+            "total": pagination.total,
+            "pages": pagination.pages,
+            "current_page": page,
+            "per_page": per_page,
+            "has_next": pagination.has_next,
+            "has_prev": pagination.has_prev
+        })
+        
+    except Exception as e:
+        print(f"Table View Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/spend-analysis/suppliers-map')
+def spend_map_view():
+    """
+    Endpoint for map visualization of supplier locations
+    Returns aggregated spend by supplier with smart geocoding based on site/unit
+    """
+    try:
+        # Use our external geocoding knowledge base
+        city_lookup = CITY_COORDS
+
+        # Aggregate spend by vendor, site, and unit
+        supplier_data = db.session.query(
+            SpendRecord.vendor_name,
+            SpendRecord.supplier_site,
+            SpendRecord.operating_unit,
+            func.sum(SpendRecord.amount).label('total_spend'),
+            func.count(SpendRecord.id).label('transaction_count')
+        ).group_by(
+            SpendRecord.vendor_name,
+            SpendRecord.supplier_site,
+            SpendRecord.operating_unit
+        ).order_by(
+            func.sum(SpendRecord.amount).desc()
+        ).limit(150).all()
+        
+        map_data = []
+        import random
+        
+        def geocode(site, unit):
+            text = f"{str(site or '').lower()} {str(unit or '').lower()}"
+            for city, coords in city_lookup.items():
+                if city in text:
+                    return coords
+            # Fallback based on Unit keywords
+            if 'india' in text: return {'lat': 20.5937, 'lng': 78.9629, 'name': 'India'}
+            if 'brazil' in text: return {'lat': -14.235, 'lng': -51.9253, 'name': 'Brazil'}
+            return {'lat': 0, 'lng': 0, 'name': 'Unknown'}
+
+        for vendor, site, unit, spend, count in supplier_data:
+            location = geocode(site, unit)
+            
+            # Skip unknown locations if possible, or spread them at (0,0)
+            lat_base = location['lat']
+            lng_base = location['lng']
+            
+            # Jitter
+            lat_offset = random.uniform(-0.4, 0.4)
+            lng_offset = random.uniform(-0.4, 0.4)
+            
+            map_data.append({
+                'vendor_name': vendor or 'Unknown',
+                'supplier_site': site or 'Unknown',
+                'operating_unit': unit or 'Unknown',
+                'location_name': location['name'],
+                'latitude': lat_base + lat_offset if lat_base != 0 else 0,
+                'longitude': lng_base + lng_offset if lng_base != 0 else 0,
+                'total_spend': float(spend or 0),
+                'transaction_count': count,
+                'spend_category': categorize_spend(spend)
+            })
+        
+        # Summary statistics
+        total_spend = db.session.query(func.sum(SpendRecord.amount)).scalar() or 0
+        total_suppliers = db.session.query(func.count(func.distinct(SpendRecord.vendor_name))).scalar() or 0
+        
+        return jsonify({
+            'suppliers': map_data,
+            'summary': {
+                'total_spend': float(total_spend),
+                'total_suppliers': total_suppliers,
+                'mapped_suppliers': len(map_data)
+            }
+        })
+    except Exception as e:
+        print(f"Map View Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def categorize_spend(amount):
+    """Helper function to categorize spend for map visualization"""
+    if not amount:
+        return 'low'
+    elif amount < 100000:
+        return 'low'
+    elif amount < 1000000:
+        return 'medium'
+    elif amount < 10000000:
+        return 'high'
+    else:
+        return 'very_high'
+
 
 if __name__ == '__main__':
     # Initialize spend data on startup
