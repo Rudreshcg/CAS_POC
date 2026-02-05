@@ -15,20 +15,51 @@ const ExecutiveDashboard = () => {
     const [enrichedData, setEnrichedData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedDescription, setSelectedDescription] = useState('All');
+    const [uniqueDescriptions, setUniqueDescriptions] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('/api/spend-analysis/dashboard');
+                setLoading(true);
+                const queryParams = selectedDescription !== 'All'
+                    ? `?enriched_description=${encodeURIComponent(selectedDescription)}`
+                    : '';
+
+                const res = await fetch(`/api/spend-analysis/dashboard${queryParams}`);
                 if (!res.ok) throw new Error('Failed to fetch dashboard data');
                 const json = await res.json();
                 setData(json);
 
+                // Fetch unique descriptions once
+                if (uniqueDescriptions.length === 0) {
+                    try {
+                        const descRes = await fetch('/api/spend-analysis/enriched-descriptions');
+                        if (descRes.ok) {
+                            const descJson = await descRes.json();
+                            if (Array.isArray(descJson)) {
+                                setUniqueDescriptions(['All', ...descJson.sort()]);
+                            } else {
+                                console.warn("Expected array for enriched descriptions, got:", descJson);
+                                setUniqueDescriptions(['All']);
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Failed to fetch enriched descriptions:", err);
+                    }
+                }
+
                 // Fetch enriched insights as well
-                const enrichedRes = await fetch('/api/spend-analysis/enriched-insights');
-                if (enrichedRes.ok) {
-                    const enrichedJson = await enrichedRes.json();
-                    setEnrichedData(enrichedJson);
+                try {
+                    const enrichedRes = await fetch('/api/spend-analysis/enriched-insights');
+                    if (enrichedRes.ok) {
+                        const enrichedJson = await enrichedRes.json();
+                        if (Array.isArray(enrichedJson)) {
+                            setEnrichedData(enrichedJson);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch enriched insights:", err);
                 }
             } catch (err) {
                 console.error(err);
@@ -38,7 +69,7 @@ const ExecutiveDashboard = () => {
             }
         };
         fetchData();
-    }, []);
+    }, [selectedDescription]);
 
     if (loading) return <div className="p-8 text-center text-slate-400 animate-pulse">Loading Dashboard...</div>;
     if (error) return <div className="p-8 text-center text-red-400">Error: {error}</div>;

@@ -65,7 +65,7 @@ const SpendTableView = () => {
         if (data.length === 0) return;
 
         const headers = [
-            'PO Number', 'Vendor Name', 'Item Description', 'Enriched Description', 'Operating Unit',
+            'PO Number', 'Vendor Name', 'Item Description', 'Enriched Description', 'CAS Number', 'Operating Unit',
             'Quantity', 'Amount (INR)', 'PO Date', 'Buyer Name', 'Currency'
         ];
 
@@ -74,6 +74,7 @@ const SpendTableView = () => {
             row.vendor_name || '',
             row.item_description || '',
             row.enriched_description || '',
+            row.cas_number || '',
             row.operating_unit || '',
             row.quantity || 0,
             row.amount || 0,
@@ -197,6 +198,9 @@ const SpendTableView = () => {
                                         <SortIcon column="enriched_description" />
                                     </div>
                                 </th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-amber-500 uppercase tracking-wider">
+                                    CAS Number
+                                </th>
                                 <th
                                     className="px-4 py-3 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider cursor-pointer hover:bg-slate-800/50 transition-colors"
                                     onClick={() => handleSort('operating_unit')}
@@ -255,6 +259,9 @@ const SpendTableView = () => {
                                     </td>
                                     <td className="px-4 py-3 text-sm text-cyan-400 font-medium max-w-[200px] truncate" title={row.enriched_description}>
                                         {row.enriched_description || '-'}
+                                    </td>
+                                    <td className="px-4 py-3 text-sm text-amber-500 font-mono">
+                                        {row.cas_number || '-'}
                                     </td>
                                     <td className="px-4 py-3 text-sm text-slate-300">
                                         {row.operating_unit || '-'}

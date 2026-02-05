@@ -139,12 +139,12 @@ const GeographicDashboard = () => {
 
             {/* KPI Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                <KPICard title="Total Spend" value={formatCurrency(summary.total_spend)} icon={DollarSign} color="bg-blue-500 text-blue-400" />
-                <KPICard title="Suppliers" value={summary.total_suppliers.toLocaleString()} icon={Users} color="bg-orange-500 text-orange-400" />
-                <KPICard title="Mapped Locations" value={summary.mapped_suppliers} icon={MapPin} color="bg-green-500 text-green-400" />
-                <KPICard title="Regions" value={region_data.length} icon={Globe} color="bg-purple-500 text-purple-400" />
-                <KPICard title="PO Count" value={kpis.po_count.toLocaleString()} icon={ShoppingCart} color="bg-yellow-500 text-yellow-400" />
-                <KPICard title="Active Routes" value={(region_data.length * 2).toLocaleString()} icon={Navigation} color="bg-pink-500 text-pink-400" />
+                <KPICard title="Total Spend" value={formatCurrency(summary?.total_spend || 0)} icon={DollarSign} color="bg-blue-500 text-blue-400" />
+                <KPICard title="Suppliers" value={(summary?.total_suppliers || 0).toLocaleString()} icon={Users} color="bg-orange-500 text-orange-400" />
+                <KPICard title="Mapped Locations" value={summary?.mapped_suppliers || 0} icon={MapPin} color="bg-green-500 text-green-400" />
+                <KPICard title="Regions" value={(region_data || []).length} icon={Globe} color="bg-purple-500 text-purple-400" />
+                <KPICard title="PO Count" value={(kpis?.po_count || kpis?.total_pos || 0).toLocaleString()} icon={ShoppingCart} color="bg-yellow-500 text-yellow-400" />
+                <KPICard title="Active Routes" value={((region_data?.length || 0) * 2).toLocaleString()} icon={Navigation} color="bg-pink-500 text-pink-400" />
             </div>
 
             {/* Row 1: Large Map + Supplier List */}

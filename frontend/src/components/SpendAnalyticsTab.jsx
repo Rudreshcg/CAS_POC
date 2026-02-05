@@ -8,6 +8,8 @@ const SpendAnalyticsTab = () => {
     const [activeStyle, setActiveStyle] = useState('executive'); // executive, analytical, geographic
     const [showStyleSelector, setShowStyleSelector] = useState(false);
     const [savedPreference, setSavedPreference] = useState(null);
+    const [enrichmentStatus, setEnrichmentStatus] = useState(null);
+    const [isEnriching, setIsEnriching] = useState(false);
 
     // Load saved preference on mount
     useEffect(() => {
@@ -69,6 +71,43 @@ const SpendAnalyticsTab = () => {
         setShowStyleSelector(false);
     };
 
+    useEffect(() => {
+        let interval;
+        if (isEnriching) {
+            interval = setInterval(async () => {
+                try {
+                    const res = await fetch('/api/spend-analysis/enrich-status');
+                    if (res.ok) {
+                        const status = await res.json();
+                        setEnrichmentStatus(status);
+                        if (status.status === 'done') {
+                            setIsEnriching(false);
+                            clearInterval(interval);
+                        }
+                    }
+                } catch (err) {
+                    console.error("Status check failed:", err);
+                }
+            }, 2000);
+        }
+        return () => clearInterval(interval);
+    }, [isEnriching]);
+
+    const handleRunEnrichment = async () => {
+        try {
+            setIsEnriching(true);
+            const res = await fetch('/api/spend-analysis/enrich', { method: 'POST' });
+            if (!res.ok) {
+                const err = await res.json();
+                alert(err.error || "Failed to start enrichment");
+                setIsEnriching(false);
+            }
+        } catch (err) {
+            console.error("Enrichment trigger failed:", err);
+            setIsEnriching(false);
+        }
+    };
+
     const savePreference = async (styleId) => {
         try {
             const res = await fetch('/api/user-preferences', {
@@ -112,13 +151,51 @@ const SpendAnalyticsTab = () => {
             {showStyleSelector && (
                 <div className="mb-6 bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-2xl">
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl font-bold text-white">Choose Visualization Style</h3>
-                        <button
-                            onClick={() => setShowStyleSelector(false)}
-                            className="text-slate-400 hover:text-white transition-colors"
-                        >
-                            ✕
-                        </button>
+                        <div>
+                            <h3 className="text-xl font-bold text-white">Choose Visualization Style</h3>
+                            <p className="text-sm text-slate-400 mt-1">Select your preferred layout for spend data</p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {/* Enrichment Progress Indicator */}
+                            {enrichmentStatus && (enrichmentStatus.status === 'running' || enrichmentStatus.status === 'done') && (
+                                <div className="flex flex-col items-end mr-4">
+                                    <div className="flex items-center gap-2 text-xs">
+                                        <span className={enrichmentStatus.status === 'running' ? 'text-amber-400 animate-pulse' : 'text-green-400'}>
+                                            {enrichmentStatus.status === 'running' ? 'Advanced mapping in progress...' : 'Advanced mapping complete'}
+                                        </span>
+                                        <span className="text-slate-500">{enrichmentStatus.current}/{enrichmentStatus.total} items</span>
+                                    </div>
+                                    <div className="w-48 h-1.5 bg-slate-700 rounded-full mt-1 overflow-hidden">
+                                        <div
+                                            className={`h-full transition-all duration-300 ${enrichmentStatus.status === 'running' ? 'bg-amber-500' : 'bg-green-500'}`}
+                                            style={{ width: `${(enrichmentStatus.current / (enrichmentStatus.total || 1)) * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handleRunEnrichment}
+                                disabled={isEnriching}
+                                className={`
+                                    flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all
+                                    ${isEnriching
+                                        ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
+                                        : 'bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white shadow-lg shadow-amber-900/20'
+                                    }
+                                `}
+                            >
+                                <BarChart3 className={`w-4 h-4 ${isEnriching ? 'animate-spin' : ''}`} />
+                                {isEnriching ? 'Processing...' : 'Run Advanced Mapping (LLM)'}
+                            </button>
+
+                            <button
+                                onClick={() => setShowStyleSelector(false)}
+                                className="text-slate-400 hover:text-white transition-colors text-xl p-1"
+                            >
+                                ✕
+                            </button>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

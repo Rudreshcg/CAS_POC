@@ -176,6 +176,8 @@ class SpendRecord(db.Model):
     fob_dsp = db.Column(db.String(100))                  # Col 23: FOB_DSP
     
     # Metadata
+    enriched_description = db.Column(db.String(500))     # NEW: LLM standardized name
+    cas_number = db.Column(db.String(100))               # NEW: LLM found CAS
     amount = db.Column(db.Float)                         # Duplicate of base_price_inr for compatibility
     is_contract = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -205,6 +207,8 @@ class SpendRecord(db.Model):
             'base_price_fc': self.base_price_fc,
             'base_price_inr': self.base_price_inr,
             'amount': self.amount,
+            'enriched_description': self.enriched_description,
+            'cas_number': self.cas_number,
             'freight_terms': self.freight_terms,
             'ship_via': self.ship_via,
             'fob_dsp': self.fob_dsp,
