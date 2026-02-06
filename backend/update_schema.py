@@ -35,7 +35,19 @@ def update_schema():
                 print(f"Error adding column: {e}")
 
         try:
-            # Also check for user_preference table
+            # Check if item_category exists in spend_record
+            with db.engine.connect() as conn:
+                conn.execute(text("SELECT item_category FROM spend_record LIMIT 1"))
+                print("Column 'item_category' already exists.")
+        except Exception:
+            print("Adding column 'item_category' to 'spend_record'...")
+            try:
+                with db.engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE spend_record ADD COLUMN item_category VARCHAR(100)"))
+                    conn.commit()
+                print("Successfully added 'item_category' column.")
+            except Exception as e:
+                print(f"Error adding column: {e}")
             from models import UserPreference
             db.create_all()
             print("Ensured all tables (including UserPreference) are created.")

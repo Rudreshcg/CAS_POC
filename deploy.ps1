@@ -76,6 +76,8 @@ New-Item -ItemType Directory -Path $stagingDir | Out-Null
 Copy-Item "backend/app.py" -Destination $stagingDir
 Copy-Item "backend/llm_helper.py" -Destination $stagingDir
 Copy-Item "backend/models.py" -Destination $stagingDir
+Copy-Item "backend/cas_client.py" -Destination $stagingDir
+Copy-Item "backend/chemical_utils.py" -Destination $stagingDir
 Copy-Item "backend/geocoding_data.py" -Destination $stagingDir
 Copy-Item "backend/requirements.txt" -Destination $stagingDir
 Copy-Item "backend/material_clusters.json" -Destination $stagingDir -ErrorAction SilentlyContinue
@@ -83,6 +85,11 @@ Copy-Item "backend/reset_db.py" -Destination $stagingDir
 Copy-Item "backend/migrate_db.py" -Destination $stagingDir
 Copy-Item "backend/load_spend_data.py" -Destination $stagingDir
 Copy-Item "backend/Purchase History.xlsx" -Destination $stagingDir -ErrorAction SilentlyContinue
+Copy-Item "backend/Purchase History(Sheet1).csv" -Destination $stagingDir -ErrorAction SilentlyContinue
+
+# Copy Blueprints
+New-Item -ItemType Directory -Path "$stagingDir/blueprints" -Force | Out-Null
+Copy-Item "backend/blueprints/*" -Destination "$stagingDir/blueprints" -Recurse -Force
 
 # Copy Frontend Build (Maintain directory structure: frontend/dist)
 if (Test-Path "frontend/dist") {

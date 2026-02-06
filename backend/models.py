@@ -161,7 +161,8 @@ class SpendRecord(db.Model):
     supplier_number = db.Column(db.String(50))           # Col 8: SUPPLIER_NUMBER
     vendor_name = db.Column(db.String(255))              # Col 9: SUPPLIER_NAME
     supplier_site = db.Column(db.String(255))            # Col 10: SUPPLIER_SITE
-    item_code = db.Column(db.String(100))                # Col 11: ITEM_CODE
+    item_category = db.Column(db.String(100))            # Col 11: ITEM_CATEGORY
+    item_code = db.Column(db.String(100))                # Col 11: ITEM_CODE (Shared mapping for now or next col)
     item_description = db.Column(db.String(500))         # Col 12: ITEM_DESCRIPTION
     quantity = db.Column(db.Float)                       # Col 13: QUANTITY
     uom = db.Column(db.String(20))                       # Col 14: UOM
@@ -196,6 +197,7 @@ class SpendRecord(db.Model):
             'supplier_number': self.supplier_number,
             'vendor_name': self.vendor_name,
             'supplier_site': self.supplier_site,
+            'item_category': self.item_category,
             'item_code': self.item_code,
             'item_description': self.item_description,
             'quantity': self.quantity,

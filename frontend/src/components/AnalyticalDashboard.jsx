@@ -15,11 +15,43 @@ const AnalyticalDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [sortConfig, setSortConfig] = useState({ key: 'amount', direction: 'desc' });
+    const [selectedDescription, setSelectedDescription] = useState('All');
+    const [uniqueDescriptions, setUniqueDescriptions] = useState([]);
+    const [operatingUnit, setOperatingUnit] = useState('All');
+    const [units, setUnits] = useState([]);
+
+    useEffect(() => {
+        const fetchFilters = async () => {
+            try {
+                const [descRes, unitRes] = await Promise.all([
+                    fetch('/api/spend-analysis/enriched-descriptions'),
+                    fetch('/api/spend-analysis/operating-units')
+                ]);
+
+                if (descRes.ok) {
+                    const descJson = await descRes.json();
+                    setUniqueDescriptions(['All', ...descJson]);
+                }
+                if (unitRes.ok) {
+                    const unitJson = await unitRes.json();
+                    setUnits(['All', ...unitJson]);
+                }
+            } catch (err) {
+                console.error("Failed to fetch filters:", err);
+            }
+        };
+        fetchFilters();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch('/api/spend-analysis/dashboard');
+                setLoading(true);
+                let queryParams = `?enriched_description=${encodeURIComponent(selectedDescription)}`;
+                if (operatingUnit !== 'All') {
+                    queryParams += `&operating_unit=${encodeURIComponent(operatingUnit)}`;
+                }
+                const res = await fetch(`/api/spend-analysis/dashboard${queryParams}`);
                 if (!res.ok) throw new Error('Failed to fetch dashboard data');
                 const json = await res.json();
                 setData(json);
@@ -31,7 +63,7 @@ const AnalyticalDashboard = () => {
             }
         };
         fetchData();
-    }, []);
+    }, [selectedDescription, operatingUnit]);
 
     if (loading) return <div className="p-8 text-center text-slate-400 animate-pulse">Loading Dashboard...</div>;
     if (error) return <div className="p-8 text-center text-red-400">Error: {error}</div>;
@@ -118,14 +150,44 @@ const AnalyticalDashboard = () => {
     return (
         <div className="space-y-6 pb-12">
             {/* Header */}
-            <div className="flex justify-between items-end mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
                 <div>
                     <h2 className="text-3xl font-bold text-white mb-2">Analytical Dashboard</h2>
                     <p className="text-slate-400">Detailed data analysis with tables and drill-down capabilities</p>
                 </div>
-                <div className="text-right">
-                    <p className="text-sm text-slate-500">Data Source: Purchase History</p>
-                    <p className="text-xs text-cyan-500 font-mono mt-1">LIVE DATA</p>
+
+                <div className="flex flex-col md:flex-row items-end gap-3 w-full md:w-auto">
+                    <div className="flex flex-col gap-1 w-full md:w-64">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold ml-1">Standardized Material</label>
+                        <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 shadow-inner">
+                            <FileText className="w-4 h-4 text-cyan-400" />
+                            <select
+                                value={selectedDescription}
+                                onChange={(e) => setSelectedDescription(e.target.value)}
+                                className="bg-transparent text-slate-200 text-sm focus:outline-none w-full cursor-pointer"
+                            >
+                                {uniqueDescriptions.map(desc => (
+                                    <option key={desc} value={desc} className="bg-slate-900">{desc}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1 w-full md:w-64">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold ml-1">Operating Unit</label>
+                        <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 shadow-inner">
+                            <Users className="w-4 h-4 text-orange-400" />
+                            <select
+                                value={operatingUnit}
+                                onChange={(e) => setOperatingUnit(e.target.value)}
+                                className="bg-transparent text-slate-200 text-sm focus:outline-none w-full cursor-pointer"
+                            >
+                                {units.map(unit => (
+                                    <option key={unit} value={unit} className="bg-slate-900">{unit}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -241,8 +303,8 @@ const AnalyticalDashboard = () => {
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${idx < 3 ? 'bg-green-500/20 text-green-400' :
-                                                    idx < 7 ? 'bg-yellow-500/20 text-yellow-400' :
-                                                        'bg-slate-500/20 text-slate-400'
+                                                idx < 7 ? 'bg-yellow-500/20 text-yellow-400' :
+                                                    'bg-slate-500/20 text-slate-400'
                                                 }`}>
                                                 {idx < 3 ? 'Strategic' : idx < 7 ? 'Preferred' : 'Standard'}
                                             </span>

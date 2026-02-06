@@ -66,6 +66,7 @@ CITY_COORDS = {
     'montenegro': {'lat': -29.6883, 'lng': -51.4611, 'name': 'Montenegro, Brazil'},
     'nova iguacu': {'lat': -22.7558, 'lng': -43.4603, 'name': 'Nova Iguaçu, Brazil'},
     'cotia': {'lat': -23.6022, 'lng': -46.9189, 'name': 'Cotia, Brazil'},
+    'sao bernardo do': {'lat': -23.6913, 'lng': -46.5646, 'name': 'São Bernardo do Campo, Brazil'},
     'sao caetano do': {'lat': -23.6167, 'lng': -46.55, 'name': 'São Caetano do Sul, Brazil'},
     'rio das ostras': {'lat': -22.5222, 'lng': -41.9422, 'name': 'Rio das Ostras, Brazil'},
     'viana': {'lat': -20.39, 'lng': -40.4967, 'name': 'Viana, Brazil'},

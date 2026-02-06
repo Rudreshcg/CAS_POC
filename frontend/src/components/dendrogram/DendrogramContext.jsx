@@ -278,19 +278,22 @@ export function DendrogramProvider({ children }) {
 
         const overrides = [];
 
-        const traverse = (node, parentId) => {
-            if (node.id !== 'root' && parentId) {
-                // Save ALL nodes allowing groups/params to be moved and persisted.
-                // We capture the entire current state.
-                overrides.push({ node_id: node.id, parent_id: parentId });
+        const traverse = (node, parentSkelId) => {
+            if (node.id !== 'root' && parentSkelId) {
+                // Save moves using skeleton_id (stable identity)
+                // This ensures the backend can find the node in Phase 2
+                overrides.push({
+                    node_id: node.skeleton_id || node.id,
+                    parent_id: parentSkelId
+                });
             }
             if (node.children) {
-                node.children.forEach(child => traverse(child, node.id));
+                node.children.forEach(child => traverse(child, node.skeleton_id || node.id));
             }
         };
 
         if (tree.children) {
-            tree.children.forEach(child => traverse(child, tree.id));
+            tree.children.forEach(child => traverse(child, tree.skeleton_id || tree.id || 'root'));
         }
 
         console.log("Saving Layout Overrides:", overrides);

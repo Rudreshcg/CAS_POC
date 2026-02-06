@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ExecutiveDashboard from './ExecutiveDashboard';
 import AnalyticalDashboard from './AnalyticalDashboard';
 import GeographicDashboard from './GeographicDashboard';
-import { BarChart3, Table2, Globe, Settings, Check } from 'lucide-react';
+import { BarChart3, Table2, Globe, Settings, Check, Trash2 } from 'lucide-react';
 
 const SpendAnalyticsTab = () => {
     const [activeStyle, setActiveStyle] = useState('executive'); // executive, analytical, geographic
@@ -108,6 +108,21 @@ const SpendAnalyticsTab = () => {
         }
     };
 
+    const handleClearEnrichment = async () => {
+        if (!window.confirm("Are you sure you want to clear all standardized chemical mapping? This cannot be undone.")) return;
+
+        try {
+            const res = await fetch('/api/spend-analysis/clear-enrichment', { method: 'POST' });
+            if (res.ok) {
+                setEnrichmentStatus({ status: 'idle', total: 0, current: 0 });
+                alert("All mapping data has been cleared.");
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error("Failed to clear enrichment:", err);
+        }
+    };
+
     const savePreference = async (styleId) => {
         try {
             const res = await fetch('/api/user-preferences', {
@@ -173,6 +188,15 @@ const SpendAnalyticsTab = () => {
                                     </div>
                                 </div>
                             )}
+
+                            <button
+                                onClick={handleClearEnrichment}
+                                className="flex items-center gap-2 px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm font-semibold transition-all border border-slate-600"
+                                title="Delete all standardized mappings"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Clear All Mapping
+                            </button>
 
                             <button
                                 onClick={handleRunEnrichment}
