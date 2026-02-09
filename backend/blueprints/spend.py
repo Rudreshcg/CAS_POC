@@ -94,6 +94,7 @@ def solve_spend_dashboard():
         region = request.args.get('region')
         enriched_desc = request.args.get('enriched_description')
         operating_unit = request.args.get('operating_unit')
+        year = request.args.get('year')
         
         # Build query with join to potentially get enriched description from MaterialData
         query = db.session.query(SpendRecord).outerjoin(
@@ -118,6 +119,8 @@ def solve_spend_dashboard():
             pass
         if enriched_desc and enriched_desc != 'All':
              query = query.filter(SpendRecord.enriched_description == enriched_desc)
+        if year and year != 'All':
+             query = query.filter(SpendRecord.year == year)
             
         # Overall Stats for KPIs
         total_spend = db.session.query(func.sum(SpendRecord.amount)).filter(
@@ -126,14 +129,15 @@ def solve_spend_dashboard():
         total_suppliers = db.session.query(func.count(func.distinct(SpendRecord.vendor_name))).filter(
             SpendRecord.id.in_(query.with_entities(SpendRecord.id))
         ).scalar() or 0
-        total_transactions = query.count()
         po_count = db.session.query(func.count(func.distinct(SpendRecord.po_number))).filter(
             SpendRecord.id.in_(query.with_entities(SpendRecord.id))
         ).scalar() or 0
+        total_buyers = db.session.query(func.count(func.distinct(SpendRecord.buyer_name))).filter(
+            SpendRecord.id.in_(query.with_entities(SpendRecord.id))
+        ).scalar() or 0
         
-        # Mocks for PR and Invoice counts (based on original logic)
+        # Mocks for PR counts (based on original logic)
         pr_count = int(po_count * 1.1)
-        invoice_count = int(total_transactions * 0.8)
 
         # 1. Spend by Material/Item Description (Top 8)
         cat_result = db.session.query(
@@ -215,10 +219,9 @@ def solve_spend_dashboard():
             "kpis": {
                 "spend": float(total_spend),
                 "suppliers": total_suppliers,
-                "transactions": total_transactions,
+                "buyers": total_buyers,
                 "po_count": po_count,
-                "pr_count": pr_count,
-                "invoice_count": invoice_count
+                "pr_count": pr_count
             },
             "category_data": category_data,
             "trend_data": trend_data,
@@ -236,7 +239,11 @@ def solve_spend_dashboard():
 @spend_bp.route('/api/spend-analysis/enriched-insights')
 def enriched_spend_insights():
     try:
-        results = db.session.query(
+        enriched_desc = request.args.get('enriched_description')
+        operating_unit = request.args.get('operating_unit')
+        year = request.args.get('year')
+        
+        query = db.session.query(
             MaterialData.enriched_description,
             func.sum(SpendRecord.amount).label('total_spend'),
             func.count(SpendRecord.id).label('transaction_count')
@@ -247,7 +254,16 @@ def enriched_spend_insights():
                 MaterialData.enriched_description == SpendRecord.enriched_description,
                 db.and_(MaterialData.enriched_description.like(SpendRecord.enriched_description + '%'), SpendRecord.enriched_description != None)
             )
-        ).group_by(
+        )
+
+        if enriched_desc and enriched_desc != 'All':
+            query = query.filter(SpendRecord.enriched_description == enriched_desc)
+        if operating_unit and operating_unit != 'All':
+            query = query.filter(SpendRecord.operating_unit == operating_unit)
+        if year and year != 'All':
+            query = query.filter(SpendRecord.year == year)
+
+        results = query.group_by(
             MaterialData.enriched_description
         ).order_by(
             func.sum(SpendRecord.amount).desc()
@@ -276,6 +292,7 @@ def spend_table_view():
         search = request.args.get('search', '')
         enriched_desc = request.args.get('enriched_description')
         operating_unit = request.args.get('operating_unit')
+        year = request.args.get('year')
 
         # Build query with join to potentially get enriched description
         query = db.session.query(
@@ -302,6 +319,8 @@ def spend_table_view():
             query = query.filter(SpendRecord.enriched_description == enriched_desc)
         if operating_unit and operating_unit != 'All':
             query = query.filter(SpendRecord.operating_unit == operating_unit)
+        if year and year != 'All':
+            query = query.filter(SpendRecord.year == year)
 
         if sort_by == 'enriched_description':
             sort_col = MaterialData.enriched_description
@@ -336,6 +355,7 @@ def spend_map_view():
     try:
         enriched_desc = request.args.get('enriched_description')
         operating_unit = request.args.get('operating_unit')
+        year = request.args.get('year')
         
         query = db.session.query(
             SpendRecord.vendor_name,
@@ -349,6 +369,8 @@ def spend_map_view():
             query = query.filter(SpendRecord.enriched_description == enriched_desc)
         if operating_unit and operating_unit != 'All':
             query = query.filter(SpendRecord.operating_unit == operating_unit)
+        if year and year != 'All':
+            query = query.filter(SpendRecord.year == year)
             
         results = query.group_by(SpendRecord.vendor_name, SpendRecord.operating_unit, SpendRecord.supplier_site).order_by(func.sum(SpendRecord.amount).desc()).all()
         
@@ -412,4 +434,13 @@ def get_operating_units():
         return jsonify(sorted([u[0] for u in units if u[0]]))
     except Exception as e:
         print(f"Error fetching operating units: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@spend_bp.route('/api/spend-analysis/years')
+def get_years():
+    try:
+        years = db.session.query(SpendRecord.year).distinct().all()
+        return jsonify(sorted([str(y[0]) for y in years if y[0]], reverse=True))
+    except Exception as e:
+        print(f"Error fetching years: {e}")
         return jsonify({"error": str(e)}), 500

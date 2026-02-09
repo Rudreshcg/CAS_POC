@@ -6,8 +6,8 @@ import {
     LineChart, Line
 } from 'recharts';
 import {
-    DollarSign, Users, ShoppingCart, MapPin, Globe, Navigation,
-    TrendingUp, Flag
+    DollarSign, Users, ShoppingCart, FileText, Globe, MapPin, Navigation,
+    IndianRupee, Calendar, UserCheck, TrendingUp, Flag
 } from 'lucide-react';
 
 // Component to fit map bounds to markers
@@ -34,13 +34,16 @@ const GeographicDashboard = () => {
     const [uniqueDescriptions, setUniqueDescriptions] = useState([]);
     const [operatingUnit, setOperatingUnit] = useState('All');
     const [units, setUnits] = useState([]);
+    const [selectedYear, setSelectedYear] = useState('All');
+    const [years, setYears] = useState([]);
 
     useEffect(() => {
         const fetchFilters = async () => {
             try {
-                const [descRes, unitRes] = await Promise.all([
+                const [descRes, unitRes, yearRes] = await Promise.all([
                     fetch('/api/spend-analysis/enriched-descriptions'),
-                    fetch('/api/spend-analysis/operating-units')
+                    fetch('/api/spend-analysis/operating-units'),
+                    fetch('/api/spend-analysis/years')
                 ]);
 
                 if (descRes.ok) {
@@ -50,6 +53,10 @@ const GeographicDashboard = () => {
                 if (unitRes.ok) {
                     const unitJson = await unitRes.json();
                     setUnits(['All', ...unitJson]);
+                }
+                if (yearRes.ok) {
+                    const yearJson = await yearRes.json();
+                    setYears(['All', ...yearJson.map(y => y.toString())]);
                 }
             } catch (err) {
                 console.error("Failed to fetch filters:", err);
@@ -65,6 +72,9 @@ const GeographicDashboard = () => {
                 let queryParams = `?enriched_description=${encodeURIComponent(selectedDescription)}`;
                 if (operatingUnit !== 'All') {
                     queryParams += `&operating_unit=${encodeURIComponent(operatingUnit)}`;
+                }
+                if (selectedYear !== 'All') {
+                    queryParams += `&year=${encodeURIComponent(selectedYear)}`;
                 }
                 const [dashboardRes, mapRes] = await Promise.all([
                     fetch(`/api/spend-analysis/dashboard${queryParams}`),
@@ -86,7 +96,7 @@ const GeographicDashboard = () => {
             }
         };
         fetchData();
-    }, [selectedDescription, operatingUnit]);
+    }, [selectedDescription, operatingUnit, selectedYear]);
 
     if (loading) return <div className="p-8 text-center text-slate-400 animate-pulse">Loading Dashboard...</div>;
     if (error) return <div className="p-8 text-center text-red-400">Error: {error}</div>;
@@ -166,7 +176,7 @@ const GeographicDashboard = () => {
 
                 <div className="flex flex-col md:flex-row items-end gap-3 w-full md:w-auto">
                     <div className="flex flex-col gap-1 w-full md:w-64">
-                        <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold ml-1">Standardized Material</label>
+                        <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold ml-1">Enriched Description</label>
                         <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 shadow-inner">
                             <Globe className="w-4 h-4 text-cyan-400" />
                             <select
@@ -196,17 +206,32 @@ const GeographicDashboard = () => {
                             </select>
                         </div>
                     </div>
+
+                    <div className="flex flex-col gap-1 w-full md:w-40">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold ml-1">Year</label>
+                        <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 shadow-inner">
+                            <Calendar className="w-4 h-4 text-purple-400" />
+                            <select
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(e.target.value)}
+                                className="bg-transparent text-slate-200 text-sm focus:outline-none w-full cursor-pointer"
+                            >
+                                {years.map(year => (
+                                    <option key={year} value={year} className="bg-slate-900">{year}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {/* KPI Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                <KPICard title="Total Spend" value={formatCurrency(summary?.total_spend || 0)} icon={DollarSign} color="bg-blue-500 text-blue-400" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <KPICard title="Total Spend" value={formatCurrency(summary?.total_spend || 0)} icon={IndianRupee} color="bg-blue-500 text-blue-400" />
                 <KPICard title="Suppliers" value={(summary?.total_suppliers || 0).toLocaleString()} icon={Users} color="bg-orange-500 text-orange-400" />
-                <KPICard title="Mapped Locations" value={summary?.mapped_suppliers || 0} icon={MapPin} color="bg-green-500 text-green-400" />
-                <KPICard title="Regions" value={(region_data || []).length} icon={Globe} color="bg-purple-500 text-purple-400" />
+                <KPICard title="Buyers" value={(kpis?.buyers || 0).toLocaleString()} icon={UserCheck} color="bg-indigo-500 text-indigo-400" />
                 <KPICard title="PO Count" value={(kpis?.po_count || kpis?.total_pos || 0).toLocaleString()} icon={ShoppingCart} color="bg-yellow-500 text-yellow-400" />
-                <KPICard title="Active Routes" value={((region_data?.length || 0) * 2).toLocaleString()} icon={Navigation} color="bg-pink-500 text-pink-400" />
+                <KPICard title="PR Count" value={(kpis?.pr_count || 0).toLocaleString()} icon={FileText} color="bg-emerald-500 text-emerald-400" />
             </div>
 
             {/* Row 1: Large Map + Supplier List */}
@@ -427,12 +452,20 @@ const GeographicDashboard = () => {
                     </h3>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={trend_data}>
+                            <LineChart data={trend_data} margin={{ top: 10, right: 10, left: 20, bottom: 25 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                                <YAxis tickFormatter={formatCurrency} tick={{ fill: '#94a3b8', fontSize: 10 }} width={60} />
+                                <XAxis
+                                    dataKey="name"
+                                    tick={{ fill: '#94a3b8', fontSize: 10 }}
+                                    label={{ value: 'Purchase Order Date', position: 'insideBottom', offset: -15, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatCurrency}
+                                    tick={{ fill: '#94a3b8', fontSize: 10 }}
+                                    width={70}
+                                    label={{ value: 'Spend Amount (₹)', angle: -90, position: 'insideLeft', offset: -10, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                                />
                                 <Tooltip content={<CustomTooltip />} />
-                                <Legend wrapperStyle={{ fontSize: '10px' }} />
                                 <Line type="monotone" dataKey="value" name="Total Spend" stroke="#8884d8" strokeWidth={3} dot={{ r: 4 }} />
                             </LineChart>
                         </ResponsiveContainer>
@@ -442,13 +475,22 @@ const GeographicDashboard = () => {
 
             {/* Row 3: Country Distribution */}
             <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
-                <h3 className="text-lg font-bold text-white mb-4">Top Locations by Spend</h3>
+                <h3 className="text-lg font-bold text-white mb-4">Top Regions by Spend</h3>
                 <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={region_data} layout="horizontal">
+                        <BarChart data={region_data} layout="horizontal" margin={{ top: 10, right: 10, left: 20, bottom: 25 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                            <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                            <YAxis tickFormatter={formatCurrency} tick={{ fill: '#94a3b8', fontSize: 10 }} width={60} />
+                            <XAxis
+                                dataKey="name"
+                                tick={{ fill: '#94a3b8', fontSize: 10 }}
+                                label={{ value: 'Region', position: 'insideBottom', offset: -15, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                            />
+                            <YAxis
+                                tickFormatter={formatCurrency}
+                                tick={{ fill: '#94a3b8', fontSize: 10 }}
+                                width={70}
+                                label={{ value: 'Spend Amount (₹)', angle: -90, position: 'insideLeft', offset: -10, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                            />
                             <Tooltip content={<CustomTooltip />} />
                             <Bar dataKey="value" name="Spend" fill="#FFBB28" radius={[4, 4, 0, 0]} />
                         </BarChart>

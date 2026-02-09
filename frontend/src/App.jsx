@@ -7,6 +7,7 @@ import EnrichmentRules from './components/EnrichmentRules';
 import ClusterVisualizer from './components/ClusterVisualizer';
 import SpendAnalyticsTab from './components/SpendAnalyticsTab';
 import { Boxes, Settings, PieChart, FileText, AlertTriangle, ArrowRightLeft } from 'lucide-react';
+import scmmaxLogo from './assets/scmmaxLogo.png';
 
 // --- Tab Components ---
 
@@ -141,7 +142,9 @@ function Layout({ children }) {
             <h1 className="text-2xl font-bold truncate">
               <span className="text-white">Material</span> <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">De-duplication & Substitution</span>
             </h1>
-            <div className="text-xs text-slate-500">Powered by SCM-MAX</div>
+            <div className="flex items-center gap-3">
+              <img src={scmmaxLogo} alt="SCM-MAX Logo" className="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity" />
+            </div>
           </div>
 
           {/* Navigation Tabs */}

@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import {
     DollarSign, Users, ShoppingCart, FileText, Receipt, TrendingUp,
-    ChevronDown, ChevronUp, ArrowUpDown, Filter
+    ChevronDown, ChevronUp, ArrowUpDown, Filter, IndianRupee, Calendar, UserCheck
 } from 'lucide-react';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
@@ -19,13 +19,16 @@ const AnalyticalDashboard = () => {
     const [uniqueDescriptions, setUniqueDescriptions] = useState([]);
     const [operatingUnit, setOperatingUnit] = useState('All');
     const [units, setUnits] = useState([]);
+    const [selectedYear, setSelectedYear] = useState('All');
+    const [years, setYears] = useState([]);
 
     useEffect(() => {
         const fetchFilters = async () => {
             try {
-                const [descRes, unitRes] = await Promise.all([
+                const [descRes, unitRes, yearRes] = await Promise.all([
                     fetch('/api/spend-analysis/enriched-descriptions'),
-                    fetch('/api/spend-analysis/operating-units')
+                    fetch('/api/spend-analysis/operating-units'),
+                    fetch('/api/spend-analysis/years')
                 ]);
 
                 if (descRes.ok) {
@@ -35,6 +38,10 @@ const AnalyticalDashboard = () => {
                 if (unitRes.ok) {
                     const unitJson = await unitRes.json();
                     setUnits(['All', ...unitJson]);
+                }
+                if (yearRes.ok) {
+                    const yearJson = await yearRes.json();
+                    setYears(['All', ...yearJson.map(y => y.toString())]);
                 }
             } catch (err) {
                 console.error("Failed to fetch filters:", err);
@@ -51,6 +58,9 @@ const AnalyticalDashboard = () => {
                 if (operatingUnit !== 'All') {
                     queryParams += `&operating_unit=${encodeURIComponent(operatingUnit)}`;
                 }
+                if (selectedYear !== 'All') {
+                    queryParams += `&year=${encodeURIComponent(selectedYear)}`;
+                }
                 const res = await fetch(`/api/spend-analysis/dashboard${queryParams}`);
                 if (!res.ok) throw new Error('Failed to fetch dashboard data');
                 const json = await res.json();
@@ -63,7 +73,7 @@ const AnalyticalDashboard = () => {
             }
         };
         fetchData();
-    }, [selectedDescription, operatingUnit]);
+    }, [selectedDescription, operatingUnit, selectedYear]);
 
     if (loading) return <div className="p-8 text-center text-slate-400 animate-pulse">Loading Dashboard...</div>;
     if (error) return <div className="p-8 text-center text-red-400">Error: {error}</div>;
@@ -72,11 +82,11 @@ const AnalyticalDashboard = () => {
     const { kpis, category_data, trend_data, region_data, supplier_data, pareto_data, contract_data } = data;
 
     const formatCurrency = (val) => {
-        if (!val) return '$0';
-        if (val >= 1000000000) return `$${(val / 1000000000).toFixed(2)}B`;
-        if (val >= 1000000) return `$${(val / 1000000).toFixed(2)}M`;
-        if (val >= 1000) return `$${(val / 1000).toFixed(0)}K`;
-        return `$${val.toFixed(0)}`;
+        if (!val) return '₹0';
+        if (val >= 1000000000) return `₹${(val / 1000000000).toFixed(2)}B`;
+        if (val >= 1000000) return `₹${(val / 1000000).toFixed(2)}M`;
+        if (val >= 1000) return `₹${(val / 1000).toFixed(0)}K`;
+        return `₹${val.toFixed(0)}`;
     };
 
     const KPICard = ({ title, value, icon: Icon, color, trend }) => (
@@ -158,7 +168,7 @@ const AnalyticalDashboard = () => {
 
                 <div className="flex flex-col md:flex-row items-end gap-3 w-full md:w-auto">
                     <div className="flex flex-col gap-1 w-full md:w-64">
-                        <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold ml-1">Standardized Material</label>
+                        <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold ml-1">Enriched Description</label>
                         <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 shadow-inner">
                             <FileText className="w-4 h-4 text-cyan-400" />
                             <select
@@ -188,17 +198,32 @@ const AnalyticalDashboard = () => {
                             </select>
                         </div>
                     </div>
+
+                    <div className="flex flex-col gap-1 w-full md:w-40">
+                        <label className="text-[10px] uppercase tracking-wider text-slate-500 font-bold ml-1">Year</label>
+                        <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 shadow-inner">
+                            <Calendar className="w-4 h-4 text-purple-400" />
+                            <select
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(e.target.value)}
+                                className="bg-transparent text-slate-200 text-sm focus:outline-none w-full cursor-pointer"
+                            >
+                                {years.map(year => (
+                                    <option key={year} value={year} className="bg-slate-900">{year}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {/* KPI Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                <KPICard title="Total Spend" value={formatCurrency(kpis.spend)} icon={DollarSign} color="bg-blue-500 text-blue-400" trend={5.2} />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <KPICard title="Total Spend" value={formatCurrency(kpis.spend)} icon={IndianRupee} color="bg-blue-500 text-blue-400" trend={5.2} />
                 <KPICard title="Suppliers" value={kpis.suppliers.toLocaleString()} icon={Users} color="bg-orange-500 text-orange-400" trend={-2.1} />
-                <KPICard title="Transactions" value={kpis.transactions.toLocaleString()} icon={TrendingUp} color="bg-indigo-500 text-indigo-400" trend={8.4} />
+                <KPICard title="Buyers" value={kpis.buyers.toLocaleString()} icon={UserCheck} color="bg-indigo-500 text-indigo-400" trend={8.4} />
                 <KPICard title="PO Count" value={kpis.po_count.toLocaleString()} icon={ShoppingCart} color="bg-yellow-500 text-yellow-400" trend={3.7} />
                 <KPICard title="PR Count" value={kpis.pr_count.toLocaleString()} icon={FileText} color="bg-emerald-500 text-emerald-400" trend={1.9} />
-                <KPICard title="Invoices" value={kpis.invoice_count.toLocaleString()} icon={Receipt} color="bg-pink-500 text-pink-400" trend={4.3} />
             </div>
 
             {/* Row 1: Category Breakdown Table with Chart */}
@@ -250,8 +275,18 @@ const AnalyticalDashboard = () => {
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={category_data} layout="vertical">
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
-                                <XAxis type="number" hide />
-                                <YAxis dataKey="name" type="category" width={100} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                                <XAxis
+                                    type="number"
+                                    hide
+                                    label={{ value: 'Spend Amount (₹)', position: 'insideBottom', offset: -5, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                                />
+                                <YAxis
+                                    dataKey="name"
+                                    type="category"
+                                    width={100}
+                                    tick={{ fill: '#94a3b8', fontSize: 10 }}
+                                    label={{ value: 'Category', angle: -90, position: 'insideLeft', offset: -10, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                                />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Bar dataKey="value" name="Spend" radius={[0, 4, 4, 0]}>
                                     {category_data.map((entry, index) => (
@@ -361,7 +396,7 @@ const AnalyticalDashboard = () => {
                     <h3 className="text-lg font-bold text-white mb-4">Spend Trend Over Time</h3>
                     <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <ComposedChart data={trend_data}>
+                            <ComposedChart data={trend_data} margin={{ top: 10, right: 10, left: 20, bottom: 25 }}>
                                 <defs>
                                     <linearGradient id="colorSpendAnalytical" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
@@ -369,12 +404,19 @@ const AnalyticalDashboard = () => {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
-                                <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-                                <YAxis tickFormatter={formatCurrency} tick={{ fill: '#94a3b8', fontSize: 10 }} width={60} />
+                                <XAxis
+                                    dataKey="name"
+                                    tick={{ fill: '#94a3b8', fontSize: 10 }}
+                                    label={{ value: 'Purchase Order Date', position: 'insideBottom', offset: -15, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                                />
+                                <YAxis
+                                    tickFormatter={formatCurrency}
+                                    tick={{ fill: '#94a3b8', fontSize: 10 }}
+                                    width={70}
+                                    label={{ value: 'Spend Amount (₹)', angle: -90, position: 'insideLeft', offset: -10, fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }}
+                                />
                                 <Tooltip content={<CustomTooltip />} />
-                                <Legend wrapperStyle={{ fontSize: '10px' }} />
                                 <Area type="monotone" dataKey="value" name="Spend" stroke="#8884d8" fillOpacity={1} fill="url(#colorSpendAnalytical)" />
-                                <Line type="monotone" dataKey="value" name="Trend" stroke="#ff7300" dot={{ r: 3 }} strokeWidth={2} />
                             </ComposedChart>
                         </ResponsiveContainer>
                     </div>

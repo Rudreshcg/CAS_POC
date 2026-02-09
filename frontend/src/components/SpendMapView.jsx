@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { MapPin, TrendingUp, Users, DollarSign } from 'lucide-react';
+import { MapPin, TrendingUp, Users, DollarSign, IndianRupee } from 'lucide-react';
 
 const SpendMapView = () => {
     const [data, setData] = useState(null);
@@ -95,7 +95,7 @@ const SpendMapView = () => {
                             <h3 className="text-2xl font-bold text-white">{formatCurrency(summary.total_spend)}</h3>
                         </div>
                         <div className="p-3 rounded-lg bg-blue-500/20">
-                            <DollarSign className="w-6 h-6 text-blue-400" />
+                            <IndianRupee className="w-6 h-6 text-blue-400" />
                         </div>
                     </div>
                 </div>
