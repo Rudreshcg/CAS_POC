@@ -8,6 +8,7 @@ import ClusterVisualizer from './components/ClusterVisualizer';
 import SpendAnalyticsTab from './components/SpendAnalyticsTab';
 import { Boxes, Settings, PieChart, FileText, AlertTriangle, ArrowRightLeft } from 'lucide-react';
 import scmmaxLogo from './assets/scmmaxLogo.png';
+import RiskDashboard from './components/RiskDashboard';
 
 // --- Tab Components ---
 
@@ -299,7 +300,7 @@ function App() {
           } />
           <Route path="/clusters" element={<ClusterVisualizer />} />
           <Route path="/spend" element={<SpendAnalyticsTab />} />
-          <Route path="/risk" element={<RiskTab />} />
+          <Route path="/risk" element={<RiskDashboard />} />
           <Route path="/substitution" element={<SubstitutionTab />} />
         </Routes>
       </Layout>

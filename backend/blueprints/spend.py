@@ -444,6 +444,209 @@ def get_operating_units():
         print(f"Error fetching operating units: {e}")
         return jsonify({"error": str(e)}), 500
 
+@spend_bp.route('/api/spend-analysis/risk-analysis')
+def get_risk_analysis():
+    try:
+        operating_unit = request.args.get('operating_unit', 'All')
+        selected_year = request.args.get('year', 'All')
+        
+        query = SpendRecord.query
+        if operating_unit != 'All':
+            query = query.filter(SpendRecord.operating_unit == operating_unit)
+        if selected_year != 'All':
+            query = query.filter(SpendRecord.year == selected_year)
+            
+        records = query.all()
+        
+        # Group by material (enriched_description)
+        material_risks = {}
+        
+        # Fetch configuration from database
+        pref_sensitive = UserPreference.query.filter_by(key='sensitive_countries').first()
+        pref_high_risk = UserPreference.query.filter_by(key='high_risk_countries').first()
+        pref_concentration = UserPreference.query.filter_by(key='concentration_threshold').first()
+        pref_disaster = UserPreference.query.filter_by(key='natural_disaster_countries').first()
+        
+        SENSITIVE_COUNTRIES = json.loads(pref_sensitive.value) if pref_sensitive else ['Russia', 'Iran', 'Ukraine', 'Israel', 'China', 'Indonesia']
+        HIGH_RISK_COUNTRIES = json.loads(pref_high_risk.value) if pref_high_risk else ['Russia', 'Iran', 'Ukraine', 'Israel']
+        CONCENTRATION_THRESHOLD = int(pref_concentration.value) if pref_concentration else 75
+        DISASTER_COUNTRIES = json.loads(pref_disaster.value) if pref_disaster else []
+        
+        def get_country(site):
+            if not site: return "Unknown"
+            site_key = site.lower().strip()
+            if site_key in CITY_COORDS:
+                name = CITY_COORDS[site_key]['name']
+                if ',' in name:
+                    return name.split(',')[-1].strip()
+                return name
+            return "Unknown"
+
+        for r in records:
+            mat = r.enriched_description
+            # Filter out placeholder data
+            if not mat or str(mat).lower() in ['other', 'unknown', 'nan', 'none']: 
+                continue
+                
+            mat_key = (mat, r.item_code or "N/A")
+            if mat_key not in material_risks:
+                material_risks[mat_key] = {
+                    "material": mat,
+                    "item_code": r.item_code or "N/A",
+                    "suppliers": set(),
+                    "countries": {},
+                    "sites": {},  # Track supplier sites
+                    "total_spend": 0,
+                    "risks": []
+                }
+            
+            material_risks[mat_key]["suppliers"].add(r.supplier_number)
+            country = get_country(r.supplier_site)
+            site = r.supplier_site or "Unknown"
+            material_risks[mat_key]["countries"][country] = material_risks[mat_key]["countries"].get(country, 0) + (r.amount or 0)
+            material_risks[mat_key]["sites"][site] = material_risks[mat_key]["sites"].get(site, 0) + (r.amount or 0)
+            material_risks[mat_key]["total_spend"] += (r.amount or 0)
+                
+        results = []
+        for mat_key, m_data in material_risks.items():
+            risks = []
+            max_severity = "Low"
+            
+            # 1. Single Source Risk
+            if len(m_data["suppliers"]) == 1:
+                risks.append({
+                    "type": "Single Source",
+                    "severity": "High",
+                    "description": "Only one vendor globally for this material."
+                })
+                max_severity = "High"
+                
+            # 2. Geo Political Risk
+            geo_risk_countries = [c for c in m_data["countries"].keys() if c != "Unknown" and any(sc in c for sc in SENSITIVE_COUNTRIES)]
+            if geo_risk_countries:
+                severity = "Medium"
+                if any(hc in str(geo_risk_countries) for hc in HIGH_RISK_COUNTRIES):
+                    severity = "High"
+                risks.append({
+                    "type": "Geo Political",
+                    "severity": severity,
+                    "description": f"Sourcing from sensitive regions: {', '.join(geo_risk_countries)}"
+                })
+                if severity == "High": max_severity = "High"
+                elif max_severity != "High": max_severity = "Medium"
+                
+            # 3. Country Risk
+            # Check if single source is from sensitive country
+            if len(m_data["suppliers"]) == 1:
+                supplier_countries = [c for c in m_data["countries"].keys() if c != "Unknown"]
+                if supplier_countries and any(any(sc in country for sc in SENSITIVE_COUNTRIES) for country in supplier_countries):
+                    risks.append({
+                        "type": "Country Risk",
+                        "severity": "Medium",
+                        "description": f"Single source from sensitive country: {', '.join(supplier_countries)}"
+                    })
+                    if max_severity != "High": max_severity = "Medium"
+            
+            # Check if >X% of vendors are from sensitive countries
+            total_suppliers = len(m_data["suppliers"])
+            if total_suppliers > 1:
+                for country, spend in m_data["countries"].items():
+                    if country != "Unknown" and m_data["total_spend"] > 0:
+                        concentration = (spend / m_data["total_spend"]) * 100
+                        if concentration > CONCENTRATION_THRESHOLD and any(sc in country for sc in SENSITIVE_COUNTRIES):
+                            risks.append({
+                                "type": "Country Risk",
+                                "severity": "Medium",
+                                "description": f"Over {CONCENTRATION_THRESHOLD}% of spend from sensitive country: {country}"
+                            })
+                            if max_severity != "High": max_severity = "Medium"
+                            break
+            
+            # 4. Natural Disaster Risk (case-insensitive matching)
+            disaster_countries = [c for c in m_data["countries"].keys() if c != "Unknown" and any(dc.lower() in c.lower() for dc in DISASTER_COUNTRIES)]
+            if disaster_countries:
+                risks.append({
+                    "type": "Natural Disaster",
+                    "severity": "High",
+                    "description": f"Sourcing from disaster-affected regions: {', '.join(disaster_countries)}"
+                })
+                max_severity = "High"
+
+            if risks:
+                # Find dominant site (highest spend) excluding "Unknown" if possible
+                valid_sites = {s: spend for s, spend in m_data["sites"].items() if s and s != "Unknown"}
+                dominant_site = max(valid_sites, key=valid_sites.get) if valid_sites else "Unknown"
+
+                results.append({
+                    "material": m_data["material"],
+                    "item_code": m_data["item_code"],
+                    "total_spend": m_data["total_spend"],
+                    "supplier_count": len(m_data["suppliers"]),
+                    "risks": risks,
+                    "max_severity": max_severity,
+                    "dominant_site": dominant_site
+                })
+                
+        # Sort by spend and severity
+        results.sort(key=lambda x: (x["max_severity"] == "High", x["max_severity"] == "Medium", x["total_spend"]), reverse=True)
+        
+        return jsonify({
+            "material_risks": results[:100], # Limit to top 100 risky materials
+            "summary": {
+                "high_risk_count": len([r for r in results if r["max_severity"] == "High"]),
+                "medium_risk_count": len([r for r in results if r["max_severity"] == "Medium"]),
+                "low_risk_count": len([r for r in results if r["max_severity"] == "Low"]),
+                "total_risky_materials": len(results)
+            }
+        })
+    except Exception as e:
+        print(f"Risk Analysis Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@spend_bp.route('/api/spend-analysis/risk-config', methods=['GET', 'POST'])
+def manage_risk_config():
+    try:
+        if request.method == 'POST':
+            data = request.json
+            sensitive = data.get('sensitive_countries', [])
+            high_risk = data.get('high_risk_countries', [])
+            concentration = data.get('concentration_threshold', 75)
+            disaster = data.get('natural_disaster_countries', [])
+            
+            # Save or Update
+            config_map = [
+                ('sensitive_countries', sensitive),
+                ('high_risk_countries', high_risk),
+                ('concentration_threshold', concentration),
+                ('natural_disaster_countries', disaster)
+            ]
+            
+            for key, val in config_map:
+                pref = UserPreference.query.filter_by(key=key).first()
+                if not pref:
+                    pref = UserPreference(key=key)
+                    db.session.add(pref)
+                pref.value = json.dumps(val) if isinstance(val, list) else str(val)
+            
+            db.session.commit()
+            return jsonify({"status": "success"})
+            
+        # GET default logic
+        pref_sensitive = UserPreference.query.filter_by(key='sensitive_countries').first()
+        pref_high_risk = UserPreference.query.filter_by(key='high_risk_countries').first()
+        pref_concentration = UserPreference.query.filter_by(key='concentration_threshold').first()
+        pref_disaster = UserPreference.query.filter_by(key='natural_disaster_countries').first()
+        
+        return jsonify({
+            "sensitive_countries": json.loads(pref_sensitive.value) if pref_sensitive else ['Russia', 'Iran', 'Ukraine', 'Israel', 'China', 'Indonesia'],
+            "high_risk_countries": json.loads(pref_high_risk.value) if pref_high_risk else ['Russia', 'Iran', 'Ukraine', 'Israel'],
+            "concentration_threshold": int(pref_concentration.value) if pref_concentration else 75,
+            "natural_disaster_countries": json.loads(pref_disaster.value) if pref_disaster else []
+        })
+    except Exception as e:
+        print(f"Error managing risk config: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @spend_bp.route('/api/spend-analysis/years')
 def get_years():
     try:
