@@ -79,7 +79,7 @@ const AnalyticalDashboard = () => {
     if (error) return <div className="p-8 text-center text-red-400">Error: {error}</div>;
     if (!data) return null;
 
-    const { kpis, category_data, trend_data, region_data, supplier_data, pareto_data, contract_data } = data;
+    const { kpis, category_data, trend_data, region_data, supplier_data, pareto_data, payment_term_data, po_status_data } = data;
 
     const formatCurrency = (val) => {
         if (!val) return '₹0';
@@ -423,34 +423,60 @@ const AnalyticalDashboard = () => {
                 </div>
             </div>
 
-            {/* Row 4: Contract Analysis */}
-            <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
-                <h3 className="text-lg font-bold text-white mb-4">Contract vs Non-Contract Analysis</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {contract_data.map((contract, idx) => {
-                        const percentage = (contract.value / kpis.spend * 100).toFixed(1);
-                        return (
-                            <div key={idx} className="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h4 className="text-lg font-semibold text-white">{contract.name}</h4>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${idx === 0 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-slate-500/20 text-slate-400'
-                                        }`}>
-                                        {percentage}%
-                                    </span>
+            {/* Row 4: Operational Analysis */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Payment Term Analysis */}
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-4">Payment Term Analysis</h3>
+                    <div className="space-y-4">
+                        {payment_term_data.slice(0, 5).map((item, idx) => {
+                            const percentage = (item.value / kpis.spend * 100).toFixed(1);
+                            return (
+                                <div key={idx} className="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h4 className="text-sm font-semibold text-white">{item.name}</h4>
+                                        <span className="text-xs font-bold text-cyan-400">{percentage}%</span>
+                                    </div>
+                                    <div className="flex items-end justify-between">
+                                        <p className="text-xl font-bold text-slate-200">{formatCurrency(item.value)}</p>
+                                        <div className="w-32 bg-slate-700 rounded-full h-1.5 mb-1">
+                                            <div
+                                                className="h-1.5 rounded-full bg-blue-500 transition-all"
+                                                style={{ width: `${percentage}%` }}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="text-3xl font-bold text-cyan-400 mb-2">{formatCurrency(contract.value)}</p>
-                                <div className="w-full bg-slate-700 rounded-full h-3 mb-2">
-                                    <div
-                                        className={`h-3 rounded-full transition-all ${idx === 0 ? 'bg-yellow-500' : 'bg-slate-500'}`}
-                                        style={{ width: `${percentage}%` }}
-                                    />
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* PO Status Analysis */}
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-4">PO Status Analysis</h3>
+                    <div className="space-y-4">
+                        {po_status_data.map((item, idx) => {
+                            const percentage = (item.value / kpis.spend * 100).toFixed(1);
+                            return (
+                                <div key={idx} className="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h4 className="text-sm font-semibold text-white">{item.name}</h4>
+                                        <span className="text-xs font-bold text-emerald-400">{percentage}%</span>
+                                    </div>
+                                    <div className="flex items-end justify-between">
+                                        <p className="text-xl font-bold text-slate-200">{formatCurrency(item.value)}</p>
+                                        <div className="w-32 bg-slate-700 rounded-full h-1.5 mb-1">
+                                            <div
+                                                className="h-1.5 rounded-full bg-emerald-500 transition-all"
+                                                style={{ width: `${percentage}%` }}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="text-xs text-slate-400">
-                                    {idx === 0 ? 'Managed under formal contracts' : 'Ad-hoc purchases without contracts'}
-                                </p>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
         </div>

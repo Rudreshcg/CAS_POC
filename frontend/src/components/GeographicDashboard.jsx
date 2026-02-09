@@ -497,6 +497,39 @@ const GeographicDashboard = () => {
                     </ResponsiveContainer>
                 </div>
             </div>
+
+            {/* Row 4: Operational Insights */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <DollarSign className="w-5 h-5 text-blue-400" />
+                        Spend by Payment Term
+                    </h3>
+                    <div className="space-y-3">
+                        {data.payment_term_data && data.payment_term_data.slice(0, 5).map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between border-b border-slate-700/50 pb-2 last:border-0 last:pb-0">
+                                <span className="text-sm text-slate-400">{item.name}</span>
+                                <span className="text-sm font-semibold text-slate-200">{formatCurrency(item.value)}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-emerald-400" />
+                        PO Status Breakdown
+                    </h3>
+                    <div className="space-y-3">
+                        {data.po_status_data && data.po_status_data.map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between border-b border-slate-700/50 pb-2 last:border-0 last:pb-0">
+                                <span className="text-sm text-slate-400">{item.name}</span>
+                                <span className="text-sm font-semibold text-slate-200">{formatCurrency(item.value)}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

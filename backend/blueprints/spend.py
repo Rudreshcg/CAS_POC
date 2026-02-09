@@ -204,16 +204,23 @@ def solve_spend_dashboard():
                 "cumulativePercentage": round(float(cum_pct), 1)
             })
 
-        # 6. Contract vs Non-Contract Spend
-        contract_spend = db.session.query(func.sum(SpendRecord.amount)).filter(
-            SpendRecord.id.in_(query.with_entities(SpendRecord.id)),
-            SpendRecord.is_contract == True
-        ).scalar() or 0
-        non_contract_spend = total_spend - contract_spend
-        contract_data = [
-            {"name": "Contracted", "value": float(contract_spend)},
-            {"name": "Non-contract", "value": float(non_contract_spend)}
-        ]
+        # 6. Payment Term Distribution
+        pt_result = db.session.query(
+            SpendRecord.payment_term,
+            func.sum(SpendRecord.amount)
+        ).filter(SpendRecord.id.in_(query.with_entities(SpendRecord.id))).group_by(
+            SpendRecord.payment_term
+        ).order_by(func.sum(SpendRecord.amount).desc()).limit(10).all()
+        payment_term_data = [{"name": str(r[0]) if r[0] else "Other", "value": float(r[1] or 0)} for r in pt_result]
+
+        # 7. PO Status Distribution
+        ps_result = db.session.query(
+            SpendRecord.po_status,
+            func.sum(SpendRecord.amount)
+        ).filter(SpendRecord.id.in_(query.with_entities(SpendRecord.id))).group_by(
+            SpendRecord.po_status
+        ).order_by(func.sum(SpendRecord.amount).desc()).all()
+        po_status_data = [{"name": str(r[0]) if r[0] else "Unknown", "value": float(r[1] or 0)} for r in ps_result]
 
         return jsonify({
             "kpis": {
@@ -228,7 +235,8 @@ def solve_spend_dashboard():
             "region_data": region_data,
             "supplier_data": supplier_data,
             "pareto_data": pareto_data,
-            "contract_data": contract_data
+            "payment_term_data": payment_term_data,
+            "po_status_data": po_status_data
         })
     except Exception as e:
         print(f"Dashboard Error: {e}")

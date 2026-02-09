@@ -22,6 +22,7 @@ const ExecutiveDashboard = () => {
     const [units, setUnits] = useState([]);
     const [selectedYear, setSelectedYear] = useState('All');
     const [years, setYears] = useState([]);
+    const [activeTreemapNode, setActiveTreemapNode] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -92,7 +93,7 @@ const ExecutiveDashboard = () => {
     if (error) return <div className="p-8 text-center text-red-400">Error: {error}</div>;
     if (!data) return null;
 
-    const { kpis, category_data, trend_data, region_data, supplier_data, pareto_data, contract_data } = data;
+    const { kpis, category_data, trend_data, region_data, supplier_data, pareto_data, payment_term_data, po_status_data } = data;
 
     const formatCurrency = (val) => {
         if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)} Cr`;
@@ -135,33 +136,47 @@ const ExecutiveDashboard = () => {
 
     const CustomTreemapContent = (props) => {
         const { root, depth, x, y, width, height, index, payload, rank, name } = props;
+        const color = depth < 2 ? COLORS[index % COLORS.length] : 'none';
+        const isActive = activeTreemapNode === name;
 
         return (
-            <g>
+            <g
+                onClick={() => setActiveTreemapNode(isActive ? null : name)}
+                style={{ cursor: 'pointer' }}
+                className="group"
+            >
                 <rect
                     x={x}
                     y={y}
                     width={width}
                     height={height}
                     style={{
-                        fill: depth < 2 ? COLORS[index % COLORS.length] : 'none',
-                        stroke: '#1e293b',
-                        strokeWidth: 2 / (depth + 1),
-                        strokeOpacity: 1 / (depth + 1),
+                        fill: color,
+                        stroke: isActive ? '#f59e0b' : '#1e293b',
+                        strokeWidth: isActive ? 4 : 2,
+                        transition: 'all 0.2s ease',
+                        fillOpacity: isActive ? 0.9 : 1
                     }}
+                    className="group-hover:fill-opacity-80 group-hover:stroke-cyan-400"
                 />
-                {width > 50 && height > 30 && (
-                    <text
-                        x={x + width / 2}
-                        y={y + height / 2 + 4}
-                        textAnchor="middle"
-                        fill="#fff"
-                        fontSize={11}
-                        fontWeight="bold"
-                        className="pointer-events-none"
-                    >
-                        {name}
-                    </text>
+                {width > 45 && height > 25 && (
+                    <foreignObject x={x + 2} y={y + 2} width={width - 4} height={height - 4} className="pointer-events-none">
+                        <div
+                            className="flex items-center justify-center h-full w-full text-center p-1 text-white font-bold leading-[1.1]"
+                            style={{
+                                fontSize: width < 80 ? '9px' : '11px',
+                                textShadow: '0 1px 3px rgba(0,0,0,0.9), 0 0 5px rgba(0,0,0,0.5)',
+                                overflow: 'hidden',
+                                wordBreak: 'break-word',
+                                display: '-webkit-box',
+                                WebkitLineClamp: 4,
+                                WebkitBoxOrient: 'vertical',
+                                opacity: isActive ? 1 : 0.9
+                            }}
+                        >
+                            {name}
+                        </div>
+                    </foreignObject>
                 )}
             </g>
         );
@@ -407,15 +422,32 @@ const ExecutiveDashboard = () => {
                 </div>
             </div>
 
-            {/* Row 3: Contract */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Row 3: Payment Term & PO Status */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Spend by Payment Term */}
                 <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
-                    <h3 className="text-lg font-bold text-white mb-4">Spend by Contract</h3>
-                    <div className="h-[250px] flex items-center justify-center">
+                    <h3 className="text-lg font-bold text-white mb-4">Spend by Payment Term</h3>
+                    <div className="h-[250px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={payment_term_data} layout="vertical" margin={{ left: 40, right: 20 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
+                                <XAxis type="number" tickFormatter={formatCurrency} tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                                <YAxis dataKey="name" type="category" tick={{ fill: '#94a3b8', fontSize: 10 }} width={120} />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Bar dataKey="value" name="Spend" fill="#8884d8" radius={[0, 4, 4, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* PO Status Distribution */}
+                <div className="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg">
+                    <h3 className="text-lg font-bold text-white mb-4">PO Status Distribution</h3>
+                    <div className="h-[250px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={contract_data}
+                                    data={po_status_data}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={60}
@@ -423,20 +455,15 @@ const ExecutiveDashboard = () => {
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {contract_data.map((entry, index) => (
-                                        <Cell key={`cell - ${index} `} fill={index === 0 ? '#FFBB28' : '#2e3b55'} />
+                                    {po_status_data.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
                                 <Tooltip content={<CustomTooltip />} />
-                                <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '12px' }} />
+                                <Legend layout="vertical" verticalAlign="middle" align="right" wrapperStyle={{ fontSize: '10px' }} />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
-                </div>
-
-                {/* Placeholder for future expansion */}
-                <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5 flex items-center justify-center text-slate-500 lg:col-span-2">
-                    <p className="text-sm">Additional advanced analytics modules available upon request.</p>
                 </div>
             </div>
         </div>
