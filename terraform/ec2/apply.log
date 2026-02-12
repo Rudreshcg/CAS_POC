@@ -1,0 +1,30 @@
+﻿data.aws_vpc.default: Reading...
+aws_key_pair.cas_app_key: Refreshing state... [id=cas-lookup-app-key]
+aws_iam_role.cas_app_role: Refreshing state... [id=cas-lookup-app-role]
+aws_security_group.cas_app_sg: Refreshing state... [id=sg-0d8334294d99d463c]
+aws_iam_role_policy.cas_app_bedrock_policy: Refreshing state... [id=cas-lookup-app-role:cas-lookup-app-bedrock-policy]
+aws_iam_instance_profile.cas_app_profile: Refreshing state... [id=cas-lookup-app-profile]
+data.aws_vpc.default: Read complete after 3s [id=vpc-0d227d6b9208431f8]
+data.aws_internet_gateway.default: Reading...
+data.aws_subnets.default: Reading...
+data.aws_internet_gateway.default: Read complete after 0s [id=igw-03045aba39afa42ba]
+aws_route_table.public: Refreshing state... [id=rtb-04c0a91775842418c]
+data.aws_subnets.default: Read complete after 0s [id=us-east-1]
+aws_instance.cas_app: Refreshing state... [id=i-0b0c6041d786255b2]
+aws_eip.cas_app_eip: Refreshing state... [id=eipalloc-0935768e4682a58e7]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_route_table_association.public will be created
+  + resource "aws_route_table_association" "public" {
+      + id             = (known after apply)
+      + route_table_id = "rtb-04c0a91775842418c"
+      + subnet_id      = "subnet-0194df32f60d6813a"
+    }
+
+Plan: 1 to add, 0 to change, 0 to destroy.
+aws_route_table_association.public: Creating...

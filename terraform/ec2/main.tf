@@ -15,6 +15,44 @@ provider "aws" {
   region = var.aws_region
 }
 
+# Data Sources
+data "aws_vpc" "default" {
+  default = true
+}
+
+data "aws_internet_gateway" "default" {
+  filter {
+    name   = "attachment.vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
+}
+
+# Networking - Public Route Table
+resource "aws_route_table" "public" {
+  vpc_id = data.aws_vpc.default.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = data.aws_internet_gateway.default.id
+  }
+
+  tags = {
+    Name = "${var.app_name}-public-rt"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = tolist(data.aws_subnets.default.ids)[0]
+  route_table_id = aws_route_table.public.id
+}
+
 # Security Group
 resource "aws_security_group" "cas_app_sg" {
   name        = "${var.app_name}-sg"
@@ -108,6 +146,7 @@ resource "aws_iam_instance_profile" "cas_app_profile" {
 resource "aws_instance" "cas_app" {
   ami           = "ami-0453ec754f44f9a4a" # Amazon Linux 2023 in us-east-1
   instance_type = var.instance_type
+  subnet_id     = tolist(data.aws_subnets.default.ids)[0]
 
   key_name               = aws_key_pair.cas_app_key.key_name
   vpc_security_group_ids = [aws_security_group.cas_app_sg.id]
