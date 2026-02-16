@@ -1,0 +1,12 @@
+flask
+PyPDF2
+requests
+openpyxl
+flask_mail
+gunicorn
+Levenshtein
+fuzzywuzzy
+python-Levenshtein
+pandas
+google-generativeai
+python-dotenv

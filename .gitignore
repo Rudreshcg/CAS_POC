@@ -22,3 +22,4 @@ override.tf.json
 terraform.rc
 __pycache__
 cluster_design
+uploads

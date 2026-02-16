@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Quote Compare</title>
+    <style>
+        :root {
+            --primary-green: #A0BF3F;
+            --primary-orange: #FA8E29;
+            --dark-gray: #333333;
+            --light-gray: #f5f5f5;
+        }
+
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+
+        .back-home-btn:hover {
+            background-color: #e67e1c;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+		
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            background-color: var(--light-gray);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 60px;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 1rem 5%;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--dark-gray);
+        }
+
+        .logo span {
+            color: var(--primary-green);
+        }
+
+        .logo img {
+            width: 100px; /* or whatever size fits your design */
+            height: auto; /* maintain aspect ratio */
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark-gray);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary-orange);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 80px auto 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem; /* Use consistent gap between all direct children */
+        }
+
+        /* Home Page Styles */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-green));
+            color: white;
+            text-align: center;
+            padding: 4rem 1rem; /* Use relative units */
+            border-radius: 10px;
+            margin: 0; /* Remove margin, use container's gap */
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+
+        #rotating-text {
+            /* Styles for rotating text ... */
+            margin-top: 5px;
+            margin-bottom: 20px; /* Add a margin below the rotating text*/
+            color: #A0BF3F; /* Set the text color */
+            font-size: 1.5rem; /* Set the font size */
+
+              /* Styles for the rectangular box */
+            background-color: #FFFFFF; /* Light grey background */
+            padding: 10px;       /* Padding inside the box */
+            border: 1px solid #FFFFFF; /* Border around the box */
+            border-radius: 10px; /* Optional: Rounded corners */
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: white;
+            color: var(--primary-orange);
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .cta-button:hover {
+            background-color: var(--primary-green);
+            color: white;
+        }
+
+        .carousel {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .carousel-inner {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .carousel-item {
+            flex: 0 0 100%;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .carousel-item h2 {
+            color: var(--primary-orange);
+            margin-bottom: 15px;
+        }
+
+        .carousel-item p {
+            margin-bottom: 15px;
+        }
+
+        .carousel-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .carousel-nav button {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .carousel-nav button:hover {
+            background-color: var(--primary-green);
+        }
+
+        .benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem; /* Consistent gap */
+            margin: 0; /* Remove margin, use container's gap */
+        }
+
+        .benefit-item {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .benefit-item h3 {
+            color: var(--primary-orange);
+            margin-bottom: 10px;
+        }
+
+        /* Existing styles... */
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin: 0; /* Remove margin, use container's gap */
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #d32f2f;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background-color: var(--primary-orange);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-green);
+        }
+
+        /* Quote Grid */
+        .quotes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .quote-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .best-price {
+            border: 2px solid var(--primary-green);
+        }
+
+        /* Analysis Section */
+        .analysis-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary-green);
+        }
+
+        /* Download Section */
+        .download-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .download-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        .download-btn:hover {
+            background-color: var(--primary-green);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-gray);
+            color: white;
+            text-align: center;
+            padding: 5px;
+            position: flex;
+            bottom: 0;
+            width: 100%;
+        }
+
+        /* Settings and Contact Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-gray);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+                /* Logo Carousel Styles */
+                .logo-carousel {
+            width: 100%;
+            overflow: hidden;
+            background: #f8f9fa;
+            padding: 20px 0;
+            margin: 20px 0;
+        }
+
+        .logo-slide {
+            display: flex;
+            animation: slide 20s linear infinite;
+            white-space: nowrap;
+        }
+
+        .logo-item {
+            flex: 0 0 200px;
+            height: 80px;
+            margin: 0 20px;
+            background: #fff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        @keyframes slide {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .nav-tabs {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .nav-tabs li {
+            padding: 15px 20px;
+        }
+
+        .nav-tabs li a {
+            text-decoration: none;
+            color: #333;
+        }
+
+        .nav-tabs li.active {
+            border-bottom: 2px solid #007bff;
+        }
+        
+        .fade {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .fade.show {
+            opacity: 1;
+        }
+        p {
+            min-height: 3em;
+            font-size: 1.2rem;
+            line-height: 1.5;
+            margin: 1rem 0;
+        }
+        .centered-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    object-fit: cover;
+}
+
+.centered-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 1200px) {
+    .centered-image {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .message-container {
+        font-size: 1.1rem;
+        min-height: 100px;
+    }
+
+    .image-section {
+            min-height: auto; /* Remove fixed height */
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 0; /* Add consistent padding */
+            margin: 0; /* Remove margin, use container's gap */
+        }
+
+    .centered-image {
+            max-width: 95%;
+            border-radius: 12px; /* Smaller radius for mobile */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .image-section {
+            padding: 0.5rem; /* Reduced padding for smaller screens */
+            gap: 0.5rem; /* Add a gap to space items, can be increased if needed*/
+        }
+        .centered-image {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+    
+        .centered-image:hover {
+            transform: none;  /* Remove the hover effect for better mobile performance and no accidental hover*/
+        }
+
+        /* assuming your text container has the class .text-container */
+        .text-container {
+        max-width: 95%; /* increase the max width on smaller screens */
+        }
+        /* assuming your image has class .astronaut-image */
+        .astronaut-image {
+            max-width: 95%; /* increase max-width on smaller screens */
+        }
+
+    }
+
+
+    .astronaut-text {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+             color: var(--dark-gray);
+        }
+
+        .scroll-container {
+            white-space: nowrap;
+            overflow: hidden; /* Hide overflow */
+            padding: 10px;
+           position: relative; /* Needed for absolute positioning of .scroll-text */
+        }
+          .scroll-text-wrapper {
+            display: inline-block; /* Needed to set width and for animation */
+            animation: scrollText 40s linear infinite; /* Animation for scroll effect */
+          }
+        .scroll-text {
+            display: inline-block; /* Needed for text spacing */
+            color: white;
+             font-weight: bold;
+            margin: 0 1rem;
+        }
+
+        @keyframes scrollText {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+        }
+        .image-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Keep the astronaut image within its bounds */
+    }
+    .scroll-container {
+        position: absolute;
+        bottom: 20px;
+        left: 0;
+        width: 100%;
+        overflow: hidden;
+        z-index: 10; /* Ensure the carousel is above the image */
+        display: flex;
+        justify-content: center;
+    }
+    .scroll-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to right, transparent, rgba(255,255,255,0.7) , rgba(255,255,255,0.7), transparent); /* Gradient overlay */
+        pointer-events: none; /* Makes the gradient invisible to click events */
+        z-index: -1; /* Keep the gradient behind */
+    }
+    
+    .g-recaptcha {
+        position: relative;
+        z-index: 1000;
+        opacity: 1 !important;
+        display: block !important;
+    }
+
+    @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                gap: 1.5rem; /* Slightly reduce gap on mobile */
+            }
+
+            .hero {
+                padding: 3rem 1rem; /* Reduce padding on mobile */
+            }
+
+            .benefits {
+                gap: 1rem; /* Reduce gap on mobile */
+            }
+
+            .image-section {
+                padding: 0.5rem 0;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+        }
+
+        /* Remove any bottom margins from last children */
+        .container > *:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Ensure consistent spacing in nested components */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+    
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+
+
+    <div class="container">
+        
+        <div class="card">
+                <h2>Upload and Process Your Documents</h2>
+                <form action="/apollo/process-quotes" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <input type="file" name="files[]" multiple accept=".pdf">
+                        <button type="submit" class="btn">Process Documents</button>
+                    </div>
+                </form>
+            </div>
+
+            {% if processed_data %}
+                {% if analysis %}
+                <div class="analysis-section">
+                    <h2>Analysis Summary</h2>
+                    <p><strong>Recommendation:</strong> {{ analysis.recommendation }}</p>
+                    <div class="price-comparison">
+                        <h3>Price Comparison</h3>
+                        {% for comparison in analysis.price_comparison %}
+                        <p>{{ comparison.vendor }}: ${{ comparison.price }} 
+                            {% if comparison.difference_percentage > 0 %}
+                            <span>(+{{ comparison.difference_percentage }}% higher)</span>
+                            {% endif %}
+                        </p>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="quotes-grid">
+                    {% for data in processed_data %}
+                    <div class="quote-card {% if analysis and analysis.best_choice.vendor_name == data.vendor_name %}best-price{% endif %}">
+                        <h3>Quote Details</h3>
+                        <p><strong>Raw Material:</strong> {{ data.raw_material }}</p>
+                        <p><strong>Vendor Name:</strong> {{ data.vendor_name }}</p>
+                        <p><strong>Price per Unit:</strong> {{ data.pricing }} {{ data.currency }}</p>
+                        <p><strong>Country of Origin:</strong> {{ data.country_of_origin | join(", ") }}</p>
+                        <p><strong>HS Code:</strong> {{ data.hs_code }}</p>
+                        <p><strong>Market Price (USD):</strong> {{ data.price }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if excel_filename %}
+                <div class="download-section">
+                    <a href="{{ url_for('download_file', filename=excel_filename) }}" class="download-btn">
+                        Download Comparison Report
+                    </a>
+                </div>
+                {% endif %}
+            {% endif %}
+
+    </div>
+
+    <footer>
+        <p>© 2025 SCMmax. All rights reserved.</p>
+    </footer>
+    <head>
+        <!-- Add this script -->
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    </head>
+</body>
+<footer>
+    <p>© 2025 SCMmax. All rights reserved.</p>
+</footer>
+</html>

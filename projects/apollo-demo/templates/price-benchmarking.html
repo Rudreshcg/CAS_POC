@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Price Benchmarking</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+         :root {
+            --primary-green: #A0BF3F;
+            --primary-orange: #FA8E29;
+            --primary-gray: #6E7E85;
+            --secondary-light: #CBD2D9;
+            --secondary-dark: #333F48;
+            --secondary-blue: #7DA2BA;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+        .back-home-btn:hover {
+            background-color: #e67e1c;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .back-home-btn:hover {
+            background-color: #e67e1c;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .material-header h2 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-header p {
+            color: var(--primary-gray);
+            font-size: 0.9rem;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .material-header h2 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-header p {
+            color: var(--primary-gray);
+            font-size: 0.9rem;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 500px;
+            position: relative;
+        }
+        canvas {
+            border: 1px solid #ddd;
+        }
+        .slider-container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px 0;
+            background: #f5f5f5;
+            margin-top: 20px;
+            position: relative;
+        }
+        .double-range-slider {
+            position: relative;
+            width: 95%;
+            margin: 0 2.5%;
+            height: 40px;
+        }
+        .slider-track {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 4px;
+            background: #ddd;
+        }
+        .slider-range {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 4px;
+            background: var(--primary-green);
+        }
+        .range-input {
+            position: relative;
+            width: 100%;
+        }
+        .range-input input {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: none;
+            pointer-events: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            pointer-events: auto;
+            -webkit-appearance: none;
+            background: var(--primary-green);
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px var(--primary-green);
+        }
+        .date-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 0 2.5%;
+        }
+        .date-label {
+            padding: 5px 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+	
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+    <div class="container">
+		{% if material != 'Carbon Black' %}
+			<div class="material-header">
+				<h2>{{ material }} Price Trends</h2>
+				
+					<div class="chart-container">
+							<canvas id="priceChart"></canvas>
+						</div>
+						<div class="slider-container">
+							<div class="double-range-slider">
+								<div class="slider-track"></div>
+								<div class="slider-range"></div>
+								<div class="range-input">
+									<input type="range" min="0" max="100" value="0" class="min-range">
+									<input type="range" min="0" max="100" value="100" class="max-range">
+								</div>
+							</div>
+							<div class="date-labels">
+								<span class="date-label min-date"></span>
+								<span class="date-label max-date"></span>
+							</div>
+						</div>
+						<div class="legend">
+							{% if material == 'Acetic Acid' %}
+								<div class="legend-item">
+									<div class="legend-color" style="background: #FA8E29"></div>
+									<span>Calenese</span>
+								</div>
+								<div class="legend-item">
+									<div class="legend-color" style="background: #333F48"></div>
+									<span>Ineos</span>
+								</div>
+								<div class="legend-item">
+									<div class="legend-color" style="background: #A0BF3F"></div>
+									<span>Sapco</span>
+								</div>
+								<div class="legend-item">
+									<div class="legend-color" style="background: #7DA2BA"></div>
+									<span>CFR Price</span>
+								</div>
+							{% elif material == 'Glycerine' %}
+								<div class="legend-item">
+									<div class="legend-color" style="background: #FA8E29"></div>
+									<span>Wilmar</span>
+								</div>
+								<div class="legend-item">
+									<div class="legend-color" style="background: #333F48"></div>
+									<span>BASF</span>
+								</div>
+								<div class="legend-item">
+									<div class="legend-color" style="background: #A0BF3F"></div>
+									<span>Cargill</span>
+								</div>
+								<div class="legend-item">
+									<div class="legend-color" style="background: #7DA2BA"></div>
+									<span>Glycerine_Refined_FOB_Asia</span>
+								</div>
+							{% endif %}
+						</div>
+			
+			</div>
+		
+		{% elif material == 'Carbon Black' %}
+				<div class="material-header">
+				<h2>{{ material }} Price Trends</h2>
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+					<table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+					  <thead>
+						<tr style="background-color: #A0BF3F; color: white; text-align: left;">
+						  <th style="padding: 10px;">Consignee Name</th>
+						  <th style="padding: 10px;">Jan</th>
+						  <th style="padding: 10px;">Feb</th>
+						  <th style="padding: 10px;">Apr</th>
+						  <th style="padding: 10px;">May</th>
+						  <th style="padding: 10px;">Jun</th>
+						  <th style="padding: 10px;">Aug</th>
+						  <th style="padding: 10px;">Nov</th>
+						  <th style="padding: 10px;">Grand Total</th>
+						</tr>
+					  </thead>
+					  <tbody>
+						<!-- MRF Ltd -->
+						<tr>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">MRF Ltd</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+							<div style="border-bottom: 1px solid #CBD2D9; padding-bottom: 4px;">18,92,000.00</div>
+							<div style="padding-top: 4px;">144</div>
+						  </td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+							<div style="border-bottom: 1px solid #CBD2D9; padding-bottom: 4px;">13,64,000.00</div>
+							<div style="padding-top: 4px;">131</div>
+						  </td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">20,68,000.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">21,12,000.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">23,98,005.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">24,20,000.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">41,14,000.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+							<div style="border-bottom: 1px solid #CBD2D9; padding-bottom: 4px;">2,91,32,008.00</div>
+							<div style="padding-top: 4px;">6,00,000.00</div>
+						  </td>
+						</tr>
+				  
+						<!-- ATC Tires Pvt Ltd -->
+						<tr>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">ATC Tires Pvt Ltd</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">7,17,200.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+							<div style="border-bottom: 1px solid #CBD2D9; padding-bottom: 4px;">3,02,000.00</div>
+							<div style="padding-top: 4px;">145</div>
+						  </td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">80,000.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">80,000.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">20,000.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+							<div style="border-bottom: 1px solid #CBD2D9; padding-bottom: 4px;">1,20,000.00</div>
+							<div style="padding-top: 4px;">118</div>
+						  </td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+							<div style="border-bottom: 1px solid #CBD2D9; padding-bottom: 4px;">5,60,000.00</div>
+							<div style="padding-top: 4px;">2,84,000.00</div>
+						  </td>
+						</tr>
+				  
+						<!-- JK Tyre Industries Ltd -->
+						<tr>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">JK Tyre Industries Ltd</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+							<div style="border-bottom: 1px solid #CBD2D9; padding-bottom: 4px;">2,20,000.00</div>
+							<div style="padding-top: 4px;">135</div>
+						  </td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">15,62,000.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">56,000.00</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+							<div style="border-bottom: 1px solid #CBD2D9; padding-bottom: 4px;">36,000.00</div>
+							<div style="padding-top: 4px;">1.08</div>
+						  </td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">2,44,567.00</td>
+						</tr>
+				  
+						<!-- Remaining rows would follow the same pattern -->
+				  
+						<!-- Grand Total Row -->
+						<tr style="background-color: #f0f0f0;">
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Grand Total</td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;"></td>
+						  <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+							<div style="border-bottom: 1px solid #CBD2D9; padding-bottom: 4px;">2,91,32,008.00</div>
+							<div style="padding-top: 4px;">6,00,000.00</div>
+						  </td>
+						</tr>
+					  </tbody>
+					</table>
+				  </div>
+				<p>In absence of index, using import data wrt other importers as benchmarking tool.​</p>
+				<p>MRF being largest buyer is buying expensive than small players like Parikh and Rajiv.​</p>
+
+	    {% else %}
+      <div class="material-header">
+          <h2>No material selected</h2>
+          <p>Please select a material from the dashboard search.</p>
+      </div>
+      {% endif %}
+
+</div>
+    <script>
+	
+	const selectedMaterial = "{{ material }}";
+	let data; 
+	if (selectedMaterial === "Acetic Acid") {
+		data = [
+		  {
+			"date": "2013-01-01T00:00:00.000Z",
+			"calenese": 412.34,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 365.12
+		  },
+		  {
+			"date": "2013-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": 376.10,
+			"cfrPrice": 365.12
+		  },
+		  {
+			"date": "2013-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 401.12,
+			"sapco": null,
+			"cfrPrice": 365.12
+		  },
+		  {
+			"date": "2013-10-01T00:00:00.000Z",
+			"calenese": 379.90,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 372.34
+		  },
+		  {
+			"date": "2014-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 372.34
+		  },
+		  {
+			"date": "2014-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 372.34
+		  },
+		  {
+			"date": "2014-07-01T00:00:00.000Z",
+			"calenese": 409.15,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 372.34
+		  },
+		  {
+			"date": "2014-10-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 418.90,
+			"sapco": null,
+			"cfrPrice": 372.34
+		  },
+		  {
+			"date": "2015-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 395.76
+		  },
+		  {
+			"date": "2015-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": 325.12,
+			"cfrPrice": 395.76
+		  },
+		  {
+			"date": "2015-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 389.12,
+			"sapco": null,
+			"cfrPrice": 399.10
+		  },
+		  {
+			"date": "2015-10-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 402.67
+		  },
+		  {
+			"date": "2016-01-01T00:00:00.000Z",
+			"calenese": 467.65,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 405.12
+		  },
+		  {
+			"date": "2016-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 405.12
+		  },
+		  {
+			"date": "2016-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 487.15,
+			"sapco": null,
+			"cfrPrice": 411.11
+		  },
+		  {
+			"date": "2016-10-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 411.11
+		  },
+		  {
+			"date": "2017-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 306.65,
+			"sapco": null,
+			"cfrPrice": 411.11
+		  },
+		  {
+			"date": "2017-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 425.12
+		  },
+		  {
+			"date": "2017-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": 289.2,
+			"cfrPrice": 428.45
+		  },
+		  {
+			"date": "2017-10-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 110.8,
+			"sapco": null,
+			"cfrPrice": 431.22
+		  },
+		  {
+			"date": "2018-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 431.22
+		  },
+		  {
+			"date": "2018-04-01T00:00:00.000Z",
+			"calenese": 422.40,
+			"ineos": null,
+			"sapco": 413.34,
+			"cfrPrice": 431.22
+		  },
+		  {
+			"date": "2018-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 440.34
+		  },
+		  {
+			"date": "2018-10-01T00:00:00.000Z",
+			"calenese": 374.90,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 445.12
+		  },
+		  {
+			"date": "2019-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 449.56
+		  },
+		  {
+			"date": "2019-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": 465.34,
+			"cfrPrice": 449.56
+		  },
+		  {
+			"date": "2019-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 523,
+			"sapco": null,
+			"cfrPrice": 491.23
+		  },
+		  {
+			"date": "2019-10-01T00:00:00.000Z",
+			"calenese": 613.90,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 565.34
+		  },
+		  {
+			"date": "2020-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 465.34
+		  },
+		  {
+			"date": "2020-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 465.34
+		  },
+		  {
+			"date": "2020-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 465.34
+		  },
+		  {
+			"date": "2020-10-01T00:00:00.000Z",
+			"calenese": 652.90,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 482.43
+		  },
+		  {
+			"date": "2021-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2021-04-01T00:00:00.000Z",
+			"calenese": 672.40,
+			"ineos": null,
+			"sapco": 549,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2021-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 290,
+			"sapco": null,
+			"cfrPrice": 387.12
+		  },
+		  {
+			"date": "2021-10-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 417.12
+		  },
+		  {
+			"date": "2022-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 437.12
+		  },
+		  {
+			"date": "2022-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 480.12
+		  },
+		  {
+			"date": "2022-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2022-10-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 507.12
+		  },
+		  {
+			"date": "2023-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 547.12
+		  },
+		  {
+			"date": "2023-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": 480,
+			"cfrPrice": 587.12
+		  },
+		  {
+			"date": "2023-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 354,
+			"sapco": null,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2023-10-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2024-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 387.12
+		  },
+		  {
+			"date": "2024-04-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2024-07-01T00:00:00.000Z",
+			"calenese": 399.15,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2024-10-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2025-01-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": 543.6,
+			"sapco": null,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2025-04-01T00:00:00.000Z",
+			"calenese": 428.40,
+			"ineos": null,
+			"sapco": null,
+			"cfrPrice": 487.12
+		  },
+		  {
+			"date": "2025-07-01T00:00:00.000Z",
+			"calenese": null,
+			"ineos": null,
+			"sapco": 338.15,
+			"cfrPrice": 487.12
+		  }
+
+		]
+
+	
+	}
+	else if (selectedMaterial === "Glycerine") {
+		data = [
+		  {
+			"date": "2013-01-01T00:00:00.000Z",
+			"Wilmar": 412.34,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 365.12
+		  },
+		  {
+			"date": "2013-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": 376.10,
+			"Glycerine_Refined_FOB_Asia": 365.12
+		  },
+		  {
+			"date": "2013-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 401.12,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 365.12
+		  },
+		  {
+			"date": "2013-10-01T00:00:00.000Z",
+			"Wilmar": 379.90,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 372.34
+		  },
+		  {
+			"date": "2014-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 372.34
+		  },
+		  {
+			"date": "2014-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 372.34
+		  },
+		  {
+			"date": "2014-07-01T00:00:00.000Z",
+			"Wilmar": 409.15,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 372.34
+		  },
+		  {
+			"date": "2014-10-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 418.90,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 372.34
+		  },
+		  {
+			"date": "2015-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 395.76
+		  },
+		  {
+			"date": "2015-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": 325.12,
+			"Glycerine_Refined_FOB_Asia": 395.76
+		  },
+		  {
+			"date": "2015-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 389.12,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 399.10
+		  },
+		  {
+			"date": "2015-10-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 402.67
+		  },
+		  {
+			"date": "2016-01-01T00:00:00.000Z",
+			"Wilmar": 467.65,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 405.12
+		  },
+		  {
+			"date": "2016-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 405.12
+		  },
+		  {
+			"date": "2016-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 487.15,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 411.11
+		  },
+		  {
+			"date": "2016-10-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 411.11
+		  },
+		  {
+			"date": "2017-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 306.65,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 411.11
+		  },
+		  {
+			"date": "2017-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 425.12
+		  },
+		  {
+			"date": "2017-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": 289.2,
+			"Glycerine_Refined_FOB_Asia": 428.45
+		  },
+		  {
+			"date": "2017-10-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 110.8,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 431.22
+		  },
+		  {
+			"date": "2018-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 431.22
+		  },
+		  {
+			"date": "2018-04-01T00:00:00.000Z",
+			"Wilmar": 422.40,
+			"BASF": null,
+			"Cargill": 413.34,
+			"Glycerine_Refined_FOB_Asia": 431.22
+		  },
+		  {
+			"date": "2018-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 440.34
+		  },
+		  {
+			"date": "2018-10-01T00:00:00.000Z",
+			"Wilmar": 374.90,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 445.12
+		  },
+		  {
+			"date": "2019-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 449.56
+		  },
+		  {
+			"date": "2019-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": 465.34,
+			"Glycerine_Refined_FOB_Asia": 449.56
+		  },
+		  {
+			"date": "2019-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 523,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 491.23
+		  },
+		  {
+			"date": "2019-10-01T00:00:00.000Z",
+			"Wilmar": 613.90,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 565.34
+		  },
+		  {
+			"date": "2020-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 465.34
+		  },
+		  {
+			"date": "2020-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 465.34
+		  },
+		  {
+			"date": "2020-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 465.34
+		  },
+		  {
+			"date": "2020-10-01T00:00:00.000Z",
+			"Wilmar": 652.90,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 482.43
+		  },
+		  {
+			"date": "2021-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2021-04-01T00:00:00.000Z",
+			"Wilmar": 672.40,
+			"BASF": null,
+			"Cargill": 549,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2021-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 290,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 387.12
+		  },
+		  {
+			"date": "2021-10-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 417.12
+		  },
+		  {
+			"date": "2022-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 437.12
+		  },
+		  {
+			"date": "2022-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 480.12
+		  },
+		  {
+			"date": "2022-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2022-10-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 507.12
+		  },
+		  {
+			"date": "2023-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 547.12
+		  },
+		  {
+			"date": "2023-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": 480,
+			"Glycerine_Refined_FOB_Asia": 587.12
+		  },
+		  {
+			"date": "2023-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 354,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2023-10-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2024-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 387.12
+		  },
+		  {
+			"date": "2024-04-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2024-07-01T00:00:00.000Z",
+			"Wilmar": 399.15,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2024-10-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2025-01-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": 543.6,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2025-04-01T00:00:00.000Z",
+			"Wilmar": 428.40,
+			"BASF": null,
+			"Cargill": null,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  },
+		  {
+			"date": "2025-07-01T00:00:00.000Z",
+			"Wilmar": null,
+			"BASF": null,
+			"Cargill": 338.15,
+			"Glycerine_Refined_FOB_Asia": 487.12
+		  }
+
+		]
+	}
+		
+        //Convert date strings to date objects
+        data.forEach(item => {
+            item.date = new Date(item.date);
+        });
+
+        const canvas = document.getElementById('priceChart');
+        const ctx = canvas.getContext('2d');
+        const minRange = document.querySelector('.min-range');
+        const maxRange = document.querySelector('.max-range');
+        const sliderTrack = document.querySelector('.slider-track');
+        const sliderRange = document.querySelector('.slider-range');
+        const minDateLabel = document.querySelector('.min-date');
+        const maxDateLabel = document.querySelector('.max-date');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Drawing functions
+        function drawChart(filteredData) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const padding = 50;
+            const chartWidth = canvas.width - 2 * padding;
+            const chartHeight = canvas.height - 2 * padding;
+
+           // Calculate scales
+            let minValue = Infinity;
+            let maxValue = -Infinity;
+            filteredData.forEach(point => {
+                if (point.calenese != null) { minValue = Math.min(minValue, point.calenese); maxValue = Math.max(maxValue, point.calenese)};
+                if (point.ineos != null) { minValue = Math.min(minValue, point.ineos); maxValue = Math.max(maxValue, point.ineos)};
+                if (point.sapco != null) { minValue = Math.min(minValue, point.sapco); maxValue = Math.max(maxValue, point.sapco)};
+               if (point.cfrPrice != null) { minValue = Math.min(minValue, point.cfrPrice); maxValue = Math.max(maxValue, point.cfrPrice)};
+			   if (point.Wilmar != null) { minValue = Math.min(minValue, point.Wilmar); maxValue = Math.max(maxValue, point.Wilmar);}
+				if (point.BASF != null) { 
+					minValue = Math.min(minValue, point.BASF); 
+					maxValue = Math.max(maxValue, point.BASF);
+				}
+				if (point.Cargill != null) { 
+					minValue = Math.min(minValue, point.Cargill); 
+					maxValue = Math.max(maxValue, point.Cargill);
+				}
+				if (point.Glycerine_Refined_FOB_Asia != null) { 
+					minValue = Math.min(minValue, point.Glycerine_Refined_FOB_Asia); 
+					maxValue = Math.max(maxValue, point.Glycerine_Refined_FOB_Asia);
+				}
+            });
+            minValue = Math.floor(minValue - 50);
+            maxValue = Math.ceil(maxValue + 50);
+
+            const timeScale = chartWidth / (filteredData.length - 1);
+            const valueScale = chartHeight / (maxValue - minValue);
+           
+            // Draw axes
+            ctx.beginPath();
+            ctx.strokeStyle = '#000';
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+
+            // Draw grid lines and labels
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            for (let v = minValue; v <= maxValue; v += 50) {
+                const y = canvas.height - padding - (v - minValue) * valueScale;
+                ctx.fillText(v.toString(), padding - 5, y);
+                
+                ctx.beginPath();
+                ctx.strokeStyle = '#ddd';
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            }
+
+            // Draw date labels
+             ctx.textAlign = 'center';
+             ctx.textBaseline = 'top';
+             filteredData.forEach((point, i) => {
+                  if (i % 6 === 0) {
+                      const x = padding + i * timeScale;
+                      ctx.fillText(point.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' }), 
+                      x, canvas.height - padding + 10);
+                  }
+              });
+
+            // Draw bars
+            const barWidth = timeScale * 0.2;
+            filteredData.forEach((point, i) => {
+                const x = padding + i * timeScale;
+                
+                // Calenese
+                 if (point.calenese != null) {
+                    ctx.fillStyle = '#FA8E29';
+                    const caleneseHeight = (point.calenese - minValue) * valueScale;
+                    ctx.fillRect(x - barWidth * 1.5, canvas.height - padding - caleneseHeight, barWidth, caleneseHeight);
+                 }
+
+                // Ineos
+                if (point.ineos != null) {
+                    ctx.fillStyle = '#333F48';
+                    const ineosHeight = (point.ineos - minValue) * valueScale;
+                     ctx.fillRect(x - barWidth * 0.5, canvas.height - padding - ineosHeight, barWidth, ineosHeight);
+                }
+                // Sapco
+                if (point.sapco != null) {
+                    ctx.fillStyle = '#A0BF3F';
+                    const sapcoHeight = (point.sapco - minValue) * valueScale;
+                    ctx.fillRect(x + barWidth * 0.5, canvas.height - padding - sapcoHeight, barWidth, sapcoHeight);
+                }
+				// Wilmar
+				if (point.Wilmar != null) {
+					ctx.fillStyle = '#FA8E29';
+					const wilmarHeight = (point.Wilmar - minValue) * valueScale;
+					ctx.fillRect(x - barWidth * 1.5, canvas.height - padding - wilmarHeight, barWidth, wilmarHeight);
+				}
+				
+				// BASF
+				if (point.BASF != null) {
+					ctx.fillStyle = '#333F48';
+					const basfHeight = (point.BASF - minValue) * valueScale;
+					ctx.fillRect(x - barWidth * 0.5, canvas.height - padding - basfHeight, barWidth, basfHeight);
+				}
+				
+				// Cargill
+				if (point.Cargill != null) {
+					ctx.fillStyle = '#A0BF3F';
+					const cargillHeight = (point.Cargill - minValue) * valueScale;
+					ctx.fillRect(x + barWidth * 0.5, canvas.height - padding - cargillHeight, barWidth, cargillHeight);
+				}
+            });
+
+            // Draw CFR Price line
+            ctx.beginPath();
+            ctx.strokeStyle = '#7DA2BA';
+            ctx.lineWidth = 2;
+            filteredData.forEach((point, i) => {
+                if (point.cfrPrice != null) {
+                    const x = padding + i * timeScale;
+                    const y = canvas.height - padding - (point.cfrPrice - minValue) * valueScale;
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+            });
+            ctx.stroke();
+
+			ctx.beginPath();
+            ctx.strokeStyle = '#7DA2BA';
+            ctx.lineWidth = 2;
+            filteredData.forEach((point, i) => {
+                if (point.glycerineRefinedFobAsiaPrice  != null) {
+                    const x = padding + i * timeScale;
+                    const y = canvas.height - padding - (point.glycerineRefinedFobAsiaPrice  - minValue) * valueScale;
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+            });
+            ctx.stroke();
+        }
+
+        // Update slider range visualization
+        function updateSlider() {
+            const percent1 = minRange.value;
+            const percent2 = maxRange.value;
+            sliderRange.style.left = percent1 + '%';
+            sliderRange.style.width = percent2 - percent1 + '%';
+
+            // Update date labels
+            const minIndex = Math.floor((data.length - 1) * (percent1 / 100));
+            const maxIndex = Math.floor((data.length - 1) * (percent2 / 100));
+            minDateLabel.textContent = data[minIndex].date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short'
+            });
+            maxDateLabel.textContent = data[maxIndex].date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short'
+            });
+
+            // Update chart
+            const filteredData = data.slice(minIndex, maxIndex + 1);
+            drawChart(filteredData);
+        }
+
+        // Handle range input events
+        minRange.addEventListener('input', (e) => {
+            const minVal = parseInt(minRange.value);
+            const maxVal = parseInt(maxRange.value);
+            if (maxVal - minVal < 5) {
+                minRange.value = maxVal - 5;
+            }
+            updateSlider();
+        });
+
+        maxRange.addEventListener('input', (e) => {
+            const minVal = parseInt(minRange.value);
+            const maxVal = parseInt(maxRange.value);
+            if (maxVal - minVal < 5) {
+                maxRange.value = minVal + 5;
+            }
+            updateSlider();
+        });
+
+        // Initial draw
+        updateSlider();
+    </script>
+</body>
+<footer>
+	<p>© 2025 SCMmax. All rights reserved.</p>
+</footer>
+</html>

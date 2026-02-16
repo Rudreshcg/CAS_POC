@@ -1,0 +1,566 @@
+<html>
+<head>
+    <title>Porter's Five Forces Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porter's Five Forces Analysis</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #A0BF3F;;
+            --secondary: #6E7E85;
+            --accent: #7DA2BA;
+        }
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+
+        .back-home-btn:hover {
+            background-color: #e67e1c;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .material-header h2 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-header p {
+            color: var(--primary-gray);
+            font-size: 0.9rem;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 2rem;
+            background: #ecf0f1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+
+        select {
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            border: 2px solid var(--secondary);
+            border-radius: 2rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+       .forces-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, auto);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .force-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            position: relative;
+            transition: transform 0.3s ease;
+            border-left: 4px solid var(--secondary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .force-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        
+        .force-card:nth-child(1) {
+             grid-column: 1;
+             grid-row: 1;
+             
+        }
+          .force-card:nth-child(2) {
+             grid-column: 2;
+             grid-row: 1;
+            
+        }
+        .force-card:nth-child(3) {
+             grid-column: 3;
+             grid-row: 1;
+        }
+          .force-card:nth-child(4) {
+             grid-column: 1;
+             grid-row: 2;
+        }
+            .force-card:nth-child(5) {
+             grid-column: 2;
+             grid-row: 2;
+        }
+          .force-card:nth-child(6) {
+            grid-column: 3;
+            grid-row: 2;
+        }
+          .force-card:nth-child(7) {
+             grid-column: 1;
+             grid-row: 3;
+        }
+           .force-card:nth-child(8) {
+             grid-column: 2;
+             grid-row: 3;
+        }
+        .force-card:nth-child(9) {
+            grid-column: 3;
+            grid-row: 3;
+        }
+
+         .force-card.blank-card {
+            background: transparent;
+            border-left: none;
+            box-shadow: none;
+             pointer-events: none;
+        }
+
+          .force-card.blank-card .force-header,
+           .force-card.blank-card .force-content,
+            .force-card.blank-card .force-meta {
+            display: none;
+        }
+
+        .force-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .force-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 1rem;
+        }
+
+        .force-title {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+
+        .force-content {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .force-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .intensity-meter {
+            width: 100px;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .intensity-fill {
+            height: 100%;
+            width: 50%;
+            background: var(--secondary);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .intensity-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+
+    <div class="container">
+      
+      <div class="material-header">
+          <h2>Porter's Five Forces Analysis for: {{ material }}</h2>
+		<div class="forces-grid" id="forcesContainer"></div>
+      </div>
+     
+        <div class="header">
+            <div class="material-selector", style="display: none;">
+                <select id="materialSelect" onchange="updateAnalysis()">
+                    <option value="carbon_black" >Carbon Black</option>
+                    <option value="glycerine" >Glycerin</option>
+                    <option value="acetic_acid" >Acetic Acid</option>
+                </select>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+         const materialData = {
+             carbon_black: {
+                blank1: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                    content: "",
+                    isBlank: true
+                },
+               substitution: {
+                    title: "Threat of Substitution",
+                    icon: "exchange-alt",
+                    score: 30,
+                    label: "Low",
+                     content: "Limited substitution options exist for key applications in tire and rubber industries."
+                 },
+                  blank2: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                    content: "",
+                    isBlank: true
+                },
+                supplierPower: {
+                    title: "Bargaining Power of Suppliers",
+                    icon: "industry",
+                    score: 40,
+                    label: "Medium",
+                   content: "Multiple suppliers exist but face specialized raw material requirements creating moderate dependency."
+                },
+                rivalry: {
+                    title: "Competitive Rivalry",
+                    icon: "balance-scale",
+                    score: 80,
+                    label: "High",
+                    content: "Intense competition among established players with high fixed costs and capacity expansion."
+                },
+                 newEntrants: {
+                    title: "Threat of New Entrants",
+                    icon: "door-open",
+                    score: 25,
+                    label: "Low",
+                     content: "High capital requirements and regulatory barriers deter new market entrants."
+                },
+                   blank3: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                     content: "",
+                     isBlank: true
+                },
+                   substitution2: {
+                    title: "Threat of Substitution",
+                   icon: "exchange-alt",
+                   score: 30,
+                   label: "Low",
+                    content: "Limited substitution options exist for key applications in tire and rubber industries."
+                },
+                   blank4: {
+                    title: "Blank",
+                    icon: "question",
+                    score: 0,
+                    label: "",
+                    content: "",
+                     isBlank: true
+                },
+                 
+               
+            },
+            glycerine: {
+                 blank1: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                    content: "",
+                    isBlank: true
+                },
+               substitution: {
+                    title: "Threat of Substitution",
+                   icon: "exchange-alt",
+                   score: 40,
+                    label: "Low",
+                     content:"Substitute options exist in the market, but their effectiveness is not as good as using Glycerin."
+                },
+                 blank2: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                    content: "",
+                    isBlank: true
+                },
+                  supplierPower: {
+                    title: "Bargaining Power of Suppliers",
+                     icon: "industry",
+                    score: 50,
+                    label: "Medium",
+                     content: "Multiple suppliers exist but there are some with a large market share."
+                },
+                rivalry: {
+                    title: "Competitive Rivalry",
+                     icon: "balance-scale",
+                    score: 60,
+                    label: "Medium",
+                     content: "Competition exists among some established players."
+                },
+                  newEntrants: {
+                    title: "Threat of New Entrants",
+                    icon: "door-open",
+                    score: 50,
+                    label: "Medium",
+                     content: "Moderate capital requirements and regulatory barriers make entry possible."
+                },
+                  blank3: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                     content: "",
+                     isBlank: true
+                },
+                  substitution2: {
+                     title: "Threat of Substitution",
+                     icon: "exchange-alt",
+                     score: 40,
+                     label: "Low",
+                     content:"Substitute options exist in the market, but their effectiveness is not as good as using Glycerin."
+                },
+                blank4: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                     content: "",
+                     isBlank: true
+                },
+                
+            },
+            acetic_acid: {
+                  blank1: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                    content: "",
+                     isBlank: true
+                },
+                  substitution: {
+                    title: "Threat of Substitution",
+                     icon: "exchange-alt",
+                    score: 70,
+                    label: "High",
+                     content: "Good substitutes exist in the market for Acetic Acid."
+                },
+                  blank2: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                     content: "",
+                     isBlank: true
+                },
+                supplierPower: {
+                     title: "Bargaining Power of Suppliers",
+                    icon: "industry",
+                    score: 60,
+                     label: "High",
+                    content: "Few suppliers with a large market share."
+                },
+                 rivalry: {
+                     title: "Competitive Rivalry",
+                     icon: "balance-scale",
+                    score: 55,
+                    label: "Medium",
+                    content: "The market is somewhat competitive with a fair number of players."
+                },
+                 newEntrants: {
+                    title: "Threat of New Entrants",
+                    icon: "door-open",
+                    score: 60,
+                    label: "Medium",
+                     content: "Moderate capital requirements and regulatory barriers make entry possible."
+                },
+                 blank3: {
+                    title: "Blank",
+                    icon: "question",
+                    score: 0,
+                    label: "",
+                     content: "",
+                     isBlank: true
+                },
+                  substitution2: {
+                     title: "Threat of Substitution",
+                     icon: "exchange-alt",
+                     score: 70,
+                     label: "High",
+                      content: "Good substitutes exist in the market for Acetic Acid."
+                },
+                blank4: {
+                    title: "Blank",
+                     icon: "question",
+                    score: 0,
+                    label: "",
+                    content: "",
+                     isBlank: true
+                },
+               
+            }
+        };
+
+
+        function createForceCard(force) {
+               const blankClass = force.isBlank ? ' blank-card' : '';
+            return `
+                <div class="force-card${blankClass}">
+                    <div class="force-header">
+                        <div class="force-icon">
+                            <i class="fas fa-${force.icon}"></i>
+                        </div>
+                        <div class="force-title">${force.title}</div>
+                    </div>
+                    <div class="force-content">${force.content}</div>
+                    <div class="force-meta">
+                        <div class="intensity-meter">
+                            <div class="intensity-fill" style="width: ${force.score}%"></div>
+                        </div>
+                        <div class="intensity-label">${force.label} Intensity</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function normalizeMaterialName(name) {
+            return name.toLowerCase().trim().replace(/\s+/g, '_');
+        }
+		
+		// Get and normalize the material name from Flask
+        //const rawMaterial = {{ material|tojson|safe }};
+        //const selectedMaterial = normalizeMaterialName(rawMaterial);
+        //console.log(selectedMaterial);
+
+        function updateAnalysis() {
+            //const rawMaterial = { material };
+            //const selectedMaterial = normalizeMaterialName(rawMaterial);
+            const rawMaterial = {{ material|tojson|safe }};
+            const selectedMaterial = normalizeMaterialName(rawMaterial);
+            const forces = materialData[selectedMaterial];
+            const container = document.getElementById('forcesContainer');
+            console.log(selectedMaterial);
+
+            container.innerHTML = '';
+            
+            Object.values(forces).forEach(force => {
+                container.innerHTML += createForceCard(force);
+            });
+
+            // Trigger animations
+            setTimeout(() => {
+                document.querySelectorAll('.intensity-fill').forEach(fill => {
+                    fill.style.width = fill.style.width;
+                });
+            }, 50);
+        }
+
+        // Initial load
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('materialSelect').value = '{{ material }}';
+            updateAnalysis();
+        });
+    </script>
+</body>
+<footer>
+    <p>© 2025 SCMmax. All rights reserved.</p>
+</footer>
+</html>

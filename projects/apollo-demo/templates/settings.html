@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings</title>
+    <style>
+        :root {
+            --primary-green: #A0BF3F;
+            --primary-orange: #FA8E29;
+            --primary-gray: #6E7E85;
+            --secondary-light: #CBD2D9;
+            --secondary-dark: #333F48;
+            --secondary-blue: #7DA2BA;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: var(--secondary-dark);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .header-left, .header-center, .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header-center {
+            flex: 2;
+            justify-content: center;
+        }
+
+        .header-right {
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        .header button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--primary-orange);
+            border-radius: 20px;
+            background: var(--secondary-dark);
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(250, 142, 41, 0.3);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1000;
+        }
+
+        .search-dropdown.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color:#333F48
+        }
+
+        .dropdown-item:hover {
+            background: var(--secondary-light);
+        }
+
+        .dropdown-item i {
+            color: var(--primary-orange);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--primary-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--secondary-dark);
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary-gray);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--secondary-light);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .button.identify {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .results-container {
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 0.75rem;
+            border: 1px solid var(--secondary-light);
+            text-align: left;
+        }
+
+        .results-table th {
+            background: var(--secondary-dark);
+            color: white;
+        }
+
+        .results-table tr:nth-child(even) {
+            background: var(--secondary-light);
+        }
+
+        .results-table tr:hover {
+            background: rgba(250, 142, 41, 0.1);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 5px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search materials..." id="searchInput">
+                <div class="search-dropdown" id="searchDropdown">
+                    <div class="dropdown-item" data-value="acetic-acid">
+                        <span>Acetic Acid</span>
+                    </div>
+                    <div class="dropdown-item" data-value="carbon-black">
+                        <span>Carbon Black</span>
+                    </div>
+                    <div class="dropdown-item" data-value="glycerine">
+                        <span>Glycerine</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Settings</h1>
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="csvUpload">Upload Materials List (CSV)</label>
+                <input type="file" id="csvUpload" accept=".csv">
+            </div>
+            <div class="button-group">
+                <button type="button" class="button identify" id="identifyBtn">
+                    <span id="buttonText">Identify Duplicates</span>
+                    <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+                </button>
+            </div>
+        </form>
+
+        <div id="results" style="display: none; margin-top: 2rem;">
+            <h2>Duplicate Analysis Results</h2>
+            <div class="results-container">
+                <div id="noResults" style="display: none; text-align: center; padding: 2rem;">
+                    <p>No potential duplicates found in the uploaded file.</p>
+                </div>
+                <table class="results-table" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Material 1</th>
+                            <th>Material 2</th>
+                            <th>Levenshtein Distance</th>
+                            <th>Fuzzy Match Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('identifyBtn').addEventListener('click', async function() {
+            const fileInput = document.getElementById('csvUpload');
+            const file = fileInput.files[0];
+            const button = this;
+            const buttonText = document.getElementById('buttonText');
+            const spinner = document.getElementById('loadingSpinner');
+            const resultsDiv = document.getElementById('results');
+            const resultsTable = document.getElementById('resultsTable');
+            const noResults = document.getElementById('noResults');
+            
+            if (!file) {
+                alert('Please select a CSV file first');
+                return;
+            }
+
+            // Show loading state
+            button.disabled = true;
+            buttonText.textContent = 'Processing...';
+            spinner.style.display = 'inline-block';
+            resultsDiv.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/process-csv', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                
+                // Reset button state
+                button.disabled = false;
+                buttonText.textContent = 'Identify Duplicates';
+                spinner.style.display = 'none';
+
+                // Display results
+                displayResults(data);
+            } catch (error) {
+                console.error('Error:', error);
+                button.disabled = false;
+                buttonText.textContent = 'Identify Duplicates';
+                spinner.style.display = 'none';
+                
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = 'An error occurred while processing the file. Please try again.';
+                resultsDiv.appendChild(errorDiv);
+                resultsDiv.style.display = 'block';
+            }
+        });
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const resultsBody = document.getElementById('resultsBody');
+            const resultsTable = document.getElementById('resultsTable');
+            const noResults = document.getElementById('noResults');
+            
+            resultsBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                resultsTable.style.display = 'none';
+                noResults.style.display = 'block';
+            } else {
+                resultsTable.style.display = 'table';
+                noResults.style.display = 'none';
+                
+                data.forEach(match => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${match.material1}</td>
+                        <td>${match.material2}</td>
+                        <td>${match.levenshtein_distance}</td>
+                        <td>${match.fuzzy_score.toFixed(2)}%</td>
+                    `;
+                    resultsBody.appendChild(row);
+                });
+            }
+            
+            resultsDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

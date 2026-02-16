@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procurement Intelligence</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #A0BF3F;
+            --primary-orange: #FA8E29;
+            --primary-gray: #6E7E85;
+            --secondary-light: #CBD2D9;
+            --secondary-dark: #333F48;
+            --secondary-blue: #7DA2BA;
+            --hover-light: rgba(160, 191, 63, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            overflow: hidden;
+        }
+
+        .topbar {
+            background: var(--secondary-dark);
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            height: 60px;
+        }
+
+        .main-tabs {
+            background: white;
+            position: fixed;
+            top: 60px;
+            left: 280px;
+            right: 0;
+            height: 50px;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            z-index: 900;
+            transition: left 0.3s ease;
+        }
+
+        .main-tabs.sidebar-collapsed {
+            left: 70px;
+        }
+
+        .secondary-tabs {
+            background: #f8f9fa;
+            position: fixed;
+            top: 110px;
+            left: 280px;
+            right: 0;
+            height: 45px;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--secondary-light);
+            z-index: 899;
+            transition: left 0.3s ease;
+        }
+
+        .secondary-tabs.sidebar-collapsed {
+            left: 70px;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            padding: 1rem 0;
+            overflow-y: auto;
+            transition: width 0.3s ease;
+            box-shadow: 2px 0 4px var(--shadow-color);
+            z-index: 950;
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            left: 280px;
+            top: 70px;
+            background: white;
+            border: 1px solid var(--secondary-light);
+            border-left: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 0 4px 4px 0;
+            transition: left 0.3s ease;
+            z-index: 951;
+        }
+
+        .sidebar-toggle.collapsed {
+            left: 70px;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-item:hover {
+            background: var(--hover-light);
+        }
+
+        .nav-item.active {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-text {
+            transition: opacity 0.3s ease;
+        }
+
+        .collapsed .nav-text {
+            opacity: 0;
+            width: 0;
+            display: none;
+        }
+
+        .tab {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: var(--hover-light);
+        }
+
+        .tab.active {
+            background: var(--primary-orange);
+            color: white;
+        }
+
+        .main-content {
+            position: fixed;
+            top: 155px;
+            left: 280px;
+            right: 0;
+            bottom: 0;
+            padding: 1.5rem;
+            overflow-y: auto;
+            transition: left 0.3s ease;
+        }
+
+        .main-content.sidebar-collapsed {
+            left: 70px;
+        }
+
+        .content-grid {
+            display: flex;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            height: calc(100% - 20px);
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px var(--shadow-color);
+        }
+		
+		/* Adjusting widths for 1/3 and 2/3 split */
+		.panel:first-child { flex: 1; } /* 1/3 of the space */
+		.panel:last-child { flex: 3; } /* 2/3 of the space */
+
+        /* Additional styles remain the same... */
+        .home-carousel {
+            display: none;
+            padding: 2rem;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .home-carousel.active {
+            display: grid;
+        }
+
+        .intel-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .intel-card.orange {
+            background: #FA8E29;
+            color: white;
+        }
+
+        .intel-card.yellow {
+            background: #FFB74D;
+            color: white;
+        }
+
+        .intel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .intel-card i {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .intel-card-title {
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 1200px) {
+            .home-carousel {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .home-carousel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+		
+		.menu, .sub-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        .menu li, .sub-menu li {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .menu li:hover, .sub-menu li:hover {
+            background-color: #ddd;
+        }
+        .hidden {
+            display: none;
+        }
+		
+        .news-container {
+            width: 33%;
+            min-width: 380px;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 25px;
+            background: white;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            border-radius: 12px;
+            margin: 0 auto; /* Center the container */
+        }
+        
+        .news-header {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--secondary-dark);
+            border-bottom: 2px solid var(--primary-orange);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .news-item {
+            margin: 0 auto 20px auto; /* Center the items */
+            padding: 15px;
+            border-bottom: 1px solid var(--secondary-light);
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            max-width: 90%; /* Slightly narrower than container */
+        }
+
+        .news-item:hover {
+            background: var(--hover-light);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px var(--shadow-color);
+        }
+        
+        .source {
+            color: var(--primary-gray);
+            font-size: 12px;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .headline {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--secondary-dark);
+        }
+        
+        .price {
+            color: var(--primary-orange);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .news-container {
+                width: 100%;
+            }
+            
+            .news-item {
+                max-width: 95%;
+            }
+        }
+		
+		        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        h2 {
+            color: #444;
+            margin-top: 10px;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .report-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+				
+		.button-container {
+			margin-top: 20px;
+			display: flex;
+			justify-content: flex-start;
+		}
+
+		.upload-button {
+			padding: 10px 20px;
+			margin-right: 10px;
+			font-size: 16px;
+			font-weight: bold;
+			color: #fff;
+			background-color: var(--primary-orange);
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		.download-button {
+			padding: 10px 20px;
+			font-size: 16px;
+			font-weight: bold;
+			color: #fff;
+			background-color: var(--primary-orange);
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+			margin-left: auto;
+		}
+
+		.upload-button:hover,
+		.download-button:hover {
+			background-color: var(--primary-green);
+		}		
+    </style>
+</head>
+<body>
+    <!-- Topbar remains the same -->
+    <div class="topbar">
+        <div class="topbar-actions">
+            <div class="user-group">
+                <span><i class="fas fa-user-circle"></i>Sachin Mathur</span>
+                <select class="material-select">
+                    <option value="">Select Material</option>
+                    <option value="Campher">Campher</option>
+                    <option value="Ethylene">Ethylene</option>
+                    <option value="Sodium hydroxide">Sodium hydroxid</option>
+                    <option value="Nitrogen">Nitrogen</option>
+                    <option value="Propylene">Propylene</option>
+                </select>
+                <button class="icon-button"><i class="fas fa-cog"></i></button>
+            </div>
+        </div>
+        <div class="user-info">
+            <button class="icon-button" id="homeBtn">
+                <i class="fas fa-home"></i>
+            </button>
+            <button class="icon-button notification-badge">
+                <i class="fas fa-bell"></i>
+            </button>
+        </div>        
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <!--<div class="main-tabs">
+        <div class="tab active"><i class="fas fa-search"></i> Market Research</div>
+        <div class="tab"><i class="fas fa-chart-pie"></i> Spend Analytics</div>
+        <div class="tab"><i class="fas fa-users"></i> Vendor Tracking</div>
+        <div class="tab"><i class="fas fa-chart-bar"></i> Trade Data</div>
+        <div class="tab"><i class="fas fa-calculator"></i> Quotations</div>
+        <div class="tab"><i class="fas fa-bullseye"></i> Negotiations</div>
+    <!--</div>-->
+	<div class="main-tabs">
+        <!-- Will be populated by JavaScript -->
+    </div>
+
+    <!-- Secondary Navigation Tabs (Dynamic based on vertical selection) -->
+    <div class="secondary-tabs">
+        <!-- Will be populated by JavaScript -->
+    </div>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="nav-item" data-section="externalintelligence">
+            <i class="fas fa-brain"></i>
+            <span class="nav-text">External Intelligence</span>
+        </div>
+		<div class="nav-item" data-section="Internalintelligence">
+            <i class="fas fa-brain"></i>
+            <span class="nav-text">Internal Intelligence</span>
+        </div>
+		
+        <div class="nav-item" data-section="vendor">
+            <i class="fas fa-building"></i>
+            <span class="nav-text">Vendor Details</span>
+        </div>
+        <div class="nav-item" data-section="communication">
+            <i class="fas fa-comments"></i>
+            <span class="nav-text">Communication</span>
+        </div>
+        <div class="nav-item" data-section="summary">
+            <i class="fas fa-chart-line"></i>
+            <span class="nav-text">Summary & Analysis</span>
+        </div>
+        <div class="nav-item" data-section="control">
+            <i class="fas fa-tower-observation"></i>
+            <span class="nav-text">Control Tower</span>
+        </div>
+        <div class="nav-item" data-section="rfq">
+            <i class="fas fa-file-contract"></i>
+            <span class="nav-text">RFQ to Negotiation</span>
+        </div>
+        <div class="nav-item" data-section="contract">
+            <i class="fas fa-file-signature"></i>
+            <span class="nav-text">Contract Signing</span>
+        </div>
+        <div class="nav-item" data-section="execution">
+            <i class="fas fa-tasks"></i>
+            <span class="nav-text">Contract Execution</span>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="home-carousel">
+   
+        <!-- Row 2 -->
+        <div class="intel-card yellow">
+            <i class="fas fa-newspaper"></i>
+            <div class="intel-card-title">News</div>
+        </div>
+        <div class="intel-card yellow">
+            <i class="fas fa-users"></i>
+            <div class="intel-card-title">Supplier tracking</div>
+        </div>
+        <div class="intel-card yellow">
+            <i class="fas fa-tasks"></i>
+            <div class="intel-card-title">Procurement plan</div>
+        </div>
+        <div class="intel-card yellow">
+            <i class="fas fa-calendar-alt"></i>
+            <div class="intel-card-title">Seasonality Trends</div>
+        </div>
+        <div class="intel-card yellow">
+            <i class="fas fa-clock"></i>
+            <div class="intel-card-title">Negotiation window</div>
+        </div>
+    
+        <!-- Row 3 -->
+        <div class="intel-card orange">
+            <i class="fas fa-key"></i>
+            <div class="intel-card-title">Key value drivers</div>
+        </div>
+        <div class="intel-card orange">
+            <i class="fas fa-handshake"></i>
+            <div class="intel-card-title">Multiple point engagements</div>
+        </div>
+        <div class="intel-card orange">
+            <i class="fas fa-boxes"></i>
+            <div class="intel-card-title">Inventory levels</div>
+        </div>
+        <div class="intel-card orange">
+            <i class="fas fa-sync"></i>
+            <div class="intel-card-title">Cyclical patterns</div>
+        </div>
+        <div class="intel-card orange">
+            <i class="fas fa-calculator"></i>
+            <div class="intel-card-title">Quotation comparison</div>
+        </div>
+    
+        <!-- Row 4 -->
+        <div class="intel-card yellow">
+            <i class="fas fa-chart-bar"></i>
+            <div class="intel-card-title">Trade data analysis</div>
+        </div>
+        <div class="intel-card yellow">
+            <i class="fas fa-project-diagram"></i>
+            <div class="intel-card-title">Joint development projects</div>
+        </div>
+        <div class="intel-card yellow">
+            <i class="fas fa-tags"></i>
+            <div class="intel-card-title">Price Benchmarking</div>
+        </div>
+        <div class="intel-card yellow">
+            <i class="fas fa-power-off"></i>
+            <div class="intel-card-title">Shutdown tracker</div>
+        </div>
+        <div class="intel-card yellow">
+            <i class="fas fa-bullseye"></i>
+            <div class="intel-card-title">Negotiation objectives</div>
+        </div>
+    
+        <!-- Row 5 -->
+        <div class="intel-card orange">
+            <i class="fas fa-info-circle"></i>
+            <div class="intel-card-title">Vendor key information</div>
+        </div>
+        <div class="intel-card orange">
+            <i class="fas fa-file-alt"></i>
+            <div class="intel-card-title">Vendors Minutes of meeting</div>
+        </div>
+        <div class="intel-card orange">
+            <i class="fas fa-clipboard-check"></i>
+            <div class="intel-card-title">Vendor wise action plan</div>
+        </div>
+        <div class="intel-card orange">
+            <i class="fas fa-industry"></i>
+            <div class="intel-card-title">Industry Porter 5 forces analysis</div>
+        </div>
+        <div class="intel-card orange">
+            <i class="fas fa-tasks"></i>
+            <div class="intel-card-title">Internal reviews tracker</div>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="content-grid">
+            <div class="panel">
+                <div class="panel-header">
+                    
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="panel-content">
+                    <div class="news-container">
+						<div class="news-header">Market Resarch Reports</div>
+						
+						<div class="news-item">
+							<div class="source">ICIS</div>
+							<div class="headline">Feedstock Market Outlook Q1</div>
+							<div class="price">410-420 CFR SEA - Stable-to-firm feedstock costs expected to prevail in Q1</div>
+						</div>
+
+						<div class="news-item">
+							<div class="source">ICIS</div>
+							<div class="headline">Strong Market Momentum</div>
+							<div class="price">400-410 CFR SEA - Firm feedstock prices maintaining upward momentum</div>
+						</div>
+
+						<div class="news-item">
+							<div class="source">ICIS</div>
+							<div class="headline">Supply Concerns Drive Market</div>
+							<div class="price">400-410 CFR SEA - Supply fears pushing prices higher</div>
+						</div>
+
+						<div class="news-item">
+							<div class="source">Orbichem</div>
+							<div class="headline">November Market Analysis</div>
+							<div class="price">380-400 Del TW - 97% operating rate in China affects November prices</div>
+						</div>
+
+						<div class="news-item">
+							<div class="source">ICIS</div>
+							<div class="headline">Market Stabilization</div>
+							<div class="price">400-410 CFR SEA - Prices showing stability in current period</div>
+						</div>
+					</div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="panel-content">
+					<div class="report-container">
+						<h1>Market Research Report - 410-420 CFR SEA</h1>
+						<h2>Stable-to-firm feedstock costs may prevail in Q1</h2>
+						
+						<p>According to recent market analysis, the feedstock costs for the 410-420 CFR SEA region are expected to remain stable or slightly firm in the first quarter of the year. This projection is based on several factors influencing the market dynamics.</p>
+						
+						<h2>Factors Influencing Feedstock Costs</h2>
+						<ul>
+							<li>Steady demand from downstream industries</li>
+							<li>Geopolitical tensions affecting trade flows</li>
+						</ul>
+						
+						<h2>Q1 Price Forecast</h2>
+						<p>Based on the current market conditions and the factors mentioned above, the following price forecast is provided for the 410-420 CFR SEA feedstock in Q1:</p>
+						
+						<table>
+							<thead>
+								<tr>
+									<th>Month</th>
+									<th>Price Range (USD/MT)</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>January</td>
+									<td>410 - 415</td>
+								</tr>
+								<tr>
+									<td>February</td>
+									<td>412 - 418</td>
+								</tr>
+								<tr>
+									<td>March</td>
+									<td>415 - 420</td>
+								</tr>
+							</tbody>
+						</table>
+						
+						<p>It is important to note that these forecasts are subject to change based on unforeseen events and market fluctuations. Regular monitoring of market developments is advised for timely decision-making.</p>
+						
+						<h2>Conclusion</h2>
+						<p>The 410-420 CFR SEA feedstock market is expected to experience stable-to-firm costs in the first quarter of the year. Buyers and sellers should closely watch the market dynamics and adjust their strategies accordingly to optimize their business outcomes.</p>
+						
+						<div class="button-container">
+							<button class="upload-button">Upload New Resarch Report</button>
+							<button class="download-button">Download Report</button>
+						</div>
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Secondary navigation options for each section
+        const secondaryNavOptions = {
+            externalintelligence: [
+                { icon: 'database', text: 'Market Research Reports' },
+                { icon: 'newspaper', text: 'News' }
+            ],
+            vendor: [
+                { icon: 'project-diagram', text: 'Joint development Projects' },
+                { icon: 'handshake', text: 'Multiple point engagement' },
+                { icon: 'clipboard-check', text: 'Vendor wise action plan' },
+                { icon: 'list-check', text: 'Approved vendor list' }
+            ]
+			
+            // ... (other sections remain unchanged) ...
+        };
+
+        // Toggle sidebar
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        const mainTabs = document.querySelector('.main-tabs');
+        const secondaryTabs = document.querySelector('.secondary-tabs');
+        const mainContent = document.querySelector('.main-content');
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            sidebarToggle.classList.toggle('collapsed');
+            mainTabs.classList.toggle('sidebar-collapsed');
+            secondaryTabs.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('sidebar-collapsed');
+            sidebarToggle.querySelector('i').classList.toggle('fa-chevron-right');
+            sidebarToggle.querySelector('i').classList.toggle('fa-chevron-left');
+        });
+
+        // Update main-tabs navigation
+        function updateSecondaryNav(section) {
+            const secondaryTabs = document.querySelector('.main-tabs');
+            secondaryTabs.innerHTML = '';
+            
+            if (secondaryNavOptions[section]) {
+                secondaryNavOptions[section].forEach(option => {
+                    const tab = document.createElement('div');
+                    tab.className = 'tab';
+                    tab.innerHTML = `
+                        <i class="fas fa-${option.icon}"></i>
+                        <span>${option.text}</span>
+                    `;
+                    secondaryTabs.appendChild(tab);
+                });
+            }
+
+            // Add event listeners for intelligence section
+            if (section === 'externalintelligence') {
+                const internalIntel = secondaryTabs.querySelector('.tab:first-child');
+                const externalIntel = secondaryTabs.querySelector('.tab:last-child');
+
+                internalIntel.addEventListener('click', () => {
+                    updateTertiaryNav('internal');
+                });
+
+                externalIntel.addEventListener('click', () => {
+                    updateTertiaryNav('external');
+                });
+            }
+        }
+
+
+
+        // Handle vertical navigation clicks
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                updateSecondaryNav(this.dataset.section);
+
+                // Remove tertiary tabs if not in intelligence section
+                if (this.dataset.section !== 'externalintelligence') {
+                    const tertiaryTabs = document.querySelector('.tertiary-tabs');
+                    if (tertiaryTabs) {
+                        tertiaryTabs.remove();
+                    }
+                }
+            });
+        });
+
+        // Initialize with first section
+        updateSecondaryNav('externalintelligence');
+
+        // Home button functionality
+        const homeBtn = document.getElementById('homeBtn');
+        const homeCarousel = document.querySelector('.home-carousel');
+        const contentGrid = document.querySelector('.content-grid');
+
+        homeBtn.addEventListener('click', () => {
+            homeCarousel.classList.toggle('active');
+            if (homeCarousel.classList.contains('active')) {
+                contentGrid.style.display = 'none';
+            } else {
+                contentGrid.style.display = 'grid';
+            }
+        });
+
+        // Make intel cards clickable
+        document.querySelectorAll('.intel-card').forEach(card => {
+            card.addEventListener('click', () => {
+                homeCarousel.classList.remove('active');
+                contentGrid.style.display = 'grid';
+                // You can add specific functionality for each card here
+            });
+        });
+		
+		        document.getElementById('internalIntelligence').addEventListener('click', function() {
+            const internalOptionsMenu = document.getElementById('internalOptions');
+            // Toggle visibility of the internal options menu
+            if (internalOptionsMenu.classList.contains('hidden')) {
+                internalOptionsMenu.classList.remove('hidden');
+            } else {
+                internalOptionsMenu.classList.add('hidden');
+            }
+        });
+    </script>
+
+</body>
+</html>

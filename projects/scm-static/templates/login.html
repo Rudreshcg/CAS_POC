@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apollo - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        .login-container {
+            display: flex;
+            width: 100%;
+        }
+
+        .login-panel {
+            flex: 0 0 500px;
+            background: white;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .info-panel {
+            flex: 1;
+            padding: 3rem;
+            background: linear-gradient(135deg, #A0BF3F 0%, #FA8E29 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo {
+            color: #A0BF3F;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            font-weight: bold;
+        }
+
+        .welcome-text {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+
+        .forgot-password a {
+            color: #FA8E29;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 1rem;
+            background-color: #A0BF3F;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-button:hover {
+            background-color: #91ac37;
+        }
+
+        /* Info panel content styles */
+        .info-content {
+            color: white;
+            max-width: 600px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .info-content h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-content h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        /* Circular pattern background */
+        .circle-pattern {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .circle-pattern::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .circle-pattern::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Floating icons */
+        .floating-icons {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .icon {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .icon:nth-child(1) {
+            top: 20%;
+            left: 20%;
+        }
+
+        .icon:nth-child(2) {
+            top: 60%;
+            left: 80%;
+        }
+
+        .icon:nth-child(3) {
+            top: 80%;
+            left: 40%;
+        }
+
+        .home-carousel {
+            display: none;
+            padding: 2rem;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .home-carousel.active {
+            display: grid;
+        }
+
+        .intel-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .intel-card.orange {
+            background: #FA8E29;
+            color: white;
+        }
+
+        .intel-card.yellow {
+            background: #FFB74D;
+            color: white;
+        }
+
+        .intel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .intel-card i {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .intel-card-title {
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .home-carousel {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .home-carousel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-panel">
+            <div class="logo">Apollo</div>
+            <div class="welcome-text">Welcome to Apollo</div>
+            <form class="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password">
+                </div>
+                <div class="forgot-password">
+                    <a href="#">Forgot Password?</a>
+                </div>
+                <!--<button type="submit" class="login-button">LOG IN</button>-->
+                <a href="{{ url_for('demo') }}" class="login-button">LOG IN</a>
+            </form>
+        </div>
+        <div class="info-panel">
+            <div class="circle-pattern"></div>
+            <div class="floating-icons">
+                <div class="icon"></div>
+                <div class="icon"></div>
+                <div class="icon"></div>
+            </div>
+            <div class="info-content">
+                <h1>Reimagine</h1>
+                <h2>Procurement</h2>
+                <p>AI-powered procurement assistant streamlining your entire workflow from quote comparison to contract
+                    operationalization and insightful analytics.</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

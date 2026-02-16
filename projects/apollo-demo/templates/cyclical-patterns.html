@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cyclical Patterns</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+
+        .back-home-btn:hover {
+            background-color: #FA8E29;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .material-header h2 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-header p {
+            color: var(--primary-gray);
+            font-size: 0.9rem;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+          .chart-container {
+            display: flex;
+            gap: 20px;
+             background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+             margin-bottom: 2rem;
+             min-height: 600px;
+         }
+
+        .chart-image {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 600px;
+            position: relative;
+        }
+        .chart-image canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+         .chart-key-takeaways {
+            flex: 1;
+        }
+         .chart-key-takeaways h3{
+             color: var(--secondary-dark);
+             margin-bottom: 0.5rem;
+         }
+          .chart-key-takeaways p {
+                color: var(--primary-gray);
+                 font-size: 0.9rem;
+             line-height: 1.6;
+          }
+          .chart-key-takeaways .auto-populated{
+              margin-top: 1rem;
+              font-style: italic;
+               color: var(--secondary-blue);
+          }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+
+    <div class="container">
+        {% if material %}
+        <div class="material-header">
+            <h2>Cyclical Patterns for: <span id="materialName">{{ material }}</span></h2>
+            <p id="materialDescription"></p>
+            <div class="chart-container">
+                <div class="chart-image">
+                    <canvas id="materialChart"></canvas>
+                </div>
+                <div class="chart-key-takeaways">
+                    <h3>Key takeaways:</h3>
+                    <p id="keyTakeaways"></p>
+                    <p class="auto-populated">Auto populated based on database linkage</p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="material-header">
+            <h2>No material selected</h2>
+            <p>Please select a material from the dashboard search.</p>
+        </div>
+        {% endif %}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    const materialData = {
+        "glycerine": {
+            name: "Glycerine",
+            description: "",
+            keyTakeaways: "~2year cycle; Prices inching towards peak",
+            chartData: {
+                labels: ["Jan-15","Apr-15","Jul-15","Oct-15","Jan-16","Apr-16","Jul-16","Oct-16","Jan-17","Apr-17","Jul-17","Oct-17","Jan-18","Apr-18","Jul-18","Oct-18","Jan-19","Apr-19","Jul-19","Oct-19","Jan-20","Apr-20","Jul-20","Oct-20","Jan-21","Apr-21","Jul-21","Oct-21","Jan-22","Apr-22","Jul-22","Oct-22","Jan-23","Apr-23","Jul-23","Oct-23","Jan-24","Apr-24","Jul-24","Oct-24"],
+                datasets: [{
+                    label: 'Glycerine Refined FOB Asia SE (Mid) : USD/tonne',
+                    data: [689,730,629,623,614,635,632,709,773,906,865,837,1076,1001,955,747,643,554,580,568,523,682,779,943,1042,1418,1960,1836,1926,1286,896,694,606,575,634,703,645,656,768,819],
+                    borderColor: '#A0BF3F',
+                    fill: false
+                }]
+            }
+        },
+        "acetic_acid": {
+            name: "Acetic Acid",
+            description: "",
+            keyTakeaways: "~3 – 3.5 year cycle​; Currently at bottom of price cycle​",
+            chartData: {
+                labels: ["Jan-15","Apr-15","Jul-15","Oct-15","Jan-16","Apr-16","Jul-16","Oct-16","Jan-17","Apr-17","Jul-17","Oct-17","Jan-18","Apr-18","Jul-18","Oct-18","Jan-19","Apr-19","Jul-19","Oct-19","Jan-20","Apr-20","Jul-20","Oct-20","Jan-21","Apr-21","Jul-21","Oct-21","Jan-22","Apr-22","Jul-22","Oct-22","Jan-23","Apr-23","Jul-23","Oct-23","Jan-24","Apr-24","Jul-24","Oct-24"],
+                datasets: [{
+                    label: 'Acetic Acid Price (USD/tonne)',
+                    data: [480,450,480,490,400,350,310,300,320,340,380,400,450,550,650,780,700,760,800,700,560,480,470,420,350,300,280,260,250,280,350,450,650,800,1000,900,650,680,600,500],
+                    borderColor: '#A0BF3F',
+                    fill: false
+                }]
+            }
+        },
+        "carbon_black": {
+            name: "Carbon Black",
+            description: "",
+            keyTakeaways: "~ 16 month cycle; Demand supply governs the price trend.",
+            chartData: {
+                labels: ["Jan-15","Apr-15","Jul-15","Oct-15","Jan-16","Apr-16","Jul-16","Oct-16","Jan-17","Apr-17","Jul-17","Oct-17","Jan-18","Apr-18","Jul-18","Oct-18","Jan-19","Apr-19","Jul-19","Oct-19","Jan-20","Apr-20","Jul-20","Oct-20","Jan-21","Apr-21","Jul-21","Oct-21","Jan-22","Apr-22","Jul-22","Oct-22","Jan-23","Apr-23","Jul-23","Oct-23","Jan-24","Apr-24","Jul-24","Oct-24"],
+                datasets: [{
+                    label: 'Carbon Black N220 Price (USD/tonne)',
+                    data: [930,920,1100,1180,1300,1400,1300,1280,1300,1200,1280,1220,1200,1280,1200,1800,1820,1650,1680,1600,1520,1500,1320,1170,1120,1270,1150,1130,1150,1180,1200,1380,1300,1390,1250,1340,1330,1350,1330,1320],
+                    borderColor: '#A0BF3F',
+                    fill: false
+                }]
+            }
+        }
+    };
+
+    function normalizeMaterialName(name) {
+        if (!name) return '';
+        return name.toLowerCase().trim().replace(/\s+/g, '_');
+    }
+
+    function updateChart(material) {
+        if (!material) return;
+
+        document.getElementById('materialName').textContent = material.name;
+        document.getElementById('materialDescription').textContent = material.description;
+        document.getElementById('keyTakeaways').textContent = material.keyTakeaways;
+
+        const chartCanvas = document.getElementById('materialChart');
+        if (!chartCanvas) return;
+
+        if (window.myChart) {
+            window.myChart.destroy();
+        }
+
+        window.myChart = new Chart(chartCanvas, {
+            type: 'line',
+            data: material.chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: false
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 10
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Get the material from the page and initialize the chart
+    const materialElement = document.getElementById('materialName');
+    if (materialElement) {
+        const currentMaterial = normalizeMaterialName(materialElement.textContent);
+        if (materialData[currentMaterial]) {
+            updateChart(materialData[currentMaterial]);
+        }
+    }
+
+    // Add click handler for the header
+    document.querySelector(".header-left").addEventListener('click', function() {
+        const materialElement = document.getElementById('materialName');
+        if (materialElement) {
+            const currentMaterial = normalizeMaterialName(materialElement.textContent);
+            if (materialData[currentMaterial]) {
+                updateChart(materialData[currentMaterial]);
+            }
+        }
+    });
+});
+    </script>
+</body>
+<footer>
+    <p>© 2025 SCMmax. All rights reserved.</p>
+</footer>
+</html>

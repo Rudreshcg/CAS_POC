@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Negotiation Template</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-green: #A0BF3F;
+            --primary-orange: #FA8E29;
+            --table-border: #D3D3D3;
+            --header-bg: #F5F5F5;
+        }
+
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: white;
+        }
+
+        .template-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid var(--table-border);
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th {
+            background-color: var(--primary-green);
+            color: white;
+            padding: 8px;
+            border: 1px solid var(--table-border);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        td {
+            padding: 8px;
+            border: 1px solid var(--table-border);
+            min-height: 32px;
+            font-size: 0.9em;
+        }
+
+        [contenteditable="true"] {
+            background: white;
+            min-width: 100px;
+            min-height: 24px;
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .section-title {
+            background-color: var(--header-bg);
+            padding: 10px;
+            border-bottom: 2px solid var(--primary-orange);
+            font-weight: 600;
+        }
+
+        .save-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            float: right;
+            margin-top: 20px;
+        }
+
+        /* Specific column widths */
+        .col-15 { width: 15%; }
+        .col-20 { width: 20%; }
+        .col-25 { width: 25%; }
+        .col-30 { width: 30%; }
+        .col-35 { width: 35%; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+
+    <div class="template-container">
+        <!-- Header Section -->
+        <div class="section">
+            <div class="section-title">Kraljic-Box-Position | Leverage/Partnership</div>
+            <table>
+                <tr><th>Objective</th></tr>
+                <tr><td contenteditable="true"></td></tr>
+            </table>
+        </div>
+
+        <!-- 1 TCO -->
+        <div class="section">
+            <div class="section-title">1 TCO</div>
+            <table>
+                <tr>
+                    <th class="col-33">Past period</th>
+                    <th class="col-33">Current</th>
+                    <th class="col-34">Forecast</th>
+                </tr>
+                <tr>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 2 Clean sheet price -->
+        <div class="section">
+            <div class="section-title">2 Clean sheet price with 10% margin</div>
+            <table>
+                <tr>
+                    <th class="col-15">Route</th>
+                    <th class="col-30">Past period</th>
+                    <th class="col-30">Current</th>
+                    <th class="col-25">Forecast</th>
+                </tr>
+                <tr>
+                    <td>Route A</td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>Route B</td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 3 Import/Export -->
+        <div class="section">
+            <div class="section-title">3 Import/Export Data Analysis</div>
+            <table>
+                <tr>
+                    <th class="col-20">Type</th>
+                    <th class="col-30">Past period</th>
+                    <th class="col-30">Current</th>
+                    <th class="col-20">Forecast</th>
+                </tr>
+                <tr>
+                    <td>Import</td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>Export</td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 4 Target negotiation -->
+        <div class="section">
+            <div class="section-title">4 Target negotiation window</div>
+            <table>
+                <tr>
+                    <th class="col-50">Min (in Rs./$)</th>
+                    <th class="col-50">Max (in Rs./$)</th>
+                </tr>
+                <tr>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 5 Wishlists -->
+        <div class="section">
+            <div class="section-title">5 Wishlists and Concessions</div>
+            <table>
+                <tr>
+                    <th colspan="2" class="col-50">Wishlist</th>
+                    <th colspan="2" class="col-50">Concession</th>
+                </tr>
+                <tr>
+                    <th class="col-35">Levers</th>
+                    <th class="col-15">Remarks</th>
+                    <th class="col-35">Levers</th>
+                    <th class="col-15">Remarks</th>
+                </tr>
+                <!-- Rows with pre-populated data -->
+                <tr>
+                    <td>Payment terms</td>
+                    <td contenteditable="true">SOB</td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>Security</td>
+                    <td contenteditable="true">Recycling</td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <!-- Additional rows -->
+            </table>
+        </div>
+
+        <!-- Section 6: Strategy -->
+        <div class="section">
+            <div class="section-title">6 Strategy</div>
+            <table>
+                <tr>
+                    <th class="col-20">SOB</th>
+                    <th class="col-40">What we want</th>
+                    <th class="col-40">What they want</th>
+                </tr>
+                <tr>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+                <tr>
+                    <td>Supplier's SOB</td>
+                    <td contenteditable="true">What we want to avoid</td>
+                    <td contenteditable="true">What they want to avoid</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Section 7: Market Update -->
+        <div class="section">
+            <div class="section-title">7 Market Update</div>
+            <table>
+                <tr>
+                    <th class="col-50">My Info</th>
+                    <th class="col-50">Questions to ask</th>
+                </tr>
+                <tr>
+                    <td contenteditable="true"></td>
+                    <td contenteditable="true"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Save Button -->
+        <button class="save-btn" onclick="saveData()">Save Template</button>
+    </div>
+
+    <script>
+        function saveData() {
+            // Save functionality remains same
+            const editableCells = document.querySelectorAll('[contenteditable="true"]');
+            const data = {};
+            
+            editableCells.forEach((cell, index) => {
+                data[`cell-${index}`] = cell.innerText;
+            });
+            
+            localStorage.setItem('negotiationData', JSON.stringify(data));
+            alert('Data saved successfully!');
+        }
+    </script>
+</body>
+<footer>
+    <p>© 2025 SCMmax. All rights reserved.</p>
+</footer>
+</html>

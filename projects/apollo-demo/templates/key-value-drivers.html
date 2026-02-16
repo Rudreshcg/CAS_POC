@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vendor Minutes of Meeting</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+
+        .back-home-btn:hover {
+            background-color: #FA8E29;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .material-header h2 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-header p {
+            color: var(--primary-gray);
+            font-size: 0.9rem;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+          .chart-container {
+            display: flex;
+            gap: 20px;
+             background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+             margin-bottom: 2rem;
+             min-height: 600px;
+         }
+
+        .chart-image {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 600px;
+            position: relative;
+        }
+        .chart-image canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+         .chart-key-takeaways {
+            flex: 1;
+        }
+         .chart-key-takeaways h3{
+             color: var(--secondary-dark);
+             margin-bottom: 0.5rem;
+         }
+          .chart-key-takeaways p {
+                color: var(--primary-gray);
+                 font-size: 0.9rem;
+             line-height: 1.6;
+          }
+          .chart-key-takeaways .auto-populated{
+              margin-top: 1rem;
+              font-style: italic;
+               color: var(--secondary-blue);
+          }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+
+    <div class="container">
+        {% if material %}
+        <div class="material-header">
+            <h2>Key Value Drivers for: <span id="materialName">{{ material }}</span></h2>
+            <p id="materialDescription"></p>
+            <div class="chart-container">
+                <div class="chart-image">
+                    <canvas id="materialChart"></canvas>
+                </div>
+                <div class="chart-key-takeaways">
+                    <h3>Key takeaways:</h3>
+                    <p id="keyTakeaways"></p>
+                    <p class="auto-populated">Auto populated based on database linkage</p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="material-header">
+            <h2>No material selected</h2>
+            <p>Please select a material from the dashboard search.</p>
+        </div>
+        {% endif %}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+              const materialData = {
+                    "glycerine": {
+                        name: "Glycerine",
+                        description: "",
+                         keyTakeaways: "With methanol prices trending at stable levels, No significant upwards movement expected in next 3-6 months Horizon​",
+                        chartData: {
+                            labels: ["Jan-15","Apr-15","Jul-15","Oct-15","Jan-16","Apr-16","Jul-16","Oct-16","Jan-17","Apr-17","Jul-17","Oct-17","Jan-18","Apr-18","Jul-18","Oct-18","Jan-19","Apr-19","Jul-19","Oct-19","Jan-20","Apr-20","Jul-20","Oct-20","Jan-21","Apr-21","Jul-21","Oct-21","Jan-22","Apr-22","Jul-22","Oct-22","Jan-23","Apr-23","Jul-23","Oct-23","Jan-24","Apr-24","Jul-24","Oct-24"],
+                                datasets: [
+                                    {
+                                        label: 'Glycerine Refined FOB Asia SE (Mid) : USD/tonne',
+                                         data: [689,730,629,623,614,635,632,709,773,906,865,837,1076,1001,955,747,643,554,580,568,523,682,779,943,1042,1418,1960,1836,1926,1286,896,694,606,575,634,703,645,656,768,819],
+                                        borderColor: '#A0BF3F',
+                                          fill: false
+                                    },
+                                    {
+                                         label: 'Methanol (South Korea, spot) Price (USD/tonne)',
+                                        data: [732,718,676,719,755,723,756,799,837,762,678,704,777,842,798,786,688,607,573,665,847,873,1034,1033,1028,1246,1500,1800,1714,1136,942,764,927,883,1023,875,907,944,956,961],
+                                          borderColor: '#FA8E29',
+                                           fill: false
+                                        }
+                                    ]
+                        }
+                     },
+                  "acetic_acid": {
+                        name: "Acetic Acid",
+                        description: "",
+                       keyTakeaways: "With methanol prices trending at stable levels, No significant upwards movement expected in next 3-6 months Horizon​",
+                        chartData: {
+                            labels: ["Jan-15","Apr-15","Jul-15","Oct-15","Jan-16","Apr-16","Jul-16","Oct-16","Jan-17","Apr-17","Jul-17","Oct-17","Jan-18","Apr-18","Jul-18","Oct-18","Jan-19","Apr-19","Jul-19","Oct-19","Jan-20","Apr-20","Jul-20","Oct-20","Jan-21","Apr-21","Jul-21","Oct-21","Jan-22","Apr-22","Jul-22","Oct-22","Jan-23","Apr-23","Jul-23","Oct-23","Jan-24","Apr-24","Jul-24","Oct-24"],
+                                datasets: [
+                                     {
+                                         label: 'Acetic Acid Price (USD/tonne)',
+                                          data: [ 480, 450, 480, 490, 400, 350, 310, 300, 320, 340, 380, 400, 450, 550, 650, 780, 700, 760, 800, 700, 560, 480, 470, 420, 350, 300, 280, 260, 250, 280, 350, 450, 650, 800, 1000, 900, 650, 680, 600, 500, 450],
+                                        borderColor: '#A0BF3F',
+                                         fill: false
+                                     },
+                                     {
+                                           label: 'Methanol (USD/Barrel)',
+                                         data: [ 750, 680, 860, 750, 600, 500, 480, 550, 580, 500, 450, 520, 620, 850, 960, 1050, 980, 800, 780, 990, 1150, 1100, 950, 750, 700, 680, 650, 470, 400, 320, 240, 260, 300, 400, 550, 750, 1050, 1300, 1180, 1050],
+                                        borderColor: '#FA8E29',
+                                         fill: false
+                                      }
+                                    ]
+                            }
+                     },
+                   "carbon_black": {
+                        name: "Carbon Black",
+                       description: "",
+                        keyTakeaways: "While CBFS prices have been in line with crude oil prices, Carbon black prices follow the demand side variables​",
+                        chartData: {
+                           labels: ["Jan-15","Apr-15","Jul-15","Oct-15","Jan-16","Apr-16","Jul-16","Oct-16","Jan-17","Apr-17","Jul-17","Oct-17","Jan-18","Apr-18","Jul-18","Oct-18","Jan-19","Apr-19","Jul-19","Oct-19","Jan-20","Apr-20","Jul-20","Oct-20","Jan-21","Apr-21","Jul-21","Oct-21","Jan-22","Apr-22","Jul-22","Oct-22","Jan-23","Apr-23","Jul-23","Oct-23","Jan-24","Apr-24","Jul-24","Oct-24"],
+                                datasets: [
+                                        {
+                                            label: 'Carbon Black N220 Price (USD/tonne)',
+                                          data: [930, 920, 1100, 1180, 1300, 1400, 1300, 1280, 1300, 1200, 1280, 1220, 1200, 1280, 1200, 1800, 1820, 1650, 1680, 1600, 1520, 1500, 1320, 1170, 1120, 1270, 1150, 1130, 1150, 1180, 1200, 1380, 1300, 1390, 1250, 1340, 1330, 1350, 1330, 1320],
+                                            borderColor: '#A0BF3F',
+                                             fill: false
+                                        },
+                                       {
+                                           label: 'CBFS Price (USD/tonne)',
+                                            data: [340, 360, 380, 430, 460, 440, 460, 470, 500, 540, 580, 590, 600, 630, 680, 670, 650, 610, 510, 570, 580, 560, 490, 460, 470, 480, 450, 470, 500, 520, 550, 570, 540, 530, 510, 500, 530, 550, 560, 540],
+                                            borderColor: '#FA8E29',
+                                            fill: false
+                                         }
+                                    ]
+                        }
+                   }
+              };
+              let currentMaterial = normalizeMaterialName('{{ material }}');
+             updateChart(materialData[currentMaterial]);
+            
+             // Function to normalize material names
+            function normalizeMaterialName(name) {
+                return name.toLowerCase().trim().replace(/\s+/g, '_');
+            }
+
+            
+            
+            function updateChart(material){
+
+                 document.getElementById('materialName').textContent = material.name;
+                 document.getElementById('materialDescription').textContent = material.description;
+                document.getElementById('keyTakeaways').textContent = material.keyTakeaways;
+
+                const chartCanvas = document.getElementById('materialChart').getContext('2d');
+                const labels = material.chartData.labels;
+                const dataset1Data = material.chartData.datasets[0].data;
+                const dataset2Data = material.chartData.datasets[1].data;
+
+                  if (window.myChart) {
+                         window.myChart.destroy();
+                  }
+                   window.myChart = new Chart(chartCanvas, {
+                     type: 'line',
+                      data: {
+                           labels: labels,
+                          datasets: [
+                            {
+                                 label: material.chartData.datasets[0].label,
+                                  data: dataset1Data,
+                                 borderColor: '#A0BF3F',
+                                  fill: false
+                              },
+                            {
+                                label: material.chartData.datasets[1].label,
+                                data: dataset2Data,
+                                 borderColor: '#FA8E29',
+                                 fill: false
+                              }
+                             ]
+                         },
+                  options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                       scales: {
+                           x: {
+                              title: {
+                                  display: false
+                               },
+                               ticks: {
+                                  autoSkip: true,
+                                   maxTicksLimit: 10
+                                }
+                            },
+                            y: {
+                                  title: {
+                                      display: false
+                                   }
+                              }
+                         }
+                    }
+               });
+             }
+
+        // Function to normalize material names
+        function normalizeMaterialName(name) {
+            return name.toLowerCase().trim().replace(/\s+/g, '_');
+        }
+
+        document.querySelector(".header-left").addEventListener('click', function () {
+
+
+        // Get and normalize the material name from Flask
+        const rawMaterial = {{ material|tojson|safe }};
+        const selectedMaterial = normalizeMaterialName(rawMaterial);
+                 updateChart(materialData[currentMaterial]);
+            });
+
+        });
+    </script>
+</body>
+<footer>
+    <p>© 2025 SCMmax. All rights reserved.</p>
+</footer>
+</html>

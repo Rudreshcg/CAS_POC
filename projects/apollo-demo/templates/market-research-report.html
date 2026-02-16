@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Market Research Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+
+        .back-home-btn:hover {
+            background-color: #e67e1c;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .material-header h2 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-header p {
+            color: var(--primary-gray);
+            font-size: 0.9rem;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Container styles */
+        .market-report-container {
+            background-color: #CBD2D9;
+            color: #333F48;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 1800px;
+            margin: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Table styles */
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Header styles */
+        .market-table thead tr {
+            background-color: #A0BF3F;
+            color: white;
+            text-align: left;
+        }
+
+        .market-table th {
+            padding: 10px;
+        }
+
+        /* Cell styles */
+        .market-table td {
+            padding: 10px;
+            border-bottom: 1px solid #CBD2D9;
+        }
+
+        .market-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Link styles */
+        .market-table a {
+            color: #7DA2BA;
+            text-decoration: none;
+        }
+
+        .market-table a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+
+    <div class="container">
+      {% if material %}
+      <div class="material-header">
+          <h2>Market Research Report for: {{ material }}</h2>
+          <div id="acetic-acid" style="display: none;">
+              <!-- Market Analysis Reports Table -->
+              <div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+                  <thead>
+                    <tr style="background-color: #A0BF3F; color: white; text-align: left;">
+                      <th style="padding: 10px;">Date</th>
+                      <th style="padding: 10px;">Publication</th>
+                      <th style="padding: 10px;">Report Link</th> 
+                      <th style="padding: 10px;">Key Takeaway</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">3 Jan 2025</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">ICIS</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        410-420 CFR SEA<br>
+                        Stable-to-firm feedstock costs may prevail in Q1
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">27 Dec 2024</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">ICIS</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        400-410 CFR SEA<br>
+                        Firm feedstock prices to keep momentum high
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">20 Dec 2024</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">ICIS</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        400-410 CFR SEA<br>
+                        Supply fears moving prices upwards
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">18 Dec 2024</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Orbichem</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        380-400 Del TW in Nov'24<br>
+                        97% op rate in china, pushed prices downwards in Nov'24
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px;">13 Dec 2024</td>
+                      <td style="padding: 10px;">ICIS</td>
+                      <td style="padding: 10px;">
+                        <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px;">
+                        400-410 CFR SEA<br>
+                        Stable prices
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+            </div>
+          </div>
+          <div id="glycerine" style="display: none;">
+              <!-- Glycerine Market Reports Table -->
+              <div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+                    <thead>
+                        <tr style="background-color: #A0BF3F; color: white; text-align: left;">
+                            <th style="padding: 10px;">Date</th>
+                            <th style="padding: 10px;">Publication</th>
+                            <th style="padding: 10px;">Report Link</th>
+                            <th style="padding: 10px;">Key Takeaway</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">9 Jan 2025</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">ICIS</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                              <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                            </td>      
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">830-880 CFR China<br>Optimism of revival of demand post lunar new year</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">19 Dec 2024</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">ICIS</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                              <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                            </td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">790-850 CFR China<br>Indonesia raises export duty on palm oil</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">12 Dec 2024</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">ICIS</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                              <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                            </td> 
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">790-850 CFR China<br>Delayed B40 mandate in Indonesia raising supply concerns</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">5 Dec 2024</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">ICIS</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                              <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                            </td>      
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">770-850 CFR China<br>Price band narrowed due to low demand</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">28 Nov 2024</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">ICIS</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                              <a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                            </td>      
+                            <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">750-860 CFR China<br>Dull downstream demand due to year end.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+          </div>
+          <div id="carbon-black" style="display: none;">
+              <!-- Carbon Black Market Reports Table -->
+              <div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+                  <thead>
+                    <tr style="background-color: #A0BF3F; color: white; text-align: left;">
+                      <th style="padding: 10px;">Date</th>
+                      <th style="padding: 10px;">Publication</th>
+                      <th style="padding: 10px;">Report Link</th>
+                      <th style="padding: 10px;">Key Takeaway</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">July 2024</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Maximize Market Research</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        <a href="https://www.maximizemarketresearch.com/market-report/carbon-black-market/126753/" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        Comprehensive analysis and forecast of the Carbon Black market up to 2030.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">September 2024</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">The Brainy Insights</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        <a href="https://www.thebrainyinsights.com/report/carbon-black-market-13791" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        In-depth market analysis with growth trends and forecasts up to 2033.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">May 2024</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Technavio</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        <a href="https://www.technavio.com/report/carbon-black-market-industry-analysis" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        Industry report on growth trends and forecasts for the Carbon Black market from 2024 to 2028.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">December 2023</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Market.us</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        <a href="https://market.us/report/carbon-black-market/" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+                        Global market assessment and forecast for Carbon Black up to 2033.
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px;">February 2024</td>
+                      <td style="padding: 10px;">Research and Markets</td>
+                      <td style="padding: 10px;">
+                        <a href="https://www.researchandmarkets.com/reports/5741689/carbon-black-global-market-report" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+                      </td>
+                      <td style="padding: 10px;">
+                        Global market report with forecasts from 2024 to 2028.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>          
+          </div>
+      </div>
+
+      <div class="action-buttons" style="display: flex; gap: 10px; padding: 15px; background-color: #f8f9fa;">
+    
+        <!-- Upload Report Button -->
+        <div style="flex: 1;">
+            <label for="upload-report" style="display: block; padding: 12px 20px; background-color: #FA8E29; color: white; text-align: center; border-radius: 4px; cursor: pointer; font-family: Arial, sans-serif; font-weight: bold;">
+                Upload new report
+                <input type="file" id="upload-report" style="display: none;" onchange="handleFileUpload(this)">
+            </label>
+        </div>
+    
+        <!-- Source Selection -->
+        <div style="flex: 1;">
+            <select id="source-select" style="width: 100%; padding: 12px 20px; background-color: #FA8E29; color: white; border: none; border-radius: 4px; cursor: pointer; font-family: Arial, sans-serif; font-weight: bold;">
+                <option value="" disabled selected>Source</option>
+                <option value="icis">ICIS</option>
+                <option value="orbichem">Orbichem</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+    
+        <!-- Browse File Button -->
+        <div style="flex: 1;">
+            <label for="browse-file" style="display: block; padding: 12px 20px; background-color: #FA8E29; color: white; text-align: center; border-radius: 4px; cursor: pointer; font-family: Arial, sans-serif; font-weight: bold;">
+                Browse file
+                <input type="file" id="browse-file" style="display: none;" onchange="handleBrowseFile(this)">
+            </label>
+        </div>
+    </div>
+
+      {% else %}
+      <div class="material-header">
+          <h2>No material selected</h2>
+          <p>Please select a material from the dashboard search.</p>
+      </div>
+      {% endif %}
+  </div>
+  <script>
+      // Get the selected material
+      const selectedMaterial = "{{ material }}";
+
+      // Show the table for the selected material
+      if (selectedMaterial === "Acetic Acid") {
+          document.getElementById("acetic-acid").style.display = "block";
+      } else if (selectedMaterial === "Glycerine") {
+          document.getElementById("glycerine").style.display = "block";
+      } else if (selectedMaterial === "Carbon Black") {
+          document.getElementById("carbon-black").style.display = "block";
+      }
+  </script>  
+</body>
+<footer>
+  <p>© 2025 SCMmax. All rights reserved.</p>
+</footer>
+</html>

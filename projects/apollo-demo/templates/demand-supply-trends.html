@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demand Supply Trends</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+
+        .back-home-btn:hover {
+            background-color: #e67e1c;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .material-header h2 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-header p {
+            color: var(--primary-gray);
+            font-size: 0.9rem;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Container styles */
+        .market-report-container {
+            background-color: #CBD2D9;
+            color: #333F48;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 1800px;
+            margin: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Table styles */
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Header styles */
+        .market-table thead tr {
+            background-color: #A0BF3F;
+            color: white;
+            text-align: left;
+        }
+
+        .market-table th {
+            padding: 10px;
+        }
+
+        /* Cell styles */
+        .market-table td {
+            padding: 10px;
+            border-bottom: 1px solid #CBD2D9;
+        }
+
+        .market-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Link styles */
+        .market-table a {
+            color: #7DA2BA;
+            text-decoration: none;
+        }
+
+        .market-table a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+
+    <div class="container">
+      {% if material %}
+      <div class="material-header">
+          <h2>Demand Supply Trend for: {{ material }}</h2>
+          
+		  <div id="acetic-acid" style="display: none;">
+              <!-- Market Analysis Reports Table -->
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+					<table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+						<thead>
+							<tr style="background-color: #A0BF3F; color: white; text-align: left;">
+								<th style="padding: 10px;">Date</th>
+								<th style="padding: 10px;">Source</th>
+								<th style="padding: 10px;">Link</th>
+								<th style="padding: 10px;">Key Take away</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">20 Dec 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Market Research</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									Global acetic acid market size valued at USD 9.2 billion, expected CAGR of 4.8% (2024-2030)
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">15 Oct 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Industry Analysis</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									Asia Pacific dominates with 60% market share, China leading production capacity
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">5 Sep 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Global Insights</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									Vinyl acetate monomer (VAM) accounts for 30% of global acetic acid consumption
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">1 Aug 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Industry Report</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									Global production capacity reaches 18.5 million tons per annum
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				
+				
+		  </div>
+          
+		  <div id="glycerine" style="display: none;">
+              <!-- Glycerine Market Reports Table -->
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+					<table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+						<thead>
+							<tr style="background-color: #A0BF3F; color: white; text-align: left;">
+								<th style="padding: 10px;">Date</th>
+								<th style="padding: 10px;">Source</th>
+								<th style="padding: 10px;">Link</th>
+								<th style="padding: 10px;">Key Take away</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">15 Jul 2022</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Grandview research</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Global capacity at 4.6 Mn tons expected to grow to 5.7 Mn tons by 2032</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">15 Nov 2011</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Internal</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Global demand at 2Mn tons against global capacity of 2.8 Mn tons.</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+		  </div>
+          
+		  <div id="carbon-black" style="display: none;">
+              <!-- Carbon Black Market Reports Table -->
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+					<table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+						<thead>
+							<tr style="background-color: #A0BF3F; color: white; text-align: left;">
+								<th style="padding: 10px;">Date</th>
+								<th style="padding: 10px;">Source</th>
+								<th style="padding: 10px;">Link</th>
+								<th style="padding: 10px;">Key Take away</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">15 Dec 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Market Analysis</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									Global carbon black market valued at USD 18.2 billion in 2024, projected CAGR of 6.1% till 2030
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">1 Nov 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Industry Report</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									Tire manufacturing accounts for 70% of global carbon black consumption
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">20 Sep 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Global Insights</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									Asia Pacific region holds 45% market share, with China being the largest producer
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">5 Aug 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Research Study</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									Specialty grades demand growing at 8% annually, driven by plastics and coatings applications
+								</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">15 Jul 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Market Survey</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									<a href="#" style="color: #7DA2BA; text-decoration: none;">View Report</a>
+								</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">
+									Global production capacity reaches 15 million metric tons per year
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+		  </div>
+      
+	  </div>
+
+      <div class="action-buttons" style="display: flex; gap: 10px; padding: 15px; background-color: #f8f9fa;">
+    
+        <!-- Upload Report Button -->
+        <div style="flex: 1;">
+            <label for="upload-report" style="display: block; padding: 12px 20px; background-color: #FA8E29; color: white; text-align: center; border-radius: 4px; cursor: pointer; font-family: Arial, sans-serif; font-weight: bold;">
+                Upload new report
+                <input type="file" id="upload-report" style="display: none;" onchange="handleFileUpload(this)">
+            </label>
+        </div>
+    
+        <!-- Source Selection -->
+        <div style="flex: 1;">
+            <select id="source-select" style="width: 100%; padding: 12px 20px; background-color: #FA8E29; color: white; border: none; border-radius: 4px; cursor: pointer; font-family: Arial, sans-serif; font-weight: bold;">
+                <option value="" disabled selected>Source</option>
+                <option value="icis">ICIS</option>
+                <option value="orbichem">Orbichem</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+    
+        <!-- Browse File Button -->
+        <div style="flex: 1;">
+            <label for="browse-file" style="display: block; padding: 12px 20px; background-color: #FA8E29; color: white; text-align: center; border-radius: 4px; cursor: pointer; font-family: Arial, sans-serif; font-weight: bold;">
+                Browse file
+                <input type="file" id="browse-file" style="display: none;" onchange="handleBrowseFile(this)">
+            </label>
+        </div>
+    </div>
+
+      {% else %}
+      <div class="material-header">
+          <h2>No material selected</h2>
+          <p>Please select a material from the dashboard search.</p>
+      </div>
+      {% endif %}
+  </div>
+  <script>
+      // Get the selected material
+      const selectedMaterial = "{{ material }}";
+
+      // Show the table for the selected material
+      if (selectedMaterial === "Acetic Acid") {
+          document.getElementById("acetic-acid").style.display = "block";
+      } else if (selectedMaterial === "Glycerine") {
+          document.getElementById("glycerine").style.display = "block";
+      } else if (selectedMaterial === "Carbon Black") {
+          document.getElementById("carbon-black").style.display = "block";
+      }
+  </script>  
+</body>
+<footer>
+    <p>© 2025 SCMmax. All rights reserved.</p>
+</footer>
+</html>

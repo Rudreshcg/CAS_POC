@@ -1,0 +1,6 @@
+flask
+PyPDF2
+requests
+openpyxl
+flask_mail
+gunicorn

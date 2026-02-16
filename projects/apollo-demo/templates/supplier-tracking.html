@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supplier Tracking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+
+        .back-home-btn:hover {
+            background-color: #e67e1c;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .material-header h2 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-header p {
+            color: var(--primary-gray);
+            font-size: 0.9rem;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Container styles */
+        .market-report-container {
+            background-color: #CBD2D9;
+            color: #333F48;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 1800px;
+            margin: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Table styles */
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Header styles */
+        .market-table thead tr {
+            background-color: #A0BF3F;
+            color: white;
+            text-align: left;
+        }
+
+        .market-table th {
+            padding: 10px;
+        }
+
+        /* Cell styles */
+        .market-table td {
+            padding: 10px;
+            border-bottom: 1px solid #CBD2D9;
+        }
+
+        .market-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Link styles */
+        .market-table a {
+            color: #7DA2BA;
+            text-decoration: none;
+        }
+
+        .market-table a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+
+    <div class="container">
+      {% if material %}
+      <div class="material-header">
+          <h2>Supplier Tracking for: {{ material }}</h2>
+          
+		  <div id="acetic-acid" style="display: none;">
+              <!-- Market Analysis Reports Table -->
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+					<table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+						<thead>
+							<tr style="background-color: #A0BF3F; color: white; text-align: left;">
+								<th style="padding: 10px;">Date</th>
+								<th style="padding: 10px;">Supplier</th>
+								<th style="padding: 10px;">Key development</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">12 Dec 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">BP Chemicals</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Announced expansion of acetic acid capacity at Hull facility by 100,000 tonnes/year</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">28 Sep 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Celanese</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Clear Lake facility completes maintenance turnaround ahead of schedule</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">15 Aug 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Eastman Chemical</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Kingsport site announces technology upgrade for improved production efficiency</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">3 Jul 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Yankuang Huahong</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">New acetic acid plant in Yulin, China reaches full operating capacity</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">21 May 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">INEOS</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Announces investment in carbon capture technology for Singapore facility</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+		  </div>
+          
+		  <div id="glycerine" style="display: none;">
+              <!-- Glycerine Market Reports Table -->
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+					<table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+						<thead>
+							<tr style="background-color: #A0BF3F; color: white; text-align: left;">
+								<th style="padding: 10px;">Date</th>
+								<th style="padding: 10px;">Supplier</th>
+								<th style="padding: 10px;">Key development</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">16 sep 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Regulatory body</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Products containing glycerol formate are intended to be used in pesticides</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">5 June 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Ineos</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Trillium selects INEOS Green Lake for sustainable acrylonitrile production plant</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">17 May 2018</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">DSM</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">federal court in Wisconsin concluding that glycerol-reducing yeast products sold by Lallemand infringe on DSM's U.S. Patent</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			  
+		  </div>
+          
+		  <div id="carbon-black" style="display: none;">
+              <!-- Carbon Black Market Reports Table -->
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+					<table style="width: 100%; border-collapse: collapse; background-color: white; border-radius: 8px; overflow: hidden;">
+						<thead>
+							<tr style="background-color: #A0BF3F; color: white; text-align: left;">
+								<th style="padding: 10px;">Date</th>
+								<th style="padding: 10px;">Supplier</th>
+								<th style="padding: 10px;">Key development</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">15 Oct 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Birla Carbon</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Announces expansion of sustainable carbon black production in India with 120,000 MT/year capacity</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">28 Sep 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Cabot Corporation</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Completes acquisition of carbon black facility in Southeast Asia to strengthen regional presence</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">12 Aug 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Orion Engineered Carbons</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Launches new series of specialty carbon black products for sustainable tire applications</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">15 Jul 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Phillips Carbon Black</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Implements new environmental control technology at Gujarat plant to reduce emissions</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">5 Jun 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Black Cat Carbon Black</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Announces new circular economy initiative for recycling carbon black from end-of-life tires</td>
+							</tr>
+							<tr>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">20 May 2024</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Continental Carbon</td>
+								<td style="padding: 10px; border-bottom: 1px solid #CBD2D9;">Starts construction of new sustainable carbon black production line in Texas</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+		  </div>
+      
+	  </div>
+
+    </div>
+
+      {% else %}
+      <div class="material-header">
+          <h2>No material selected</h2>
+          <p>Please select a material from the dashboard search.</p>
+      </div>
+      {% endif %}
+  </div>
+  <script>
+      // Get the selected material
+      const selectedMaterial = "{{ material }}";
+
+      // Show the table for the selected material
+      if (selectedMaterial === "Acetic Acid") {
+          document.getElementById("acetic-acid").style.display = "block";
+      } else if (selectedMaterial === "Glycerine") {
+          document.getElementById("glycerine").style.display = "block";
+      } else if (selectedMaterial === "Carbon Black") {
+          document.getElementById("carbon-black").style.display = "block";
+      }
+  </script>  
+</body>
+<footer>
+    <p>© 2025 SCMmax. All rights reserved.</p>
+</footer>
+</html>

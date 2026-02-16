@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Apollo</title>
+    <style>
+        :root {
+            --primary-green: #A0BF3F;
+            --primary-orange: #FA8E29;
+            --primary-gray: #6E7E85;
+            --secondary-light: #CBD2D9;
+            --secondary-dark: #333F48;
+            --secondary-blue: #7DA2BA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: var(--secondary-dark);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-left,
+        .header-center,
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header-center {
+            flex: 2;
+            justify-content: center;
+        }
+
+        .header-right {
+            flex: 1;
+            justify-content: flex-end;
+        }
+
+        .header button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--primary-orange);
+            border-radius: 20px;
+            background: var(--secondary-dark);
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px rgba(250, 142, 41, 0.3);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+        }
+
+        .search-dropdown.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #333F48
+        }
+
+        .dropdown-item:hover {
+            background: var(--secondary-light);
+        }
+
+        .dropdown-item i {
+            color: var(--primary-orange);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--primary-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .grid-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .grid-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .grid-item i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .grid-item h3 {
+            font-size: 0.9rem;
+            color: var(--secondary-dark);
+            font-weight: 500;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .search-container {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .header-left,
+            .header-center,
+            .header-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .search-container {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search materials..." id="searchInput">
+                <div class="search-dropdown" id="searchDropdown">
+                    <div class="dropdown-item" data-value="acetic-acid">
+                        <span>Acetic Acid</span>
+                    </div>
+                    <div class="dropdown-item" data-value="carbon-black">
+                        <span>Carbon Black</span>
+                    </div>
+                    <div class="dropdown-item" data-value="glycerine">
+                        <span>Glycerine</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button onclick="window.location.href='/apollo/settings'"><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <div class="grid-container" id="gridContainer"></div>
+    <footer>
+        <p>© 2025 SCMmax. All rights reserved.</p>
+    </footer>
+    <script>
+        const items = [
+            { icon: 'fa-chart-line', text: 'Market Research Report', color: '#A0BF3F' },
+            { icon: 'fa-chart-area', text: 'Demand Supply Trends', color: '#A0BF3F' },
+            { icon: 'fa-calculator', text: 'Spend Analytics', color: '#A0BF3F' },
+            { icon: 'fa-file-invoice-dollar', text: 'Cost Sheet', color: '#A0BF3F' },
+            { icon: 'fa-folder-open', text: 'Fact Pack', color: '#A0BF3F' },
+            { icon: 'fa-newspaper', text: 'News', color: '#A0BF3F' },
+            { icon: 'fa-tasks', text: 'Supplier Tracking', color: '#A0BF3F' },
+            { icon: 'fa-clipboard-list', text: 'Procurement Plan', color: '#A0BF3F' },
+            { icon: 'fa-chart-bar', text: 'Seasonality Trends', color: '#A0BF3F' },
+            { icon: 'fa-business-time', text: 'Negotiation Window', color: '#A0BF3F' },
+            { icon: 'fa-key', text: 'Key Value Drivers', color: '#A0BF3F' },
+            { icon: 'fa-handshake', text: 'Multiple Point Engagements', color: '#A0BF3F' },
+            { icon: 'fa-boxes', text: 'Inventory Levels', color: '#A0BF3F' },
+            { icon: 'fa-sync', text: 'Cyclical Patterns', color: '#A0BF3F' },
+            { icon: 'fa-balance-scale', text: 'Quotation Comparison', color: '#A0BF3F' },
+            { icon: 'fa-chart-pie', text: 'Trade Data Analysis', color: '#A0BF3F' },
+            { icon: 'fa-project-diagram', text: 'Joint Development Projects', color: '#A0BF3F' },
+            { icon: 'fa-tags', text: 'Price Benchmarking', color: '#A0BF3F' },
+            { icon: 'fa-power-off', text: 'Shutdown Tracker', color: '#A0BF3F' },
+            { icon: 'fa-bullseye', text: 'Negotiation Objectives', color: '#A0BF3F' },
+            { icon: 'fa-info-circle', text: 'Vendor Key Information', color: '#A0BF3F' },
+            { icon: 'fa-file-alt', text: 'Vendors Minutes of Meeting', color: '#A0BF3F' },
+            { icon: 'fa-tasks', text: 'Vendor Wise Action Plan', color: '#A0BF3F' },
+            { icon: 'fa-diagram-project', text: 'Industry Porter Analysis', color: '#A0BF3F' },
+            { icon: 'fa-clipboard-check', text: 'Internal Reviews Tracker', color: '#A0BF3F' }
+        ];
+
+        const gridContainer = document.getElementById('gridContainer');
+        const searchInput = document.getElementById('searchInput');
+        const searchDropdown = document.getElementById('searchDropdown');
+
+        // Populate grid items
+        items.forEach(item => {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.style.borderTop = `3px solid ${item.color}`;
+
+            gridItem.innerHTML = `
+                <i class="fas ${item.icon}" style="color: ${item.color}"></i>
+                <h3>${item.text}</h3>
+            `;
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Market Research Report') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/market-research-report?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'News') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/news?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Key Value Drivers') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/key-value-drivers?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Trade Data Analysis') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/trade-data-analysis?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Vendor Key Information') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/vendor-key-information?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Demand Supply Trends') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/demand-supply-trends?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Joint Development Projects') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/joint-development-projects?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Vendors Minutes of Meeting') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/vendor-minutes-of-meetings?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Multiple Point Engagements') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/multipoint-engagement?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Supplier Tracking') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/supplier-tracking?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Shutdown Tracker') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/shutdown-tracker?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Fact Pack') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/fact-pack?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Industry Porter Analysis') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/industry-porter-analysis?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Spend Analytics') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/spend-analytics?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Cyclical Patterns') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/cyclical-patterns?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Negotiation Window') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/negotiation-window?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Seasonality Trends') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/sesonality-trends?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Procurement Plan') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/procurement-plan?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Inventory Levels') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/inventory-level?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Vendor Wise Action Plan') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/vendor-wise-action-plan?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Cost Sheet') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/cost-sheet?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Negotiation Objectives') {
+                    window.location.href = '/apollo/negotiation-objectives';
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Price Benchmarking') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = `/apollo/price-benchmarking?material=${encodeURIComponent(searchedMaterial)}`;
+                }
+            });
+
+            gridItem.addEventListener('click', () => {
+                if (item.text === 'Quotation Comparison') {
+                    const searchedMaterial = document.getElementById('searchInput').value;
+                    window.location.href = '/apollo/quote-compare';
+                }
+            });
+
+            gridContainer.appendChild(gridItem);
+        });
+
+        // Search functionality
+        searchInput.addEventListener('focus', () => {
+            searchDropdown.classList.add('active');
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            const value = e.target.value.toLowerCase();
+            const items = searchDropdown.querySelectorAll('.dropdown-item');
+
+            items.forEach(item => {
+                const text = item.querySelector('span').textContent.toLowerCase();
+                if (text.includes(value)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                searchDropdown.classList.remove('active');
+            }
+        });
+
+        // Dropdown item selection
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', () => {
+                searchInput.value = item.querySelector('span').textContent;
+                searchDropdown.classList.remove('active');
+                // Add your search handling logic here
+                console.log('Selected:', searchInput.value);
+            });
+        });
+
+        // Grid item click handling
+        document.querySelectorAll('.grid-item').forEach(item => {
+            item.addEventListener('click', function () {
+                console.log('Clicked:', this.querySelector('h3').textContent);
+            });
+        });
+    </script>
+</body>
+
+</html>

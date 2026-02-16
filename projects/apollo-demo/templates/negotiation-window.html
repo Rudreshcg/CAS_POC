@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Negotiation Window</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.6.1/nouislider.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .back-home-btn {
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin: 1rem 2rem;
+        }
+
+        .back-home-btn:hover {
+            background-color: #e67e1c;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        .material-header h2 {
+            color: var(--secondary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .material-header p {
+            color: var(--primary-gray);
+            font-size: 0.9rem;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Container styles */
+        .market-report-container {
+            background-color: #CBD2D9;
+            color: #333F48;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 1800px;
+            margin: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Table styles */
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* Header styles */
+        .market-table thead tr {
+            background-color: #A0BF3F;
+            color: white;
+            text-align: left;
+        }
+
+        .market-table th {
+            padding: 10px;
+        }
+
+        /* Cell styles */
+        .market-table td {
+            padding: 10px;
+            border-bottom: 1px solid #CBD2D9;
+        }
+
+        .market-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Link styles */
+        .market-table a {
+            color: #7DA2BA;
+            text-decoration: none;
+        }
+
+        .market-table a:hover {
+            text-decoration: underline;
+        }
+        .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .dashboard-title h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .dashboard-title p {
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+    
+    .date-display {
+      font-size: 14px;
+      background-color: var(--light);
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      height: 100%;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    .price-chart-container {
+      position: relative;
+      height: 400px;
+    }
+    
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    
+    .metric-card {
+      padding: 15px;
+      border-radius: 8px;
+      background: var(--light);
+    }
+    
+    .metric-title {
+      font-size: 14px;
+      color: #7f8c8d;
+      margin-bottom: 5px;
+    }
+    
+    .metric-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .metric-trend {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+    }
+    
+    .trend-up {
+      color: var(--success);
+    }
+    
+    .trend-down {
+      color: var(--danger);
+    }
+    
+    .trend-stable {
+      color: var(--warning);
+    }
+    
+    .icon {
+      margin-right: 5px;
+    }
+    
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    th {
+      text-align: left;
+      padding: 12px 15px;
+      background-color: var(--light);
+      color: var(--dark);
+      font-weight: 600;
+    }
+    
+    td {
+      padding: 10px 15px;
+      border-bottom: 1px solid #ecf0f1;
+    }
+    
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    
+    .status-rise {
+      background-color: var(--success);
+    }
+    
+    .status-fall {
+      background-color: var(--danger);
+    }
+    
+    .status-stable {
+      background-color: var(--warning);
+    }
+    
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .filter {
+      flex: 1;
+    }
+    
+    .filter-label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .slider-container {
+      margin-top: 10px;
+    }
+    
+    .price-range-values {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    
+    .forecast-container {
+      margin-top: 20px;
+    }
+    
+    .event-marker {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 100;
+    }
+    
+    .annotation {
+      font-size: 12px;
+      padding: 8px;
+      margin-top: 10px;
+      background: #f8f9fa;
+      border-left: 3px solid var(--secondary);
+    }
+        
+        /* Add these styles */
+        .chart-container {
+        display: flex;
+        margin: 20px 0;
+    }
+    .chart-box {
+        flex: 1;
+        height: 300px;
+        position: relative;
+    }
+    .hidden {
+        display: none;
+    }
+    .chart-toggle button {
+        padding: 5px 10px;
+        margin-right: 10px;
+    }
+    .chart-toggle button.active {
+        background-color: #333;
+        color: white;
+    }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>Apollo</h1>
+        </div>
+        <div class="header-center">
+            <!-- Center section empty but maintained for layout -->
+        </div>
+        <div class="header-right">
+            <button><i class="fas fa-bell"></i></button>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <span>John Doe</span>
+            </div>
+            <button><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+
+    <a href="{{ url_for('index') }}" class="back-home-btn">
+        <i class="fas fa-home"></i>
+        Back Home
+    </a>
+
+    <div class="container">
+      {% if material %}
+      <div class="material-header">
+          <h2>Negotiation Window for: {{ material }}</h2>
+          
+		  <div id="acetic-acid" style="display: none;">
+              <!-- Market Analysis Reports Table -->
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+				<p>As per the current market situation it seems that prices have bottomed out and before the new capacity enters the market the players want to keep market prices high.​</p>
+				<p> Post lunar new year generally prices show upward movement and currently since prices are at lower base, upward movement of prices in inevitable.</p>
+				</div>
+		  </div>
+          
+		  <div id="glycerine" style="display: none;">
+              <!-- Glycerine Market Reports Table -->
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+				<p>As per the current market situation it seems that prices have risen to an unsustainable levels. Markets are awaiting start of B40 blending of Bio diesel. Till then producers will try to maximise their gains.​</p>
+				</div>
+                <div class="dashboard-grid">
+                    <div class="card">
+                      <div class="card-header">
+                        <h2 class="card-title">Glycerine Price Trend & Forecast</h2>
+                        <div class="chart-controls">
+                          <select id="chart-view">
+                            <option value="line">Line Chart</option>
+                            <option value="bar">Bar Chart</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="price-chart-container">
+                        <canvas id="price-chart"></canvas>
+                        <div id="tooltip" class="tooltip"></div>
+                      </div>
+                      <div class="annotation" id="current-annotation">
+                        <strong>Note:</strong> Select a data point to view specific remarks and insights.
+                      </div>
+                    </div>
+                    
+                    <div class="card">
+                      <div class="card-header">
+                        <h2 class="card-title">Key Metrics</h2>
+                      </div>
+                      <div class="metrics-grid">
+                        <div class="metric-card">
+                          <div class="metric-title">Current Price</div>
+                          <div class="metric-value" id="current-price">$995.00</div>
+                          <div class="metric-trend trend-up">
+                            <span class="icon">↑</span> +5.9% from February
+                          </div>
+                        </div>
+                        <div class="metric-card">
+                          <div class="metric-title">YTD Change</div>
+                          <div class="metric-value" id="ytd-change">+79.1%</div>
+                          <div class="metric-trend trend-up">
+                            <span class="icon">↑</span> Significant increase
+                          </div>
+                        </div>
+                        <div class="metric-card">
+                          <div class="metric-title">Volatility (6M)</div>
+                          <div class="metric-value" id="volatility">12.4%</div>
+                          <div class="metric-trend trend-up">
+                            <span class="icon">↑</span> Increased volatility
+                          </div>
+                        </div>
+                        <div class="metric-card">
+                          <div class="metric-title">Conversion Spread</div>
+                          <div class="metric-value" id="conversion-spread">$165</div>
+                          <div class="metric-trend trend-down">
+                            <span class="icon">↓</span> -7.3% from February
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="hedging-strategy">
+                        <h3 class="strategy-heading">Recommended Hedging Strategy</h3>
+                        <div class="strategy-options">
+                          <div class="strategy-option" data-strategy="conservative">
+                            <div class="strategy-title"><strong>Conservative</strong></div>
+                            <div class="strategy-desc">Cover 40% immediate needs, delay remaining purchases for expected dip to 650-580</div>
+                          </div>
+                          <div class="strategy-option selected" data-strategy="moderate">
+                            <div class="strategy-title"><strong>Moderate</strong></div>
+                            <div class="strategy-desc">Minimal coverage now (25%), larger position when prices approach 700-650 range</div>
+                          </div>
+                          <div class="strategy-option" data-strategy="aggressive">
+                            <div class="strategy-title"><strong>Aggressive</strong></div>
+                            <div class="strategy-desc">100% Spot buying 650-580 </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="card full-width">
+                      <div class="card-header">
+                        <h2 class="card-title">Recent Price Data & Supply Insights</h2>
+                      </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Price (USD/tonne)</th>
+                        <th>Capacity Utilization</th>
+                        <th>Conversion Spread</th>
+                        <th>Factors Influencing Demand</th>
+                        <th>Demand Outlook</th>
+                        <th>Factors Influencing Supply</th>
+                        <th>Supply Disruption</th>
+                        <th>Business Cycle</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mar-25</td>
+                        <td>$995.0</td>
+                        <td>65%</td>
+                        <td>$165</td>
+                        <td class="factor-cell">
+                            <a href="https://www.argusmedia.com/es/news-and-insights/latest-market-news/2625980-trump-win-could-reshape-us-biofuels-incentives" class="factor-link" data-source="Source: https://www.argusmedia.com/es/news-and-insights/latest-market-news/2625980-trump-win-could-reshape-us-biofuels-incentives">Trump administration Clarifies 45Z Tax Credit Structure for Biodiesels</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH">HIGH</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low" selected>Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Bloomberg Industry Analysis, March 2025">US Biodiesel production to continue</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="LOW" selected>LOW</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </td>
+                        <td>Stable</td>
+                        <td>Trump administration confirms rebates on Biodiesel + B40 mandate in Indonesia will be Delivered in Mar-25</td>
+                    </tr>
+                    <tr>
+                        <td>Feb-25</td>
+                        <td>$940.0</td>
+                        <td>70%</td>
+                        <td>$178</td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Wall Street Journal Market Analysis, February 2025">Political concerns about renewable fuels policy creating market uncertainty. Post-Lunar New Year demand recovery.</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH" selected>HIGH</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Financial Times Report on Indonesia B40 Policy, February 2025">Policy uncertainty affecting production planning. Delays in Indonesia's B40 mandate implementation creating supply chain adjustments.</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH" selected>High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="LOW">LOW</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </td>
+                        <td>Rise</td>
+                        <td>Trump threatens to stop renewable fuels + Delay in B40 mandate in Indonesia</td>
+                    </tr>
+                    <tr>
+                        <td>Jan-25</td>
+                        <td>$830.0</td>
+                        <td>70%</td>
+                        <td>$167</td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: UBS Asian Markets Report, January 2025">Post-holiday seasonal demand reduction. Lunar New Year preparations in Asian markets.</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH">HIGH</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: McKinsey Global Oil & Gas Practice, January 2025">Winter weather affecting some production facilities. Holiday reduced operations in some regions.</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="LOW" selected>LOW</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </td>
+                        <td>Rise</td>
+                        <td>Lunar new year</td>
+                    </tr>
+                    <tr>
+                        <td>Dec-24</td>
+                        <td>$791.7</td>
+                        <td>70%</td>
+                        <td>$172</td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Deloitte Energy Insights, December 2024">Holiday season demand surge. Year-end industrial activity increase before calendar closing.</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH" selected>HIGH</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Reuters Special Report on B40 Policy, December 2024">Some production limitations due to weather conditions. Beginning of B40 mandate implementation concerns.</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH">High</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="LOW">LOW</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </td>
+                        <td>Rise</td>
+                        <td>B40 mandate delayed</td>
+                    </tr>
+                    <tr>
+                        <td>Nov-24</td>
+                        <td>$783.8</td>
+                        <td>80%</td>
+                        <td>$200</td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Morgan Stanley Global Commodities, November 2024">Mixed economic indicators creating uncertainty. Some markets showing signs of contraction.</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH">HIGH</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low" selected>Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: ICIS Supply Chain Analysis, November 2024">Production back to normal levels. No significant logistics or supply chain issues.</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="LOW">LOW</option>
+                                <option value="NO" selected>NO</option>
+                            </select>
+                        </td>
+                        <td>Rise</td>
+                        <td>--</td>
+                    </tr>
+                    <tr>
+                        <td>Oct-24</td>
+                        <td>$751.0</td>
+                        <td>60%</td>
+                        <td>$184</td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Argus Media Market Analysis, October 2024">Pre-holiday inventory building. Industrial sector showing increased activity ahead of Q4.</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH" selected>HIGH</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Platts Industry Outlook, October 2024">Reduced capacity utilization due to planned maintenance, but sufficient inventory levels.</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="LOW">LOW</option>
+                                <option value="NO" selected>NO</option>
+                            </select>
+                        </td>
+                        <td>Rise</td>
+                        <td>--</td>
+                    </tr>
+                    <tr>
+                        <td>Sep-24</td>
+                        <td>$676.3</td>
+                        <td>80%</td>
+                        <td>$167</td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: JP Morgan Industry Analysis, September 2024">Post-summer seasonal decline. Reduced consumer activity in transportation sector.</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH">HIGH</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low" selected>Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: OPIS Global Supply Overview, September 2024">Production continuing at steady rates. No major supply chain disruptions reported.</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="LOW">LOW</option>
+                                <option value="NO" selected>NO</option>
+                            </select>
+                        </td>
+                        <td>Rise</td>
+                        <td>--</td>
+                    </tr>
+                    <tr>
+                        <td>Aug-24</td>
+                        <td>$679.0</td>
+                        <td>80%</td>
+                        <td>$177</td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Goldman Sachs Commodities Research, August 2024">Signs of economic slowdown in major markets. End of summer driving season approaching.</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH">HIGH</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low" selected>Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Reuters Industry Report, August 2024">Stable production with no major disruptions reported. Inventory levels increasing.</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="LOW">LOW</option>
+                                <option value="NO" selected>NO</option>
+                            </select>
+                        </td>
+                        <td>Rise</td>
+                        <td>--</td>
+                    </tr>
+                    <tr>
+                        <td>Jul-24</td>
+                        <td>$663.8</td>
+                        <td>80%</td>
+                        <td>$209</td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: IHS Markit Monthly Report, July 2024">Peak summer travel season continuing but showing signs of slowdown. Economic indicators showing mixed signals.</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH">HIGH</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: EIA Weekly Petroleum Status Report, July 2024">Most refineries operating at planned capacity. Transportation routes normalized.</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="LOW">LOW</option>
+                                <option value="NO" selected>NO</option>
+                            </select>
+                        </td>
+                        <td>Rise</td>
+                        <td>--</td>
+                    </tr>
+                    <tr>
+                        <td>Jun-24</td>
+                        <td>$613.8</td>
+                        <td>80%</td>
+                        <td>$185</td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: Bloomberg Energy Report, June 2024">Summer season driving increased consumption. Post-pandemic recovery in transportation sector.</a>
+                        </td>
+                        <td>
+                            <select class="demand-select">
+                                <option value="HIGH" selected>HIGH</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                        </td>
+                        <td class="factor-cell">
+                            <a href="#" class="factor-link" data-source="Source: S&P Global Market Intelligence, June 2024">Multiple refinery maintenance periods. Limited shipping capacity due to geopolitical tensions.</a>
+                        </td>
+                        <td>
+                            <select class="supply-select">
+                                <option value="HIGH">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="LOW" selected>LOW</option>
+                                <option value="NO">NO</option>
+                            </select>
+                        </td>
+                        <td>Stable</td>
+                        <td>soaring ocean freights</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+                  </div>			  
+		  </div>
+          
+		  <div id="carbon-black" style="display: none;">
+              <!-- Carbon Black Market Reports Table -->
+				<div style="font-family: Arial, sans-serif; background-color: #CBD2D9; color: #333F48; padding: 10px; border-radius: 8px; max-width: 1800px; margin: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+					<p>N 220 : USD 1-1.06/kg​</p>
+				</div>
+
+		  </div>
+      
+	  </div>
+
+      {% else %}
+      <div class="material-header">
+          <h2>No material selected</h2>
+          <p>Please select a material from the dashboard search.</p>
+      </div>
+      {% endif %}
+  </div>
+  <script>
+ 
+  // Get the selected material - using safer approach with template variable
+const selectedMaterial = "{{ material }}";
+
+        // Add event listeners to make dropdowns functional
+        document.addEventListener('DOMContentLoaded', function() {
+            const demandSelects = document.querySelectorAll('.demand-select');
+            const supplySelects = document.querySelectorAll('.supply-select');
+            
+            demandSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    console.log(`Demand changed to: ${this.value}`);
+                    // Here you could add code to save changes or update other fields
+                });
+            });
+            
+            supplySelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    console.log(`Supply changed to: ${this.value}`);
+                    // Here you could add code to save changes or update other fields
+                });
+            });
+        });
+
+
+// Show the table for the selected material only if there is a match
+if (selectedMaterial) {
+    if (selectedMaterial === "Acetic Acid") {
+        const element = document.getElementById("acetic-acid");
+        if (element) element.style.display = "block";
+    } else if (selectedMaterial === "Glycerine") {
+        const element = document.getElementById("glycerine");
+        if (element) element.style.display = "block";
+    } else if (selectedMaterial === "Carbon Black") {
+        const element = document.getElementById("carbon-black");
+        if (element) element.style.display = "block";
+    }
+}
+
+// Raw data for recent months
+const rawData = [
+    {month: "Jun-24", price: 613.8, utilization: 80, spread: 185, demand: "HIGH", disruption: "LOW", cycle: "Stable", remarks: "soaring ocean freights"},
+    {month: "Jul-24", price: 663.8, utilization: 80, spread: 209, demand: "Medium", disruption: "NO", cycle: "Rise", remarks: ""},
+    {month: "Aug-24", price: 679.0, utilization: 80, spread: 177, demand: "Low", disruption: "NO", cycle: "Rise", remarks: ""},
+    {month: "Sep-24", price: 676.3, utilization: 80, spread: 167, demand: "Low", disruption: "NO", cycle: "Rise", remarks: ""},
+    {month: "Oct-24", price: 751.0, utilization: 60, spread: 184, demand: "HIGH", disruption: "NO", cycle: "Rise", remarks: ""},
+    {month: "Nov-24", price: 783.8, utilization: 80, spread: 200, demand: "Low", disruption: "NO", cycle: "Rise", remarks: ""},
+    {month: "Dec-24", price: 791.7, utilization: 70, spread: 172, demand: "HIGH", disruption: "Medium", cycle: "Rise", remarks: "B40 mandate delayed"},
+    {month: "Jan-25", price: 830.0, utilization: 70, spread: 167, demand: "Medium", disruption: "LOW", cycle: "Rise", remarks: "Lunar new year"},
+    {month: "Feb-25", price: 940.0, utilization: 70, spread: 178, demand: "HIGH", disruption: "High", cycle: "Rise", remarks: "Trump threatens to stop renewable fuels + Delay in B40 mandate in Indonesia"},
+    {month: "Mar-25", price: 995.0, utilization: 70, spread: 165, demand: "Low", disruption: "Low", cycle: "Stable", remarks: "Trump adminstration confirms rebates on Biodiesel + B40 mandate in Indonesia will be Delivered in Mar-25"}
+];
+
+// Extended historical data
+const historicalData = [
+    {month: "Jan-23", price: 700, cycle: "Fall"},
+    {month: "Feb-23", price: 710, cycle: "Fall"},
+    {month: "Mar-23", price: 640, cycle: "Fall"},
+    {month: "Apr-23", price: 652.5, cycle: "Fall"},
+    {month: "May-23", price: 652.5, cycle: "Fall"},
+    {month: "Jun-23", price: 609.0, cycle: "Fall"},
+    {month: "Jul-23", price: 611.3, cycle: "Fall"},
+    {month: "Aug-23", price: 635.0, cycle: "Fall"},
+    {month: "Sep-23", price: 617.5, cycle: "Fall"},
+    {month: "Oct-23", price: 603.8, cycle: "Fall"},
+    {month: "Nov-23", price: 572.0, cycle: "Fall"},
+    {month: "Dec-23", price: 556.7, cycle: "Stable"},
+    {month: "Jan-24", price: 547.5, cycle: "Stable"},
+    {month: "Feb-24", price: 579.0, cycle: "Stable"},
+    {month: "Mar-24", price: 600.0, cycle: "Stable"},
+    {month: "Apr-24", price: 611.9, cycle: "Stable"},
+    {month: "May-24", price: 597.0, cycle: "Stable"}
+];
+
+// Forecast data
+const forecastData = [
+    {month: "Apr-25", price: 970, forecastLow: 940, forecastHigh: 1010, remarks: "Possible stabilization after Policy Updates"},
+    {month: "May-25", price: 880, forecastLow: 840, forecastHigh: 920, remarks: "Sharp decline due to renewed productions"},
+    {month: "Jun-25", price: 760, forecastLow: 720, forecastHigh: 800, remarks: "Continued downward pressure from supply"},
+    {month: "Jul-25", price: 650, forecastLow: 610, forecastHigh: 690, remarks: "Market adjustment continuing"},
+    {month: "Aug-25", price: 580, forecastLow: 550, forecastHigh: 610, remarks: "Reaching bottom support levels"}
+];
+
+// Combined data for visualization
+const allData = [...historicalData, ...rawData, ...forecastData];
+
+// Call functions immediately to initialize components
+populateTable();
+initPriceChart();
+initSlider();
+initStrategySelection();
+setCurrentDate();
+
+// Set current date
+function setCurrentDate() {
+    const currentDateElement = document.getElementById('current-date');
+    if (currentDateElement) {
+        currentDateElement.textContent = new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+}
+
+// Populate the table with the latest data
+function populateTable() {
+    const tableBody = document.querySelector('#price-table tbody');
+    if (!tableBody) return; // Safety check if table doesn't exist
+    
+    tableBody.innerHTML = '';
+    
+    rawData.forEach(row => {
+        const tr = document.createElement('tr');
+        
+        const getStatusClass = cycle => {
+            if (cycle === 'Rise') return 'status-rise';
+            if (cycle === 'Fall') return 'status-fall';
+            return 'status-stable';
+        };
+        
+        tr.innerHTML = `
+            <td>${row.month}</td>
+            <td>$${row.price.toFixed(1)}</td>
+            <td>${row.utilization}%</td>
+            <td>$${row.spread}</td>
+            <td>${row.demand}</td>
+            <td>${row.disruption}</td>
+            <td>
+                <span class="status-indicator ${getStatusClass(row.cycle)}"></span>
+                ${row.cycle}
+            </td>
+            <td>${row.remarks || '--'}</td>
+        `;
+        
+        tableBody.appendChild(tr);
+    });
+}
+
+// Initialize price chart - key function for displaying charts
+function initPriceChart() {
+    const canvas = document.getElementById('price-chart');
+    if (!canvas) return; // Safety check if canvas doesn't exist
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return; // Safety check if context can't be obtained
+    
+    const labels = allData.map(d => d.month);
+    const prices = allData.map(d => d.price);
+    
+    // Determine which data points are forecasts
+    const realDataCount = historicalData.length + rawData.length;
+    const datasetColors = Array(realDataCount).fill('rgba(52, 152, 219, 1)');
+    const forecastColors = Array(forecastData.length).fill('rgba(155, 89, 182, 1)');
+    const pointColors = [...datasetColors, ...forecastColors];
+    
+    const forecastStartIndex = historicalData.length + rawData.length;
+    
+    try {
+        const priceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Glycerine Price (USD/tonne)',
+                        data: prices,
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: pointColors,
+                        pointRadius: 4,
+                        segment: {
+                            borderDash: ctx => (ctx.p0 && ctx.p0.parsed && ctx.p0.parsed.x >= forecastStartIndex) ? [5, 5] : undefined,
+                        }
+                    },
+                    {
+                        label: 'Forecast Range',
+                        data: allData.map((d, i) => i >= forecastStartIndex ? d.forecastHigh : null),
+                        borderColor: 'rgba(155, 89, 182, 0.3)',
+                        backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                        fill: '+1',
+                        pointRadius: 0,
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Forecast Low',
+                        data: allData.map((d, i) => i >= forecastStartIndex ? d.forecastLow : null),
+                        borderColor: 'rgba(155, 89, 182, 0.3)',
+                        pointRadius: 0,
+                        borderWidth: 1,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => {
+                                return items[0].label;
+                            },
+                            label: (context) => {
+                                const dataIndex = context.dataIndex;
+                                const dataPoint = allData[dataIndex];
+                                
+                                if (dataIndex >= forecastStartIndex) {
+                                    return [
+                                        `Price (forecast): $${dataPoint.price}`,
+                                        `Range: $${dataPoint.forecastLow} - $${dataPoint.forecastHigh}`,
+                                        `Remarks: ${dataPoint.remarks || 'None'}`
+                                    ];
+                                } else {
+                                    return [
+                                        `Price: $${dataPoint.price}`,
+                                        `Business Cycle: ${dataPoint.cycle || 'N/A'}`
+                                    ];
+                                }
+                            }
+                        }
+                    },
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    } 
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 10
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'USD/tonne'
+                        },
+                        suggestedMin: 500,
+                        suggestedMax: 1100
+                    }
+                }
+            }
+        });
+        
+        // Add click event to display annotations (if the element exists)
+        if (canvas && document.getElementById('current-annotation')) {
+            canvas.onclick = function(evt) {
+                const points = priceChart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, true);
+                
+                if (points.length) {
+                    const firstPoint = points[0];
+                    const dataIndex = firstPoint.index;
+                    const dataPoint = allData[dataIndex];
+                    
+                    if (dataPoint.remarks) {
+                        document.getElementById('current-annotation').innerHTML = `
+                            <strong>${dataPoint.month}:</strong> ${dataPoint.remarks}
+                        `;
+                    } else {
+                        document.getElementById('current-annotation').innerHTML = `
+                            <strong>${dataPoint.month}:</strong> No specific remarks available for this period.
+                        `;
+                    }
+                }
+            };
+        }
+    } catch (error) {
+        console.error('Error initializing chart:', error);
+    }
+    
+    // Also initialize the second chart type for Glycerine (bar chart)
+    if (selectedMaterial === "Glycerine") {
+        const barCanvas = document.getElementById('bar-chart');
+        if (barCanvas && typeof Chart !== 'undefined') {
+            try {
+                const barCtx = barCanvas.getContext('2d');
+                const barChart = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: rawData.map(d => d.month),
+                        datasets: [{
+                            label: 'Glycerine Price (USD/tonne)',
+                            data: rawData.map(d => d.price),
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                suggestedMin: 500,
+                                title: {
+                                    display: true,
+                                    text: 'USD/tonne'
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing bar chart:', error);
+            }
+        }
+    }
+}
+
+// Initialize slider
+function initSlider() {
+    const slider = document.getElementById('price-range-slider');
+    if (!slider || typeof noUiSlider === 'undefined') return;
+    
+    try {
+        // Check if slider already has noUiSlider initialized
+        if (!slider.noUiSlider) {
+            noUiSlider.create(slider, {
+                start: [500, 1100],
+                connect: true,
+                range: {
+                    'min': 500,
+                    'max': 1100
+                },
+                step: 50,
+                format: {
+                    to: value => Math.round(value),
+                    from: value => parseInt(value)
+                }
+            });
+            
+            slider.noUiSlider.on('update', function(values, handle) {
+                const minElement = document.getElementById('price-min');
+                const maxElement = document.getElementById('price-max');
+                
+                if (minElement) minElement.textContent = `$${values[0]}`;
+                if (maxElement) maxElement.textContent = `$${values[1]}`;
+            });
+        }
+    } catch (error) {
+        console.error('Error initializing slider:', error);
+    }
+}
+
+// Add interactivity to strategy selection
+function initStrategySelection() {
+    const options = document.querySelectorAll('.strategy-option');
+    if (!options.length) return;
+    
+    options.forEach(option => {
+        option.addEventListener('click', () => {
+            options.forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+        });
+    });
+}
+
+// Add toggle functionality for chart types
+const lineChartBtn = document.getElementById('lineChartBtn');
+const barChartBtn = document.getElementById('barChartBtn');
+const lineChartContainer = document.getElementById('lineChartContainer');
+const barChartContainer = document.getElementById('barChartContainer');
+
+if (lineChartBtn && barChartBtn && lineChartContainer && barChartContainer) {
+    lineChartBtn.addEventListener('click', () => {
+        lineChartContainer.style.display = 'block';
+        barChartContainer.style.display = 'none';
+        lineChartBtn.classList.add('active');
+        barChartBtn.classList.remove('active');
+    });
+    
+    barChartBtn.addEventListener('click', () => {
+        lineChartContainer.style.display = 'none';
+        barChartContainer.style.display = 'block';
+        lineChartBtn.classList.remove('active');
+        barChartBtn.classList.add('active');
+    });
+}
+  </script>  
+</body>
+</html>
