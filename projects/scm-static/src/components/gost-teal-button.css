@@ -1,0 +1,54 @@
+.gost-teal-button-container {
+  display: contents;
+}
+ 
+.gost-teal-button-thq-gost-teal-button-elm {
+  fill: #00D4BC;
+  color: #00D4BC;
+  cursor: pointer;
+  font-size: 13px;
+  font-style: normal;
+  transition: 0.3s;
+  font-family: "DM Sans";
+  font-weight: 500;
+  padding-top: 15px;
+  border-color: rgba(0,212,188,0.35);
+  padding-left: 32px;
+  padding-right: 32px;
+  letter-spacing: 0.06em;
+  padding-bottom: 15px;
+  text-transform: uppercase;
+  background-color: transparent;
+}
+ 
+.gost-teal-button-thq-gost-teal-button-elm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 32px rgba(0,184,160,0.20);
+  border-color: #00D4BC;
+  background-color: rgba(0,212,188,0.08);
+}
+ 
+.gost-teal-button-text2 {
+  display: inline-block;
+}
+ 
+
+ 
+.gost-teal-buttonroot-class-name1 {
+  align-self: center;
+}
+ 
+.gost-teal-buttonroot-class-name2 {
+  display: none;
+}
+ 
+
+ 
+
+ 
+.gost-teal-buttonroot-class-name5 {
+  border: 1px solid rgba(255,255,255,0.15);
+  white-space: nowrap;
+  border-radius: 4px;
+  background-color: transparent;
+}

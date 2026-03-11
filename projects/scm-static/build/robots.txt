@@ -1,0 +1,7 @@
+User-agent: Googlebot
+Disallow: /nogooglebot/
+
+User-agent: *
+Allow: /
+
+Sitemap: https://practical-mean-cassowary-094j40.teleporthq.app/sitemap.xml

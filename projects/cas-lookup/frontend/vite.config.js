@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/', // Ensure assets are referenced from root
+  base: '/cas-lookup/', // Ensure assets are referenced from the correct path
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

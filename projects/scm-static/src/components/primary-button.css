@@ -1,0 +1,52 @@
+.primary-button-container {
+  display: contents;
+}
+ 
+.primary-button-thq-primary-button-test-elm {
+  fill: #0A0D14;
+  color: #0A0D14;
+  font-size: 13px;
+  font-style: normal;
+  text-align: center;
+  transition: 0.3s;
+  font-family: "DM Sans";
+  font-weight: 500;
+  padding-top: var(--dl-layout-space-space16);
+  padding-left: var(--dl-layout-space-space32);
+  padding-right: var(--dl-layout-space-space32);
+  letter-spacing: 0.06em;
+  padding-bottom: var(--dl-layout-space-space16);
+  text-transform: uppercase;
+  background-color: var(--dl-color-scmmax-color-accent-brass-color-brass-500);
+}
+ 
+.primary-button-thq-primary-button-test-elm:hover {
+  transform: translateY(-1px);
+  transition: all 250ms cubic-bezier(0.4,0,0.2,1);
+  background-color: var(--dl-color-scmmax-color-accent-brass-color-brass-400);
+}
+ 
+.primary-button-text2 {
+  display: inline-block;
+}
+ 
+
+ 
+
+ 
+.primary-buttonroot-class-name2 {
+  align-self: center;
+}
+ 
+.primary-buttonroot-class-name3 {
+  display: none;
+}
+ 
+
+ 
+
+ 
+.primary-buttonroot-class-name6 {
+  white-space: nowrap;
+  border-radius: 4px;
+}

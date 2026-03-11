@@ -23,3 +23,7 @@ terraform.rc
 __pycache__
 cluster_design
 uploads
+node_modules
+/dist
+/node_modules
+/archives/*

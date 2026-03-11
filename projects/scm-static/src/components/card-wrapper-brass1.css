@@ -1,0 +1,189 @@
+.card-wrapper-brass1-thq-card-wrapper-brass1-elm {
+  flex: 0 0 auto;
+  width: auto;
+  cursor: pointer;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  min-width: auto;
+  box-sizing: border-box;
+  transition: 0.3s;
+  word-break: break-word;
+  align-items: flex-start;
+  border-color: #E8ECF4;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 16px;
+  flex-direction: column;
+  background-color: #FFFFFF;
+}
+ 
+.card-wrapper-brass1-thq-card-wrapper-brass1-elm:hover {
+  transform:  translateY(-3px);
+  box-shadow: 0 12px 40px rgba(10,13,20,0.14), 0 4px 12px rgba(10,13,20,0.08);
+  border-color: #C8D0E0;
+}
+ 
+.card-wrapper-brass1-thq-top-accent-bar-elm {
+  flex: 0 0 auto;
+  width: 100%;
+  height: 3px;
+  margin: 0;
+  display: flex;
+  padding: 0;
+  align-items: flex-start;
+  flex-shrink: 0;
+  border-color: rgba(120, 120, 120, 0.4);
+  border-style: solid;
+  border-width: 2px;
+  background-color: var(--dl-color-scmmax-color-accent-brass-color-brass-500);
+}
+ 
+.card-wrapper-brass1-thq-card-body-elm {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  padding-top: var(--dl-layout-space-space24);
+  padding-left: var(--dl-layout-space-space24);
+  padding-right: var(--dl-layout-space-space24);
+  flex-direction: column;
+  padding-bottom: var(--dl-layout-space-space20);
+}
+ 
+.card-wrapper-brass1-thq-eye-brow-elm {
+  fill: #C9933A;
+  color: rgb(201, 147, 58);
+  width: 100%;
+  display: none;
+  font-size: 10px;
+  font-style: normal;
+  word-break: break-word;
+  font-family: "DM Sans";
+  font-weight: 500;
+  margin-bottom: var(--dl-layout-space-space12);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+ 
+.card-wrapper-brass1-thq-title-elm {
+  color: #0F1421;
+  width: 100%;
+  font-size: 20px;
+  font-style: normal;
+  word-break: break-word;
+  font-family: "Fraunces";
+  font-weight: 300;
+  line-height: 1.3;
+  margin-bottom: var(--dl-layout-space-space12);
+  letter-spacing: -0.02em;
+}
+ 
+.card-wrapper-brass1-thq-body-text-elm {
+  fill: #4A5880;
+  color: #4A5880;
+  width: 100%;
+  font-size: 14px;
+  font-style: normal;
+  word-break: break-word;
+  font-family: "DM Sans";
+  font-weight: 400;
+  line-height: 1.7;
+}
+ 
+.card-wrapper-brass1-thq-card-footer-elm {
+  flex: 0 0 auto;
+  display: flex;
+  padding: 12px 24px;
+  align-items: center;
+  border-color: #E8ECF4;
+  justify-content: flex-end;
+  border-top-width: 1px;
+  border-left-width: 0px;
+  border-right-width: 0px;
+  border-bottom-width: 0px;
+}
+ 
+.card-wrapper-brass1-thq-tag-elm {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  display: none;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+ 
+.card-wrapper-brass1-thq-link-elm {
+  fill: #7A8AAE;
+  color: #7A8AAE;
+  cursor: pointer;
+  font-size: 11px;
+  font-style: normal;
+  transition: 0.3s;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+ 
+.card-wrapper-brass1-thq-link-elm:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(15,20,33,0.10);
+  border-color: C8D0E0;
+}
+ 
+.card-wrapper-brass1-text1 {
+  display: inline-block;
+}
+ 
+.card-wrapper-brass1-text2 {
+  display: inline-block;
+}
+ 
+.card-wrapper-brass1-text3 {
+  display: inline-block;
+}
+ 
+.card-wrapper-brass1-text4 {
+  display: inline-block;
+}
+ 
+.card-wrapper-brass1-text5 {
+  display: inline-block;
+}
+ 
+.card-wrapper-brass1root-class-name {
+  grid-column: span 2;
+}
+ 
+.card-wrapper-brass1root-class-name1 {
+  grid-column: span 2;
+}
+ 
+.card-wrapper-brass1root-class-name2 {
+  grid-column: span 2;
+}
+ 
+.card-wrapper-brass1root-class-name3 {
+  grid-column: span 2;
+}
+ 
+.card-wrapper-brass1root-class-name4 {
+  grid-column: span 2;
+}
+ 
+.card-wrapper-brass1root-class-name5 {
+  grid-column: span 2;
+}
+ 
+.card-wrapper-brass1root-class-name6 {
+  grid-column: span 2;
+}
+ 
+.card-wrapper-brass1root-class-name7 {
+  grid-column: span 2;
+}
+ 
+.card-wrapper-brass1root-class-name8 {
+  display: none;
+}

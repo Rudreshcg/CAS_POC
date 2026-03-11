@@ -1,0 +1,36 @@
+.secondary-button-container {
+  display: contents;
+}
+ 
+.secondary-button-thq-secondary-button-elm {
+  fill: #FFFFFF;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-size: 13px;
+  font-style: normal;
+  transition: 0.3s;
+  font-family: "DM Sans";
+  font-weight: 500;
+  padding-top: 15px;
+  border-color: rgba(255,255,255,0.25);
+  padding-left: 32px;
+  padding-right: 32px;
+  letter-spacing: 0.06em;
+  padding-bottom: 15px;
+  text-transform: uppercase;
+  background-color: transparent;
+}
+ 
+.secondary-button-thq-secondary-button-elm:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,0.60);
+  background-color: rgba(255,255,255,0.05);
+}
+ 
+.secondary-button-text2 {
+  display: inline-block;
+}
+ 
+.secondary-buttonroot-class-name {
+  display: none;
+}

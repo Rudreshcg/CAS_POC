@@ -33,7 +33,20 @@ Write-Host "[1/5] Archiving projects..." -ForegroundColor Cyan
 if (Test-Path "archives") { Remove-Item "archives" -Recurse -Force }
 New-Item -ItemType Directory -Path "archives" | Out-Null
 
+# Build React App (SCM Static)
+Write-Host "  Building SCM Static React app..."
+Push-Location projects/scm-static
+npm install
+npm run build
+Pop-Location
+
 # CAS Lookup needs special handling (backend + frontend)
+Write-Host "  Building CAS Lookup frontend..."
+Push-Location projects/cas-lookup/frontend
+npm install
+npm run build
+Pop-Location
+
 Write-Host "  Archiving CAS Lookup..."
 $casStaging = "staging_cas"
 if (Test-Path $casStaging) { Remove-Item $casStaging -Recurse -Force }
@@ -51,8 +64,8 @@ Write-Host "  Archiving Email Demo..."
 tar -czf archives/email-demo.tar.gz -C projects/email-demo .
 Write-Host "  Archiving Apollo Demo..."
 tar -czf archives/apollo-demo.tar.gz -C projects/apollo-demo .
-Write-Host "  Archiving SCM Static..."
-tar -czf archives/scm-static.tar.gz -C projects/scm-static .
+Write-Host "  Archiving SCM Static (Build Assets)..."
+tar -czf archives/scm-static.tar.gz -C projects/scm-static/build .
 
 # 3. Create Support Files Locally
 Write-Host "[2/5] Creating support files..." -ForegroundColor Cyan
@@ -62,14 +75,12 @@ $services = @{
     "cas-lookup"  = "app:app"
     "email-demo"  = "web_app:app"
     "apollo-demo" = "app:app"
-    "scm-static"  = "app:app"
 }
 
 $ports = @{
     "cas-lookup"  = 5000
     "email-demo"  = 5001
     "apollo-demo" = 5002
-    "scm-static"  = 5003
 }
 
 foreach ($svc in $services.Keys) {
@@ -93,63 +104,73 @@ WantedBy=multi-user.target
 }
 
 # Nginx Config
-$nginxConfig = @"
+$confPath = Join-Path "archives" "multi-app.conf"
+if (Test-Path $confPath) { Remove-Item $confPath -Force }
+
+$nginxConfig = @'
 server {
     listen 80;
     server_name _;
 
-    location / {
-        proxy_pass http://127.0.0.1:5000;
-        proxy_set_header Host `$host;
-        proxy_set_header X-Real-IP `$remote_addr;
-        proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+    location /cas-lookup/ {
+        proxy_pass http://127.0.0.1:5000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Script-Name /cas-lookup;
     }
 
     location /email-demo/ {
         proxy_pass http://127.0.0.1:5001/;
-        proxy_set_header Host `$host;
-        proxy_set_header X-Real-IP `$remote_addr;
-        proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Script-Name /email-demo;
     }
 
     location /apollo/ {
         proxy_pass http://127.0.0.1:5002/;
-        proxy_set_header Host `$host;
-        proxy_set_header X-Real-IP `$remote_addr;
-        proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Script-Name /apollo;
     }
 
-    location /static-app/ {
-        proxy_pass http://127.0.0.1:5003/;
-        proxy_set_header Host `$host;
-        proxy_set_header X-Real-IP `$remote_addr;
-        proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
-        proxy_set_header X-Script-Name /static-app;
+    location / {
+        root /opt/scm-static;
+        index index.html;
+        try_files $uri $uri/ /index.html;
     }
 }
-"@
-[System.IO.File]::WriteAllText((Join-Path "archives" "multi-app.conf"), ($nginxConfig -replace "`r`n", "`n"))
+'@
+
+# Generate Base4 for setup.sh to use
+$confBytes = [System.Text.Encoding]::UTF8.GetBytes(($nginxConfig -replace "`r`n", "`n"))
+$confBase64 = [Convert]::ToBase64String($confBytes)
+
+# Verify local file (optional but keeps archives folder populated for manual check)
+$utf8NoBOM = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($confPath, ($nginxConfig -replace "`r`n", "`n"), $utf8NoBOM)
 
 # Setup Script
 $setupScript = @"
 #!/bin/bash
 set -x
 set -e
-exec > /tmp/setup.log 2>&1
 
-echo "Installing prerequisites..."
+echo "Starting setup..."
 sudo yum update -y
 sudo yum install -y nginx python3.11 python3.11-pip git unzip
 
-echo "Starting setup..."
 # Ensure nginx is started and enabled
 sudo systemctl enable nginx
 sudo systemctl start nginx
 
 # Stop and Clean
-sudo systemctl stop cas-lookup email-demo apollo-demo scm-static || true
+sudo systemctl stop cas-lookup email-demo apollo-demo || true
+sudo systemctl disable scm-static || true
+sudo rm -f /etc/systemd/system/scm-static.service || true
+
 sudo rm -rf /opt/cas-lookup /opt/email-demo /opt/apollo-demo /opt/scm-static
 sudo mkdir -p /opt/cas-lookup /opt/email-demo /opt/apollo-demo /opt/scm-static
 sudo chown -R ec2-user:ec2-user /opt/cas-lookup /opt/email-demo /opt/apollo-demo /opt/scm-static
@@ -161,7 +182,7 @@ tar -xzf /tmp/apollo-demo.tar.gz -C /opt/apollo-demo
 tar -xzf /tmp/scm-static.tar.gz -C /opt/scm-static
 
 # Venvs
-for proj in cas-lookup email-demo apollo-demo scm-static; do
+for proj in cas-lookup email-demo apollo-demo; do
     echo "Processing `$proj..."
     cd /opt/`$proj
     python3.11 -m venv venv
@@ -173,21 +194,27 @@ for proj in cas-lookup email-demo apollo-demo scm-static; do
     mkdir -p uploads
 done
 
-# Services
-echo "Configuring services..."
-for svc in cas-lookup email-demo apollo-demo scm-static; do
-    sudo mv /tmp/`$svc.service /etc/systemd/system/
-    sudo systemctl enable `$svc
-    sudo systemctl restart `$svc
-done
+# Special handling for SCM Static (Static Only)
+mkdir -p /opt/scm-static/uploads
 
 # Nginx
 echo "Configuring nginx..."
-sudo mv /tmp/multi-app.conf /etc/nginx/conf.d/
+echo '$confBase64' | base64 -d | sudo tee /etc/nginx/conf.d/multi-app.conf > /dev/null
+sudo nginx -t
 sudo systemctl restart nginx
+
+# Services
+echo "Configuring services..."
+for svc in cas-lookup email-demo apollo-demo; do
+    sudo mv /tmp/`$svc.service /etc/systemd/system/
+    sudo systemctl enable `$svc
+    sudo systemctl restart `$svc || echo "Warning: Failed to restart `$svc"
+done
 
 echo "Setup finished."
 "@
+[System.IO.File]::WriteAllText((Join-Path "archives" "setup.sh"), ($setupScript -replace "`r`n", "`n"))
+
 [System.IO.File]::WriteAllText((Join-Path "archives" "setup.sh"), ($setupScript -replace "`r`n", "`n"))
 
 # 4. Upload and Execute
@@ -205,8 +232,8 @@ ssh -i $KEY_PATH "${EC2_USER}@${ServerIP}" "chmod +x /tmp/setup.sh && /tmp/setup
 Write-Host "[4/5] Deployment Complete!" -ForegroundColor Green
 Write-Host ""
 Write-Host "App URLs:" -ForegroundColor Green
-Write-Host "  CAS Lookup:  http://$ServerIP/"
-Write-Host "  Email Demo:  http://$ServerIP/email-demo/"
-Write-Host "  Apollo Demo: http://$ServerIP/apollo/"
-Write-Host "  SCM Static:  http://$ServerIP/static-app/"
+Write-Host "  SCM Static (Root): http://$ServerIP/"
+Write-Host "  CAS Lookup:        http://$ServerIP/cas-lookup/"
+Write-Host "  Email Demo:        http://$ServerIP/email-demo/"
+Write-Host "  Apollo Demo:       http://$ServerIP/apollo/"
 Write-Host ""
