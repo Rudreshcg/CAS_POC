@@ -73,9 +73,9 @@
   overflow: hidden;
   position: relative;
   align-items: flex-start;
-  padding-top: 140px 80px 80px 80px;
-  padding-left: 140px 80px 80px 80px;
-  padding-right: 140px 80px 80px 80px;
+  padding-top: 140px;
+  padding-left: 40px;
+  padding-right: 40px;
   flex-direction: column;
   padding-bottom: 0px;
   background-color: #0F1421;
@@ -142,6 +142,7 @@
   margin-top: 16px;
   align-items: flex-start;
   border-radius: 12px;
+  flex-wrap: wrap;
 }
  
 .services-thq-pillar1-elm {
@@ -316,7 +317,7 @@
 }
  
 .services-thq-buying-services-inner-section-elm {
-  gap: 80px;
+  gap: 40px;
   flex: 0 0 auto;
   width: 100%;
   height: auto;
@@ -749,7 +750,7 @@
   height: auto;
   display: grid;
   align-items: flex-start;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
 }
  
 .services-thq-card1-elm {
@@ -1815,4 +1816,141 @@
   font-style: normal;
   font-weight: 500;
   line-height: 24px;
+}
+
+@media(max-width: 991px) {
+  .services-thq-buying-services-inner-section-elm {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .services-thq-buying-services-section-elm {
+    padding: 60px 40px;
+  }
+  .services-thq-consulting-services-section-elm {
+    padding: 60px 40px;
+  }
+  .services-thq-fde-section-elm {
+    padding: 60px 40px;
+  }
+}
+
+@media(max-width: 767px) {
+  .services-thq-services-hero-elm {
+    padding: 100px 20px 40px 20px;
+  }
+  .services-thq-headline1-elm {
+    font-size: 40px;
+  }
+  .services-thq-headline2-elm {
+    font-size: 40px;
+  }
+  .services-thq-pillar-cards-elm {
+    flex-direction: column;
+    border-right: 0;
+  }
+  .services-thq-pillar1-elm, .services-thq-pillar2-elm, .services-thq-pillar3-elm, .services-thq-pillar4-elm {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    width: 100%;
+  }
+  .services-thq-consulting-cards-elm {
+    grid-template-columns: 1fr;
+  }
+  .services-thq-card1-elm, .services-thq-card4-elm {
+    grid-column: span 1;
+  }
+  
+  /* Buying Services Fixes */
+  .services-thq-buying-services-section-elm {
+    padding: 40px 20px;
+  }
+  .services-thq-buying-services-inner-section-elm {
+    gap: 32px;
+  }
+  .services-thq-buying-services-right-column-elm {
+    width: 100%;
+  }
+
+  /* Consulting Section Fixes */
+  .services-thq-consulting-services-section-elm {
+    padding: 40px 20px;
+  }
+  .services-thq-consulting-inner-elm {
+    gap: 20px;
+  }
+
+  /* Data Services Fixes (Fix Overflow) */
+  .services-thq-data-services-section-elm {
+    padding: 40px 20px;
+  }
+  .services-thq-data-services-inner-row-elm {
+    flex-direction: column;
+    gap: 48px;
+  }
+  .services-thq-left-column-data-services-elm {
+    max-width: 100%;
+  }
+  .services-thq-dark-visual-column-elm {
+    padding: 30px 20px;
+    width: 100%;
+    align-items: center;
+  }
+  .services-thq-item-row1-elm, .services-thq-item-row2-elm {
+    width: 100%;
+    flex-wrap: wrap; /* Prevent text overflow */
+  }
+  .services-thq-inner-column-elm1, .services-thq-inner-column-elm2 {
+    flex: 1; /* Allow text to wrap within row */
+    min-width: 0;
+  }
+
+  /* FDE Section Fixes (Fix Overflow) */
+  .services-thq-fde-section-elm {
+    padding: 60px 20px;
+  }
+  .services-thq-fde-activities-elm {
+    flex-direction: column;
+    gap: 40px;
+    width: 100%;
+  }
+  .services-thq-activity1-elm, .services-thq-activity2-elm, .services-thq-activity3-elm, .services-thq-activity4-elm {
+    width: 100%;
+    padding: 0;
+  }
+  
+  .services-thq-fdecta-elm {
+    flex-direction: column;
+    padding: 30px 20px;
+    text-align: center;
+    gap: 32px;
+  }
+  .services-thq-right-row-elm {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+  .services-thq-right-row-elm > * {
+    width: 100%;
+  }
+}
+
+@media(max-width: 479px) {
+  .services-thq-headline1-elm {
+    font-size: 32px;
+  }
+  .services-thq-headline2-elm {
+    font-size: 32px;
+  }
+  .services-thq-titel-line1-elm1, .services-thq-title-line2-elm1 {
+    font-size: 28px;
+  }
+  .services-thq-title-line1-elm, .services-thq-title-line2-elm2 {
+    font-size: 28px;
+  }
+  .services-thq-title1-elm, .services-thq-title2-elm {
+    font-size: 28px;
+  }
+  .services-thq-titel-line1-elm2, .services-thq-title-line2-elm3 {
+    font-size: 28px;
+  }
 }

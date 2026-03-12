@@ -26,4 +26,6 @@ uploads
 node_modules
 /dist
 /node_modules
-/archives/*
+/archives/
+staging_cas/
+/build

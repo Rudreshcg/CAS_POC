@@ -4548,7 +4548,7 @@
  
 .products-container4 {
   gap: 2px;
-  flex: 0 0 auto;
+  flex: 1;
   display: flex;
   align-items: flex-start;
   flex-direction: column;
@@ -4593,7 +4593,7 @@
  
 .products-container5 {
   gap: 2px;
-  flex: 0 0 auto;
+  flex: 1;
   display: flex;
   align-items: flex-start;
   flex-direction: column;
@@ -4638,7 +4638,7 @@
  
 .products-container6 {
   gap: 2px;
-  flex: 0 0 auto;
+  flex: 1;
   display: flex;
   align-items: flex-start;
   flex-direction: column;
@@ -4883,4 +4883,196 @@
   font-style: normal;
   font-weight: 500;
   line-height: 24px;
+}
+
+@media(max-width: 991px) {
+  .products-thq-hero-inner-elm {
+    padding: 120px 40px 0px 40px;
+  }
+  .products-thq-agent-suite-section-elm {
+    padding: 60px 40px;
+  }
+  .products-thq-comparison-section-elm {
+    padding: 60px 40px;
+  }
+  .products-thq-cta-strip-elm {
+    padding: 60px 40px;
+  }
+  .products-thq-security-section-elm {
+    padding: 60px 40px;
+  }
+  
+  /* Stack grid hero cards earlier */
+  .products-thq-procurement-prism-hero-card-elm, 
+  .products-thq-data-de-duplication-hero-card-elm,
+  .products-thq-should-cost-modeling-hero-card-elm,
+  .products-thq-internal-benchmarking-hero-card-elm,
+  .products-thq-raw-material-master-hero-card-elm,
+  .products-thq-automated-rfx-hero-card-elm,
+  .products-thq-supplier-collaboration-hero-card-elm {
+    gap: 24px;
+    grid-template-columns: 1fr;
+  }
+
+  /* Stack card rows earlier */
+  .products-thq-supporting-cards-row-elm1,
+  .products-thq-supporting-cards-row-elm2,
+  .products-thq-supporting-cards-row-elm3,
+  .products-thq-supporting-cards-row-elm4 {
+    flex-wrap: wrap;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* Ensure individual cards take full width */
+  .products-thq-material-substitution-card-elm,
+  .products-thq-buy-more-now-or-later-card-elm,
+  .products-thq-alternate-suppliers-card-elm,
+  .products-thq-price-forecasting-card-elm,
+  .products-thq-market-volatility-card-elm,
+  .products-thq-index-tracking-card-elm,
+  .products-thq-outlier-detection-card-elm,
+  .products-thq-variance-analysis-card-elm,
+  .products-thq-global-benchmarking-card-elm,
+  .products-thq-material-standardization-card-elm,
+  .products-thq-supplier-consolidation-card-elm,
+  .products-thq-specification-harmonization-card-elm {
+    width: 100%;
+    flex: none;
+  }
+}
+
+@media(max-width: 767px) {
+  .products-thq-objection-handling-strip-elm {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .products-thq-objection1-elm, .products-thq-objection2-elm, .products-thq-objection3-elm {
+    width: 100%;
+    border-right: 0px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .products-thq-category-tabs-row-elm {
+    gap: 8px;
+    padding: 12px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 0px;
+    white-space: nowrap;
+    display: flex;
+    flex-wrap: nowrap;
+    background-color: #f8faff;
+  }
+  .products-thq-category-tabs-row-elm::-webkit-scrollbar {
+    display: none;
+  }
+  .products-thq-tab1-wrapper-elm, .products-thq-tab2-wrapper-elm, .products-thq-tab3-wrapper-elm, .products-thq-tab4-wrapper-elm {
+    min-width: fit-content;
+    flex: 0 0 auto;
+    height: auto;
+  }
+  .products-thq-tab1-active-elm, .products-thq-tab1-inactive-elm, 
+  .products-thq-tab2-active-elm, .products-thq-tab2-inactive-elm,
+  .products-thq-tab3-active-elm, .products-thq-tab3-inactive-elm,
+  .products-thq-tab4-active-elm, .products-thq-tab4-inactive-elm {
+    position: relative;
+    width: auto;
+    display: flex;
+  }
+  .products-thq-text-elm1, .products-thq-text-elm3, .products-thq-text-elm5, .products-thq-text-elm7 {
+    padding: 10px 20px;
+    font-size: 13px;
+    background: #0f1421;
+    color: #fff;
+    border-radius: 9999px;
+    border-bottom: 0px;
+    white-space: nowrap;
+  }
+  .products-thq-text-elm2, .products-thq-text-elm4, .products-thq-text-elm6, .products-thq-text-elm8 {
+    padding: 10px 20px;
+    font-size: 13px;
+    background: #fff;
+    color: #7a8aae;
+    border: 1px solid #e8ecf4;
+    border-radius: 9999px;
+    white-space: nowrap;
+  }
+  .products-thq-agent-panels-container-elm {
+    margin-top: 16px;
+  }
+  .products-thq-agent-panels-container-elm {
+    margin-top: 16px;
+  }
+  .products-thq-left-column-inner-elm1, .products-thq-left-column-inner-elm2, .products-thq-left-column-inner-elm3, .products-thq-left-column-inner-elm4 {
+    padding: 24px;
+  }
+  .products-thq-right-column-elm1, .products-thq-right-column-elm2, .products-thq-right-column-elm3, .products-thq-right-column-elm4 {
+    padding: 24px;
+  }
+  .products-thq-card-body-elm10, .products-thq-card-body-elm11, .products-thq-card-body-elm12,
+  .products-thq-card-body-elm13, .products-thq-card-body-elm14, .products-thq-card-body-elm15,
+  .products-thq-card-body-elm16, .products-thq-card-body-elm17, .products-thq-card-body-elm18,
+  .products-thq-card-body-elm19, .products-thq-card-body-elm20, .products-thq-card-body-elm21 {
+    padding: 20px;
+  }
+  .products-thq-tab1-wrapper-elm, .products-thq-tab2-wrapper-elm, .products-thq-tab3-wrapper-elm, .products-thq-tab4-wrapper-elm {
+    height: auto;
+  }
+  .products-thq-cta-strip-elm {
+    padding: 40px 20px;
+  }
+  .products-thq-cta-inner-elm {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 32px;
+  }
+  .products-thq-left-column-elm5 {
+    width: 100%;
+    align-items: center;
+  }
+  .products-thq-right-column-elm5 {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .products-thq-buttons-row-elm {
+    width: 100%;
+    display: flex;
+    gap: 16px;
+    flex-direction: column;
+    align-items: center;
+  }
+  .products-thq-security-subsection-row-elm {
+    flex-direction: column;
+    gap: 40px;
+  }
+  .products-thq-stat-row1-elm, 
+  .products-thq-stat-row2-elm1, 
+  .products-thq-stat-row2-elm2 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+  }
+}
+
+@media(max-width: 479px) {
+  .products-thq-hero-inner-elm {
+    padding: 100px 20px 0px 20px;
+  }
+  .products-thq-text1-elm, .products-thq-text2-elm {
+    font-size: 36px;
+  }
+  .products-thq-title1-elm, .products-thq-title2-elm {
+    font-size: 28px;
+  }
+  .products-thq-buttons-row-elm {
+    flex-direction: column;
+    width: 100%;
+  }
+  .products-thq-buttons-row-elm > * {
+    width: 100%;
+  }
 }

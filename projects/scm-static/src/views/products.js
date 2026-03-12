@@ -1300,8 +1300,8 @@ const Products = (props) => {
         <div className="products-container7">
           <div className="products-container8">
             <Script
-              html={`<div style="width:100%;overflow:auto;">
-  <table style="width:100%;border-collapse:collapse;border:1px solid #E8ECF4;border-radius:14px;overflow:hidden;">
+              html={`<div style="width:100\%; overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid #E8ECF4; border-radius:14px;">
+  <table style="width:100\%; min-width:800px; border-collapse:collapse; overflow:hidden;">
     <thead>
       <tr>
         <th

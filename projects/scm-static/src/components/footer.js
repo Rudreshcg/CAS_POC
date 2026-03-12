@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react'
+import { Link } from 'react-router-dom'
 
 import PropTypes from 'prop-types'
 
@@ -53,20 +54,24 @@ const Footer = (props) => {
               </Fragment>
             )}
           </span>
-          <span className="footer-thq-apollo-platform-elm">
-            {props.apolloPlatform ?? (
-              <Fragment>
-                <span className="footer-text34">Apollo Platform</span>
-              </Fragment>
-            )}
-          </span>
-          <span className="footer-thq-margin-expansion-elm">
-            {props.marginExpansion ?? (
-              <Fragment>
-                <span className="footer-text24">Margin Expansion</span>
-              </Fragment>
-            )}
-          </span>
+          <Link to="/products" className="footer-navlink1">
+            <span className="footer-thq-apollo-platform-elm">
+              {props.apolloPlatform ?? (
+                <Fragment>
+                  <span className="footer-text34">Apollo Platform</span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
+          <Link to="/products" className="footer-navlink2">
+            <span className="footer-thq-margin-expansion-elm">
+              {props.marginExpansion ?? (
+                <Fragment>
+                  <span className="footer-text24">Margin Expansion</span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
           <span className="footer-thq-margin-protection-elm">
             {props.marginProtection ?? (
               <Fragment>
@@ -97,36 +102,44 @@ const Footer = (props) => {
               </Fragment>
             )}
           </span>
-          <span className="footer-thq-buying-services-elm">
-            {props.buyingServices ?? (
-              <Fragment>
-                <span className="footer-text22">Buying Services</span>
-              </Fragment>
-            )}
-          </span>
-          <span className="footer-thq-consulting-elm">
-            {props.consulting ?? (
-              <Fragment>
-                <span className="footer-text36">Consulting</span>
-              </Fragment>
-            )}
-          </span>
-          <span className="footer-thq-data-services-elm">
-            {props.dataServices ?? (
-              <Fragment>
-                <span className="footer-text32">Data Services</span>
-              </Fragment>
-            )}
-          </span>
-          <span className="footer-thq-forward-deployed-engineers-elm">
-            {props.forwardDeployedEngineers ?? (
-              <Fragment>
-                <span className="footer-text28">
-                  Forward Deployed Engineers
-                </span>
-              </Fragment>
-            )}
-          </span>
+          <Link to="/services" className="footer-navlink3">
+            <span className="footer-thq-buying-services-elm">
+              {props.buyingServices ?? (
+                <Fragment>
+                  <span className="footer-text22">Buying Services</span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
+          <Link to="/services" className="footer-navlink4">
+            <span className="footer-thq-consulting-elm">
+              {props.consulting ?? (
+                <Fragment>
+                  <span className="footer-text36">Consulting</span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
+          <Link to="/services" className="footer-navlink5">
+            <span className="footer-thq-data-services-elm">
+              {props.dataServices ?? (
+                <Fragment>
+                  <span className="footer-text32">Data Services</span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
+          <Link to="/services" className="footer-navlink6">
+            <span className="footer-thq-forward-deployed-engineers-elm">
+              {props.forwardDeployedEngineers ?? (
+                <Fragment>
+                  <span className="footer-text28">
+                    Forward Deployed Engineers
+                  </span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
         </div>
         <div className="footer-thq-company-elm1">
           <span className="footer-thq-company-elm2">
@@ -136,34 +149,42 @@ const Footer = (props) => {
               </Fragment>
             )}
           </span>
-          <span className="footer-thq-about-elm">
-            {props.about ?? (
-              <Fragment>
-                <span className="footer-text31">About</span>
-              </Fragment>
-            )}
-          </span>
-          <span className="footer-thq-careers-elm">
-            {props.careers ?? (
-              <Fragment>
-                <span className="footer-text20">Careers</span>
-              </Fragment>
-            )}
-          </span>
-          <span className="footer-thq-blog-elm">
-            {props.blog ?? (
-              <Fragment>
-                <span className="footer-text19">Blog</span>
-              </Fragment>
-            )}
-          </span>
-          <span className="footer-thq-contact-us-elm">
-            {props.contactUs ?? (
-              <Fragment>
-                <span className="footer-text35">Contact Us</span>
-              </Fragment>
-            )}
-          </span>
+          <Link to="/about" className="footer-navlink7">
+            <span className="footer-thq-about-elm">
+              {props.about ?? (
+                <Fragment>
+                  <span className="footer-text31">About</span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
+          <Link to="/careers" className="footer-navlink8">
+            <span className="footer-thq-careers-elm">
+              {props.careers ?? (
+                <Fragment>
+                  <span className="footer-text20">Careers</span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
+          <Link to="/blog" className="footer-navlink9">
+            <span className="footer-thq-blog-elm">
+              {props.blog ?? (
+                <Fragment>
+                  <span className="footer-text19">Blog</span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
+          <Link to="/contact" className="footer-navlink10">
+            <span className="footer-thq-contact-us-elm">
+              {props.contactUs ?? (
+                <Fragment>
+                  <span className="footer-text35">Contact Us</span>
+                </Fragment>
+              )}
+            </span>
+          </Link>
         </div>
         <div className="footer-thq-empty-column-elm"></div>
       </div>
@@ -216,7 +237,7 @@ Footer.defaultProps = {
   marginExpansion: undefined,
   text: undefined,
   company: undefined,
-  imageSrc: '/logo%20-%20final%20-%20black%20background%20-%20small-200h.png',
+  imageSrc: '/scmmaxLogo.png',
   text3: undefined,
   forwardDeployedEngineers: undefined,
   text1: undefined,

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { useState, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 
 import PropTypes from 'prop-types'
@@ -6,6 +6,8 @@ import PropTypes from 'prop-types'
 import './navbar-interactive.css'
 
 const NavbarInteractive = (props) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
   return (
     <div className={`navbar-interactive-container ${props.rootClassName} `}>
       <header
@@ -59,20 +61,6 @@ const NavbarInteractive = (props) => {
                 </Fragment>
               )}
             </Link>
-            <span className="navbar-interactive-text10">
-              {props.text1 ?? (
-                <Fragment>
-                  <span className="navbar-interactive-text24">Team</span>
-                </Fragment>
-              )}
-            </span>
-            <span className="navbar-interactive-text11">
-              {props.text2 ?? (
-                <Fragment>
-                  <span className="navbar-interactive-text22">Blog</span>
-                </Fragment>
-              )}
-            </span>
           </nav>
           <div className="navbar-interactive-thq-buttons-elm1">
             <button className="navbar-interactive-thq-login-elm1 button">
@@ -100,6 +88,7 @@ const NavbarInteractive = (props) => {
         <div
           data-thq="thq-burger-menu"
           className="navbar-interactive-thq-burger-menu-elm"
+          onClick={() => setIsMenuOpen(true)}
         >
           <svg viewBox="0 0 1024 1024" className="navbar-interactive-icon10">
             <path d="M128 554.667h768c23.552 0 42.667-19.115 42.667-42.667s-19.115-42.667-42.667-42.667h-768c-23.552 0-42.667 19.115-42.667 42.667s19.115 42.667 42.667 42.667zM128 298.667h768c23.552 0 42.667-19.115 42.667-42.667s-19.115-42.667-42.667-42.667h-768c-23.552 0-42.667 19.115-42.667 42.667s19.115 42.667 42.667 42.667zM128 810.667h768c23.552 0 42.667-19.115 42.667-42.667s-19.115-42.667-42.667-42.667h-768c-23.552 0-42.667 19.115-42.667 42.667s19.115 42.667 42.667 42.667z"></path>
@@ -107,18 +96,19 @@ const NavbarInteractive = (props) => {
         </div>
         <div
           data-thq="thq-mobile-menu"
-          className="navbar-interactive-thq-mobile-menu-elm"
+          className={`navbar-interactive-thq-mobile-menu-elm ${isMenuOpen ? 'teleport-show' : ''}`}
         >
           <div className="navbar-interactive-thq-nav-elm">
             <div className="navbar-interactive-thq-top-elm">
               <img
                 alt={props.logoAlt}
-                src={props.logoSrc}
+                src={props.imageSrc}
                 className="navbar-interactive-thq-logo-elm"
               />
               <div
                 data-thq="thq-close-menu"
                 className="navbar-interactive-thq-close-menu-elm"
+                onClick={() => setIsMenuOpen(false)}
               >
                 <svg
                   viewBox="0 0 1024 1024"
@@ -129,41 +119,33 @@ const NavbarInteractive = (props) => {
               </div>
             </div>
             <nav className="navbar-interactive-thq-links-elm2">
-              <span className="navbar-interactive-text14">
-                {props.text3 ?? (
-                  <Fragment>
-                    <span className="navbar-interactive-text23">About</span>
-                  </Fragment>
-                )}
-              </span>
-              <span className="navbar-interactive-text15">
-                {props.text4 ?? (
-                  <Fragment>
-                    <span className="navbar-interactive-text28">Features</span>
-                  </Fragment>
-                )}
-              </span>
-              <span className="navbar-interactive-text16">
-                {props.text5 ?? (
-                  <Fragment>
-                    <span className="navbar-interactive-text32">Pricing</span>
-                  </Fragment>
-                )}
-              </span>
-              <span className="navbar-interactive-text17">
-                {props.text6 ?? (
-                  <Fragment>
-                    <span className="navbar-interactive-text35">Team</span>
-                  </Fragment>
-                )}
-              </span>
-              <span className="navbar-interactive-text18">
-                {props.text7 ?? (
-                  <Fragment>
-                    <span className="navbar-interactive-text25">Blog</span>
-                  </Fragment>
-                )}
-              </span>
+              <Link to="/" className="navbar-interactive-navlink5">
+                <span className="navbar-interactive-text14">
+                  {props.home ?? (
+                    <Fragment>
+                      <span className="navbar-interactive-text26">Home</span>
+                    </Fragment>
+                  )}
+                </span>
+              </Link>
+              <Link to="/products" className="navbar-interactive-navlink6">
+                <span className="navbar-interactive-text15">
+                  {props.products ?? (
+                    <Fragment>
+                      <span className="navbar-interactive-text27">Products</span>
+                    </Fragment>
+                  )}
+                </span>
+              </Link>
+              <Link to="/services" className="navbar-interactive-navlink7">
+                <span className="navbar-interactive-text16">
+                  {props.services ?? (
+                    <Fragment>
+                      <span className="navbar-interactive-text21">Services</span>
+                    </Fragment>
+                  )}
+                </span>
+              </Link>
             </nav>
             <div className="navbar-interactive-thq-buttons-elm2">
               <button className="navbar-interactive-thq-login-elm2 button">
@@ -216,7 +198,7 @@ const NavbarInteractive = (props) => {
 
 NavbarInteractive.defaultProps = {
   services: undefined,
-  logoSrc: 'https://presentation-website-assets.teleporthq.io/logos/logo.png',
+  logoSrc: '/scmmaxLogo.png',
   text2: undefined,
   text3: undefined,
   logoAlt: 'image',
@@ -226,7 +208,7 @@ NavbarInteractive.defaultProps = {
   products: undefined,
   text4: undefined,
   register: undefined,
-  imageSrc: '/logo%20-%20final%20-%20black%20background%20-%20small-200h.png',
+  imageSrc: '/scmmaxLogo.png',
   rootClassName: '',
   text: undefined,
   register1: undefined,

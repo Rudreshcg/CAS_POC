@@ -29,6 +29,16 @@
   padding-left: 10px;
   flex-direction: column;
 }
+@media(max-width: 991px) {
+  .footer-thq-brand-elm {
+    align-items: center;
+    padding-left: 0;
+    text-align: center;
+  }
+  .footer-text12 {
+    max-width: 100%;
+  }
+}
  
 .footer-thq-logo-container-elm {
   flex: 0 0 auto;
