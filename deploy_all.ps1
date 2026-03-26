@@ -110,7 +110,28 @@ if (Test-Path $confPath) { Remove-Item $confPath -Force }
 $nginxConfig = @'
 server {
     listen 80;
-    server_name _;
+    server_name scmmax.com www.scmmax.com;
+
+    # Allow certbot challenge
+    location /.well-known/acme-challenge/ {
+        root /opt/scm-static;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name scmmax.com www.scmmax.com;
+
+    ssl_certificate /etc/letsencrypt/live/scmmax.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/scmmax.com/privkey.pem;
+
+    # SSL optimizations
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
 
     location /cas-lookup/ {
         proxy_pass http://127.0.0.1:5000/;
@@ -160,7 +181,7 @@ set -e
 
 echo "Starting setup..."
 sudo yum update -y
-sudo yum install -y nginx python3.11 python3.11-pip git unzip
+sudo yum install -y nginx python3.11 python3.11-pip git unzip certbot python3-certbot-nginx
 
 # Ensure nginx is started and enabled
 sudo systemctl enable nginx
@@ -197,7 +218,26 @@ done
 # Special handling for SCM Static (Static Only)
 mkdir -p /opt/scm-static/uploads
 
-# Nginx
+# SSL Certificate Check and Generation
+# We use a temporary nginx config to allow the challenge
+echo "Checking SSL certificates..."
+if [ ! -d "/etc/letsencrypt/live/scmmax.com" ]; then
+    echo "Requesting SSL certificates for scmmax.com and www.scmmax.com..."
+    # Create a minimal nginx config for the challenge
+    cat <<EOF | sudo tee /etc/nginx/conf.d/multi-app.conf
+server {
+    listen 80;
+    server_name scmmax.com www.scmmax.com;
+    location /.well-known/acme-challenge/ {
+        root /opt/scm-static;
+    }
+}
+EOF
+    sudo systemctl restart nginx
+    sudo certbot certonly --nginx -d scmmax.com -d www.scmmax.com --non-interactive --agree-tos --register-unsafely-without-email
+fi
+
+# Nginx Final Config
 echo "Configuring nginx..."
 echo '$confBase64' | base64 -d | sudo tee /etc/nginx/conf.d/multi-app.conf > /dev/null
 sudo nginx -t
