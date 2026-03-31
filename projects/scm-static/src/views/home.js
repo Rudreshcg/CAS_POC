@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { useState, Fragment } from 'react'
 
 import Script from 'dangerous-html/react'
 import { Helmet } from 'react-helmet'
@@ -13,9 +13,13 @@ import SecondaryButton from '../components/secondary-button'
 import CardWrapperTeal from '../components/card-wrapper-teal'
 import CardWrapperSlate from '../components/card-wrapper-slate'
 import CardWrapperBrass1 from '../components/card-wrapper-brass1'
+import DemoModal from '../components/demo-modal'
+import DownloadModal from '../components/download-modal'
 import './home.css'
 
 const Home = (props) => {
+  const [showDemoModal, setShowDemoModal] = useState(false)
+  const [showDownloadModal, setShowDownloadModal] = useState(false)
   return (
     <div className="home-container1">
       <Helmet>
@@ -23,11 +27,11 @@ const Home = (props) => {
         <meta property="og:title" content="Practical Mean Cassowary" />
         <link
           rel="canonical"
-          href="https://practical-mean-cassowary-094j40.teleporthq.app/"
+          href="https://practical-mean-cassowary-094j40.teleporthq.site/"
         />
         <meta
           property="og:url"
-          content="https://practical-mean-cassowary-094j40.teleporthq.app/"
+          content="https://practical-mean-cassowary-094j40.teleporthq.site/"
         />
       </Helmet>
       <NavbarInteractive
@@ -41,69 +45,44 @@ const Home = (props) => {
             <span className="home-text11"> Apollo</span>
           </Fragment>
         }
-        login={
-          <Fragment>
-            <span className="home-text12">Login</span>
-          </Fragment>
-        }
-        text1={
-          <Fragment>
-            <span className="home-text13">Team</span>
-          </Fragment>
-        }
-        text2={
-          <Fragment>
-            <span className="home-text14">Blog</span>
-          </Fragment>
-        }
         text3={
           <Fragment>
-            <span className="home-text15">About</span>
+            <span className="home-text12">Home</span>
           </Fragment>
         }
         text4={
           <Fragment>
-            <span className="home-text16">Features</span>
+            <span className="home-text13">Products</span>
           </Fragment>
         }
         text5={
           <Fragment>
-            <span className="home-text17">Pricing</span>
-          </Fragment>
-        }
-        text6={
-          <Fragment>
-            <span className="home-text18">Team</span>
-          </Fragment>
-        }
-        text7={
-          <Fragment>
-            <span className="home-text19">Blog</span>
-          </Fragment>
-        }
-        login1={
-          <Fragment>
-            <span className="home-text20">Login</span>
+            <span className="home-text14">Services</span>
           </Fragment>
         }
         products={
           <Fragment>
-            <span className="home-text21">Products</span>
+            <span className="home-text15">Products</span>
           </Fragment>
         }
         register={
           <Fragment>
-            <span className="home-text22">request Demo</span>
+            <span className="home-text16">request Demo</span>
           </Fragment>
         }
         services={
           <Fragment>
-            <span className="home-text23">Services</span>
+            <span className="home-text17">Services</span>
           </Fragment>
         }
-        register1={
+        text8={
           <Fragment>
-            <span className="home-text24">Register</span>
+            <span className="home-text18"> Apollo</span>
+          </Fragment>
+        }
+        primaryButtonTest={
+          <Fragment>
+            <span className="home-text19">Request Demo</span>
           </Fragment>
         }
       ></NavbarInteractive>
@@ -114,11 +93,11 @@ const Home = (props) => {
         <div className="home-thq-left-column-elm">
           <div className="home-thq-eyebrow-row-elm">
             <div className="home-thq-teal-pulse-dot-elm"></div>
-            <span className="home-text25">
+            <span className="home-text20">
               The future of procurement strategy
             </span>
           </div>
-          <h1 className="home-text26">
+          <h1 className="home-text21">
             Scale your strategy, not just your headcount
           </h1>
           <span className="home-thq-sub-heading-elm">
@@ -131,7 +110,7 @@ const Home = (props) => {
               rootClassName="primary-buttonroot-class-name1"
               primaryButtonTest={
                 <Fragment>
-                  <span className="home-text27">Meet the agents</span>
+                  <span className="home-text22">Meet the agents</span>
                 </Fragment>
               }
             ></PrimaryButton>
@@ -139,9 +118,10 @@ const Home = (props) => {
               rootClassName="gost-teal-buttonroot-class-name"
               gostTealButton={
                 <Fragment>
-                  <span className="home-text28">Watch a 2 min Demo</span>
+                  <span className="home-text23">Watch a 1 min Demo</span>
                 </Fragment>
               }
+              onClick={() => setShowDemoModal(true)}
             ></GostTealButton>
           </div>
           <div className="home-thq-trust-stats-row-elm">
@@ -679,8 +659,41 @@ const Home = (props) => {
   </div>
 
 </div>
-                `} />
 
+<script>
+  (function(){
+  var cur = 0, total = 4, timer;
+  function go(i){
+    const nextEl = document.getElementById('apc-'+i);
+    const currEl = document.getElementById('apc-'+cur);
+    const tabs = document.querySelectorAll('.ap-tab');
+    const inds = document.querySelectorAll('.ap-ind');
+
+    if (!nextEl || !currEl || !tabs[i] || !inds[i]) {
+      if (timer) clearInterval(timer);
+      return;
+    }
+
+    currEl.classList.remove('on');
+    tabs[cur].classList.remove('on');
+    inds[cur].classList.remove('on');
+    cur = i;
+    nextEl.classList.add('on');
+    tabs[cur].classList.add('on');
+    inds[cur].classList.add('on');
+  }
+  function auto(){ timer = setInterval(function(){ go((cur+1)%total); }, 3500); }
+  document.querySelectorAll('.ap-tab,.ap-ind').forEach(function(el){
+    el.addEventListener('click',function(){
+      clearInterval(timer);
+      go(parseInt(el.getAttribute('data-i')));
+      auto();
+    });
+  });
+  auto();
+})();
+</script>`}
+              ></Script>
             </div>
           </div>
         </div>
@@ -692,11 +705,11 @@ const Home = (props) => {
           </span>
           <span className="home-thq-text-meet-you-new-elm">
             <span>Meet your new</span>
-            <br className="home-text30"></br>
+            <br className="home-text25"></br>
           </span>
           <span className="home-thq-text-strategy-team-elm">
             <span>Strategy Team.</span>
-            <br className="home-text32"></br>
+            <br className="home-text27"></br>
           </span>
           <span className="home-thq-text-sub-text-elm">
             <span>
@@ -707,7 +720,7 @@ const Home = (props) => {
                 }}
               />
             </span>
-            <span className="home-text34">specialized AI agents</span>
+            <span className="home-text29">specialized AI agents</span>
             <span>
               {' '}
               helping you cover every blind spot in your supply chain.
@@ -715,77 +728,85 @@ const Home = (props) => {
           </span>
           <div className="home-container4">
             <div className="home-container5">
-              {/* decorative divider removed */}
+              <Script
+                html={`<div style="line-height:0; margin-top:24px; margin-bottom:-2px;">
+  <svg viewBox="0 0 1440 64" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"
+    style="display:block;width:100%;height:64px;">
+    <path d="M0 0 L1440 0 L1440 32 Q1080 64 720 52 Q360 40 0 64 Z" fill="#0F1421" />
+    <path d="M0 64 Q360 40 720 52 Q1080 64 1440 32 L1440 64 Z" fill="#F4F6FA" />
+  </svg>
+</div>`}
+              ></Script>
             </div>
           </div>
         </div>
         <AgentList1
           text={
             <Fragment>
-              <span className="home-text36">Margin Expansion</span>
+              <span className="home-text31">Margin Expansion</span>
             </Fragment>
           }
           text1={
             <Fragment>
-              <span className="home-text37">Margin Protection</span>
+              <span className="home-text32">Margin Protection</span>
             </Fragment>
           }
           text2={
             <Fragment>
-              <span className="home-text38">Productivity Improvement</span>
+              <span className="home-text33">Productivity Improvement</span>
             </Fragment>
           }
           text3={
             <Fragment>
-              <span className="home-text39">
+              <span className="home-text34">
                 Analytics &amp; Data Management
               </span>
             </Fragment>
           }
           text4={
             <Fragment>
-              <span className="home-text40">Margin Expansion</span>
+              <span className="home-text35">Margin Expansion</span>
             </Fragment>
           }
           text5={
             <Fragment>
-              <span className="home-text41">Agents that grow your margin</span>
+              <span className="home-text36">Agents that grow your margin</span>
             </Fragment>
           }
           text6={
             <Fragment>
-              <span className="home-text42">
+              <span className="home-text37">
                 Identify and capture untapped savings across your direct spend.
               </span>
             </Fragment>
           }
           text11={
             <Fragment>
-              <span className="home-text43">Margin Protection</span>
+              <span className="home-text38">Margin Protection</span>
             </Fragment>
           }
           text21={
             <Fragment>
-              <span className="home-text44">Productivity Improvement</span>
+              <span className="home-text39">Productivity Improvement</span>
             </Fragment>
           }
           text31={
             <Fragment>
-              <span className="home-text45">
+              <span className="home-text40">
                 Analytics &amp; Data Management
               </span>
             </Fragment>
           }
           text51={
             <Fragment>
-              <span className="home-text46">
+              <span className="home-text41">
                 Agents that defend your margin
               </span>
             </Fragment>
           }
           text61={
             <Fragment>
-              <span className="home-text47">
+              <span className="home-text42">
                 Monitor risks, track compliance, and flag supplier issues before
                 they cost you.
               </span>
@@ -793,19 +814,19 @@ const Home = (props) => {
           }
           eyeBrow={
             <Fragment>
-              <span className="home-text48">MARGIN EXPANSION</span>
+              <span className="home-text43">MARGIN EXPANSION</span>
             </Fragment>
           }
           text511={
             <Fragment>
-              <span className="home-text49">
+              <span className="home-text44">
                 Agents that accelerate your team
               </span>
             </Fragment>
           }
           text611={
             <Fragment>
-              <span className="home-text50">
+              <span className="home-text45">
                 Automate repetitive work so your buyers focus on strategic
                 decisions.
               </span>
@@ -813,36 +834,36 @@ const Home = (props) => {
           }
           eyeBrow2={
             <Fragment>
-              <span className="home-text51">MARGIN PROTECTION</span>
+              <span className="home-text46">MARGIN PROTECTION</span>
             </Fragment>
           }
           eyeBrow3={
             <Fragment>
-              <span className="home-text52">AGENT CATEGORIES</span>
+              <span className="home-text47">AGENT CATEGORIES</span>
             </Fragment>
           }
           text5111={
             <Fragment>
-              <span className="home-text53">
+              <span className="home-text48">
                 Agents that sharpen your insights
               </span>
             </Fragment>
           }
           text6111={
             <Fragment>
-              <span className="home-text54">
+              <span className="home-text49">
                 Turn raw procurement data into decision-ready intelligence.
               </span>
             </Fragment>
           }
           eyeBrow21={
             <Fragment>
-              <span className="home-text55">PRODUCTIVITY IMPROVEMENT</span>
+              <span className="home-text50">PRODUCTIVITY IMPROVEMENT</span>
             </Fragment>
           }
           eyeBrow211={
             <Fragment>
-              <span className="home-text56">
+              <span className="home-text51">
                 ANALYTICS &amp; DATA MANAGEMENT
               </span>
             </Fragment>
@@ -850,10 +871,10 @@ const Home = (props) => {
         ></AgentList1>
         <div className="home-thq-cta-strip-elm">
           <div className="home-thq-cta-left-column-elm">
-            <span className="home-text57">
+            <span className="home-text52">
               See all Apollo agents in action.
             </span>
-            <span className="home-text58">
+            <span className="home-text53">
               30-minute demo. Live walkthrough. Your own spend data if
               you&apos;d like.
             </span>
@@ -864,17 +885,19 @@ const Home = (props) => {
                 rootClassName="gost-teal-buttonroot-class-name1"
                 gostTealButton={
                   <Fragment>
-                    <span className="home-text59">Download Agent Overview</span>
+                    <span className="home-text54">Download Agent Overview</span>
                   </Fragment>
                 }
+                onClick={() => setShowDownloadModal(true)}
               ></GostTealButton>
               <PrimaryButton
                 rootClassName="primary-buttonroot-class-name2"
                 primaryButtonTest={
                   <Fragment>
-                    <span className="home-text60">Request Demo</span>
+                    <span className="home-text55">Request Demo</span>
                   </Fragment>
                 }
+                link="https://outlook.office.com/bookwithme/user/8b876d6424a5445e960d92a2a28db077@scmmax.com/meetingtype/NvRUL87SiUuK83_PAIvasw2?anonymous&ismsaljsauthenabled&ep=mlink"
               ></PrimaryButton>
             </div>
           </div>
@@ -883,12 +906,12 @@ const Home = (props) => {
       <Footer
         blog={
           <Fragment>
-            <span className="home-text61">Blog</span>
+            <span className="home-text56">Blog</span>
           </Fragment>
         }
         text={
           <Fragment>
-            <span className="home-text62">
+            <span className="home-text57">
               © 2026 SCMmax Consulting Inc. All rights reserved.
               <span
                 dangerouslySetInnerHTML={{
@@ -900,104 +923,104 @@ const Home = (props) => {
         }
         about={
           <Fragment>
-            <span className="home-text63">About</span>
+            <span className="home-text58">About</span>
           </Fragment>
         }
         text1={
           <Fragment>
-            <span className="home-text64">Always Ready. Always Ahead.</span>
+            <span className="home-text59">Always Ready. Always Ahead.</span>
           </Fragment>
         }
         text2={
           <Fragment>
-            <span className="home-text65">
+            <span className="home-text60">
               AI-powered procurement intelligence for enterprise buying teams.
             </span>
           </Fragment>
         }
         text3={
           <Fragment>
-            <span className="home-text66">Privacy Policy</span>
+            <span className="home-text61">Privacy Policy</span>
           </Fragment>
         }
         text4={
           <Fragment>
-            <span className="home-text67">Terms of Service</span>
+            <span className="home-text62">Terms of Service</span>
           </Fragment>
         }
         text5={
           <Fragment>
-            <span className="home-text68"> Apollo</span>
+            <span className="home-text63"> Apollo</span>
           </Fragment>
         }
         careers={
           <Fragment>
-            <span className="home-text69">Careers</span>
+            <span className="home-text64">Careers</span>
           </Fragment>
         }
         company={
           <Fragment>
-            <span className="home-text70">COMPANY</span>
+            <span className="home-text65">COMPANY</span>
           </Fragment>
         }
         product={
           <Fragment>
-            <span className="home-text71">PRODUCT</span>
+            <span className="home-text66">PRODUCT</span>
           </Fragment>
         }
         services={
           <Fragment>
-            <span className="home-text72">SERVICES</span>
+            <span className="home-text67">SERVICES</span>
           </Fragment>
         }
         contactUs={
           <Fragment>
-            <span className="home-text73">Contact Us</span>
+            <span className="home-text68">Contact Us</span>
           </Fragment>
         }
         consulting={
           <Fragment>
-            <span className="home-text74">Consulting</span>
+            <span className="home-text69">Consulting</span>
           </Fragment>
         }
         dataServices={
           <Fragment>
-            <span className="home-text75">Data Services</span>
+            <span className="home-text70">Data Services</span>
           </Fragment>
         }
         productivity={
           <Fragment>
-            <span className="home-text76">Productivity</span>
+            <span className="home-text71">Productivity</span>
           </Fragment>
         }
         dataAnalytics={
           <Fragment>
-            <span className="home-text77">Data &amp; Analytics</span>
+            <span className="home-text72">Data &amp; Analytics</span>
           </Fragment>
         }
         apolloPlatform={
           <Fragment>
-            <span className="home-text78">Apollo Platform</span>
+            <span className="home-text73">Apollo Platform</span>
           </Fragment>
         }
         buyingServices={
           <Fragment>
-            <span className="home-text79">Buying Services</span>
+            <span className="home-text74">Buying Services</span>
           </Fragment>
         }
         marginExpansion={
           <Fragment>
-            <span className="home-text80">Margin Expansion</span>
+            <span className="home-text75">Margin Expansion</span>
           </Fragment>
         }
         marginProtection={
           <Fragment>
-            <span className="home-text81">Margin Protection</span>
+            <span className="home-text76">Margin Protection</span>
           </Fragment>
         }
         forwardDeployedEngineers={
           <Fragment>
-            <span className="home-text82">Forward Deployed Engineers</span>
+            <span className="home-text77">Forward Deployed Engineers</span>
           </Fragment>
         }
       ></Footer>
@@ -1005,36 +1028,36 @@ const Home = (props) => {
         rootClassName="primary-buttonroot-class-name3"
         primaryButtonTest={
           <Fragment>
-            <span className="home-text83">Button</span>
+            <span className="home-text78">Button</span>
           </Fragment>
         }
       ></PrimaryButton>
       <CardWrapperBrass
         tag={
           <Fragment>
-            <span className="home-text84">AQS Agent</span>
+            <span className="home-text79">AQS Agent</span>
           </Fragment>
         }
         link={
           <Fragment>
-            <span className="home-text85">Explore-&gt;</span>
+            <span className="home-text80">Explore-&gt;</span>
           </Fragment>
         }
         title={
           <Fragment>
-            <span className="home-text86">
+            <span className="home-text81">
               Automated Quote Initiation &amp; Selection
             </span>
           </Fragment>
         }
         eyeBrow={
           <Fragment>
-            <span className="home-text87">Operational AI</span>
+            <span className="home-text82">Operational AI</span>
           </Fragment>
         }
         bodyText={
           <Fragment>
-            <span className="home-text88">
+            <span className="home-text83">
               The AI agent uses MRP output, initiates RFQ and compares the
               emails from suppliers or the uploads to Ariba
             </span>
@@ -1046,7 +1069,7 @@ const Home = (props) => {
         rootClassName="secondary-buttonroot-class-name"
         secondaryButton={
           <Fragment>
-            <span className="home-text89">Button</span>
+            <span className="home-text84">Button</span>
           </Fragment>
         }
       ></SecondaryButton>
@@ -1054,11 +1077,44 @@ const Home = (props) => {
         rootClassName="gost-teal-buttonroot-class-name2"
         gostTealButton={
           <Fragment>
-            <span className="home-text90">Button</span>
+            <span className="home-text85">Button</span>
           </Fragment>
         }
       ></GostTealButton>
       <CardWrapperTeal
+        tag={
+          <Fragment>
+            <span className="home-text86">AQS Agent</span>
+          </Fragment>
+        }
+        link={
+          <Fragment>
+            <span className="home-text87">Explore-&gt;</span>
+          </Fragment>
+        }
+        title={
+          <Fragment>
+            <span className="home-text88">
+              Automated Quote Initiation &amp; Selection
+            </span>
+          </Fragment>
+        }
+        eyeBrow={
+          <Fragment>
+            <span className="home-text89">Operational AI</span>
+          </Fragment>
+        }
+        bodyText={
+          <Fragment>
+            <span className="home-text90">
+              The AI agent uses MRP output, initiates RFQ and compares the
+              emails from suppliers or the uploads to Ariba
+            </span>
+          </Fragment>
+        }
+        rootClassName="card-wrapper-tealroot-class-name4"
+      ></CardWrapperTeal>
+      <CardWrapperSlate
         tag={
           <Fragment>
             <span className="home-text91">AQS Agent</span>
@@ -1089,9 +1145,9 @@ const Home = (props) => {
             </span>
           </Fragment>
         }
-        rootClassName="card-wrapper-tealroot-class-name4"
-      ></CardWrapperTeal>
-      <CardWrapperSlate
+        rootClassName="card-wrapper-slateroot-class-name4"
+      ></CardWrapperSlate>
+      <CardWrapperBrass1
         tag={
           <Fragment>
             <span className="home-text96">AQS Agent</span>
@@ -1122,41 +1178,16 @@ const Home = (props) => {
             </span>
           </Fragment>
         }
-        rootClassName="card-wrapper-slateroot-class-name4"
-      ></CardWrapperSlate>
-      <CardWrapperBrass1
-        tag={
-          <Fragment>
-            <span className="home-text101">AQS Agent</span>
-          </Fragment>
-        }
-        link={
-          <Fragment>
-            <span className="home-text102">Explore-&gt;</span>
-          </Fragment>
-        }
-        title={
-          <Fragment>
-            <span className="home-text103">
-              Automated Quote Initiation &amp; Selection
-            </span>
-          </Fragment>
-        }
-        eyeBrow={
-          <Fragment>
-            <span className="home-text104">Operational AI</span>
-          </Fragment>
-        }
-        bodyText={
-          <Fragment>
-            <span className="home-text105">
-              The AI agent uses MRP output, initiates RFQ and compares the
-              emails from suppliers or the uploads to Ariba
-            </span>
-          </Fragment>
-        }
         rootClassName="card-wrapper-brass1root-class-name8"
       ></CardWrapperBrass1>
+      <DemoModal
+        isOpen={showDemoModal}
+        onClose={() => setShowDemoModal(false)}
+      ></DemoModal>
+      <DownloadModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+      ></DownloadModal>
     </div>
   )
 }

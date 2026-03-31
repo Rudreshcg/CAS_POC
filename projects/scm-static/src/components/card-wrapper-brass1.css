@@ -187,3 +187,15 @@
 .card-wrapper-brass1root-class-name8 {
   display: none;
 }
+ 
+@media(max-width: 479px) {
+  .card-wrapper-brass1-thq-card-wrapper-brass1-elm {
+    width: 100%;
+  }
+  .card-wrapper-brass1-thq-card-body-elm {
+    padding: 6px;
+  }
+  .card-wrapper-brass1-thq-card-footer-elm {
+    padding: 10px 16px;
+  }
+}

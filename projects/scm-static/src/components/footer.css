@@ -29,16 +29,6 @@
   padding-left: 10px;
   flex-direction: column;
 }
-@media(max-width: 991px) {
-  .footer-thq-brand-elm {
-    align-items: center;
-    padding-left: 0;
-    text-align: center;
-  }
-  .footer-text12 {
-    max-width: 100%;
-  }
-}
  
 .footer-thq-logo-container-elm {
   flex: 0 0 auto;
@@ -263,6 +253,7 @@
   font-size: 14px;
   transition: 0.3s;
   font-family: "DM Sans";
+  text-decoration: none;
 }
  
 .footer-thq-about-elm:hover {
@@ -299,6 +290,7 @@
   font-size: 14px;
   transition: 0.3s;
   font-family: "DM Sans";
+  text-decoration: none;
 }
  
 .footer-thq-contact-us-elm:hover {
@@ -451,4 +443,61 @@
  
 .footer-text37 {
   display: inline-block;
+}
+ 
+
+ 
+@media(max-width: 991px) {
+  .footer-thq-footer-top-elm {
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .footer-thq-brand-elm {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .footer-thq-products-elm {
+    width: calc(50% - 16px);
+    min-width: 0;
+  }
+  .footer-thq-services-elm1 {
+    width: calc(50% - 16px);
+    min-width: 0;
+  }
+  .footer-thq-company-elm1 {
+    width: calc(50% - 16px);
+    min-width: 0;
+  }
+}
+ 
+@media(max-width: 479px) {
+  .footer-thq-footer-elm {
+    padding: 10px 6px;
+  }
+  .footer-thq-footer-top-elm {
+    gap: 28px;
+    padding: 20px 20px;
+    flex-wrap: wrap;
+  }
+  .footer-thq-brand-elm {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .footer-thq-products-elm {
+    width: calc(50% - 14px);
+    min-width: 0;
+  }
+  .footer-thq-services-elm1 {
+    width: calc(50% - 14px);
+    min-width: 0;
+  }
+  .footer-thq-company-elm1 {
+    width: calc(50% - 14px);
+    min-width: 0;
+  }
+  .footer-thq-empty-column-elm {
+    display: none;
+  }
 }

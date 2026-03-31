@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { useState, Fragment } from 'react'
 
 import Script from 'dangerous-html/react'
 import { Helmet } from 'react-helmet'
@@ -6,9 +6,11 @@ import { Helmet } from 'react-helmet'
 import NavbarInteractive from '../components/navbar-interactive'
 import GostTealButton from '../components/gost-teal-button'
 import PrimaryButton from '../components/primary-button'
+import DownloadModal from '../components/download-modal'
 import './services.css'
 
 const Services = (props) => {
+  const [showDownloadModal, setShowDownloadModal] = useState(false)
   return (
     <div className="services-container1">
       <Helmet>
@@ -19,11 +21,11 @@ const Services = (props) => {
         />
         <link
           rel="canonical"
-          href="https://practical-mean-cassowary-094j40.teleporthq.app/services"
+          href="https://practical-mean-cassowary-094j40.teleporthq.site/services"
         />
         <meta
           property="og:url"
-          content="https://practical-mean-cassowary-094j40.teleporthq.app/services"
+          content="https://practical-mean-cassowary-094j40.teleporthq.site/services"
         />
       </Helmet>
       <NavbarInteractive
@@ -37,72 +39,47 @@ const Services = (props) => {
             <span className="services-text11"> Apollo</span>
           </Fragment>
         }
-        login={
-          <Fragment>
-            <span className="services-text12">Login</span>
-          </Fragment>
-        }
-        text1={
-          <Fragment>
-            <span className="services-text13">Team</span>
-          </Fragment>
-        }
-        text2={
-          <Fragment>
-            <span className="services-text14">Blog</span>
-          </Fragment>
-        }
         text3={
           <Fragment>
-            <span className="services-text15">About</span>
+            <span className="services-text12">Home</span>
           </Fragment>
         }
         text4={
           <Fragment>
-            <span className="services-text16">Features</span>
+            <span className="services-text13">Products</span>
           </Fragment>
         }
         text5={
           <Fragment>
-            <span className="services-text17">Pricing</span>
-          </Fragment>
-        }
-        text6={
-          <Fragment>
-            <span className="services-text18">Team</span>
-          </Fragment>
-        }
-        text7={
-          <Fragment>
-            <span className="services-text19">Blog</span>
-          </Fragment>
-        }
-        login1={
-          <Fragment>
-            <span className="services-text20">Login</span>
+            <span className="services-text14">Services</span>
           </Fragment>
         }
         products={
           <Fragment>
-            <span className="services-text21">Products</span>
+            <span className="services-text15">Products</span>
           </Fragment>
         }
         register={
           <Fragment>
-            <span className="services-text22">request Demo</span>
+            <span className="services-text16">request Demo</span>
           </Fragment>
         }
         services={
           <Fragment>
-            <span className="services-text23">Services</span>
-          </Fragment>
-        }
-        register1={
-          <Fragment>
-            <span className="services-text24">Register</span>
+            <span className="services-text17">Services</span>
           </Fragment>
         }
         rootClassName="navbar-interactiveroot-class-name"
+        text8={
+          <Fragment>
+            <span className="services-text18"> Apollo</span>
+          </Fragment>
+        }
+        primaryButtonTest={
+          <Fragment>
+            <span className="services-text19">Request Demo</span>
+          </Fragment>
+        }
       ></NavbarInteractive>
       <div className="services-thq-services-hero-elm">
         <div className="services-thq-hero-inner-elm">
@@ -153,18 +130,18 @@ const Services = (props) => {
             </span>
           </div>
         </div>
-        <div>
-          <div className="services-container3">
-            <Script
-              html={`<div style="line-height:0; margin-top:40px; margin-bottom:-2px;">
+      </div>
+      <div className="services-container2">
+        <div className="services-container3">
+          <Script
+            html={`<div style="line-height:0; margin-top:40px; margin-bottom:-2px;">
   <svg viewBox="0 0 1440 48" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"
     style="display:block;width:100%;height:48px;">
     <path d="M0 0 L1440 0 L1440 24 Q1080 48 720 40 Q360 32 0 48 Z" fill="#0F1421" />
     <path d="M0 48 Q360 32 720 40 Q1080 48 1440 24 L1440 48 Z" fill="#FFFFFF" />
   </svg>
 </div>`}
-            ></Script>
-          </div>
+          ></Script>
         </div>
       </div>
       <div className="services-thq-buying-services-section-elm">
@@ -190,14 +167,14 @@ const Services = (props) => {
                 INDUSTRIES WE SERVE
               </span>
               <div className="services-thq-industry-tags-row-elm">
-                <span className="services-text25">Consumer Goods</span>
-                <span className="services-text26">Food &amp; Beverages</span>
-                <span className="services-text27">Chemicals &amp; Pharma</span>
-                <span className="services-text28">Oil &amp; Gas</span>
+                <span className="services-text20">Consumer Goods</span>
+                <span className="services-text21">Food &amp; Beverages</span>
+                <span className="services-text22">Chemicals &amp; Pharma</span>
+                <span className="services-text23">Oil &amp; Gas</span>
               </div>
             </div>
             <div className="services-thq-model-elm">
-              <span className="services-text29">
+              <span className="services-text24">
                 Base Cost + Outcome model. A fixed retainer covers our team and
                 Apollo. Savings above the baseline are shared — we win only when
                 you win.
@@ -240,7 +217,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-service-card4-elm">
-              <span className="services-text30">● MOST CHOSEN</span>
+              <span className="services-text25">● MOST CHOSEN</span>
               <span className="services-thq-number-elm8">04</span>
               <span className="services-thq-title-elm4">
                 End-to-End Buying Service
@@ -302,7 +279,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-card-footer-elm1">
-              <span className="services-text42">EXPLORE -&gt;</span>
+              <span className="services-text37">EXPLORE -&gt;</span>
             </div>
           </div>
           <div className="services-thq-card2-elm">
@@ -323,7 +300,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-card-footer-elm2">
-              <span className="services-text43">EXPLORE -&gt;</span>
+              <span className="services-text38">EXPLORE -&gt;</span>
             </div>
           </div>
           <div className="services-thq-card3-elm">
@@ -343,7 +320,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-card-footer-elm3">
-              <span className="services-text44">EXPLORE -&gt;</span>
+              <span className="services-text39">EXPLORE -&gt;</span>
             </div>
           </div>
           <div className="services-thq-card4-elm">
@@ -364,7 +341,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-card-footer-elm4">
-              <span className="services-text45">EXPLORE -&gt;</span>
+              <span className="services-text40">EXPLORE -&gt;</span>
             </div>
           </div>
         </div>
@@ -431,19 +408,19 @@ const Services = (props) => {
             <div className="services-thq-dark-visual-column-elm">
               <span className="services-thq-label-elm1">BEFORE APOLLO</span>
               <div className="services-thq-item-row1-elm">
-                <span className="services-text46">⚠️</span>
+                <span className="services-text41">⚠️</span>
                 <div className="services-thq-inner-column-elm1">
-                  <span className="services-text47">Raw Material Master</span>
-                  <span className="services-text48">
+                  <span className="services-text42">Raw Material Master</span>
+                  <span className="services-text43">
                     12,400 records — 34% duplicates, thin descriptions
                   </span>
                 </div>
               </div>
               <div className="services-thq-item-row2-elm">
-                <span className="services-text49">⚠️</span>
+                <span className="services-text44">⚠️</span>
                 <div className="services-thq-inner-column-elm2">
-                  <span className="services-text50">Vendor Master</span>
-                  <span className="services-text51">
+                  <span className="services-text45">Vendor Master</span>
+                  <span className="services-text46">
                     3,200 vendors — inconsistent names, missing data
                   </span>
                 </div>
@@ -543,27 +520,31 @@ const Services = (props) => {
             </div>
             <div className="services-thq-right-row-elm">
               <GostTealButton
-                rootClassName="gost-teal-buttonroot-class-name3"
+                rootClassName="gost-teal-buttonroot-class-name1"
                 gostTealButton={
                   <Fragment>
-                    <span className="services-text52">
-                      DOWNLOAD SERVICES OVERVIEW
-                    </span>
+                    <span className="services-text47">download agent overview</span>
                   </Fragment>
                 }
+                onClick={() => setShowDownloadModal(true)}
               ></GostTealButton>
               <PrimaryButton
                 rootClassName="primary-buttonroot-class-name4"
                 primaryButtonTest={
                   <Fragment>
-                    <span className="services-text53">REQUEST DEMO</span>
+                    <span className="services-text48">REQUEST DEMO</span>
                   </Fragment>
                 }
+                link="https://outlook.office.com/bookwithme/user/8b876d6424a5445e960d92a2a28db077@scmmax.com/meetingtype/NvRUL87SiUuK83_PAIvasw2?anonymous&ismsaljsauthenabled&ep=mlink"
               ></PrimaryButton>
             </div>
           </div>
         </div>
       </div>
+      <DownloadModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+      ></DownloadModal>
     </div>
   )
 }

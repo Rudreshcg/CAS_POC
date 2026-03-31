@@ -6,10 +6,12 @@ import { Helmet } from 'react-helmet'
 import NavbarInteractive from '../components/navbar-interactive'
 import GostTealButton from '../components/gost-teal-button'
 import PrimaryButton from '../components/primary-button'
+import DownloadModal from '../components/download-modal'
 import './products.css'
 
 const Products = (props) => {
   const [activeCategory, setActiveCategory] = useState(1)
+  const [showDownloadModal, setShowDownloadModal] = useState(false)
   return (
     <div className="products-container1">
       <Helmet>
@@ -20,11 +22,11 @@ const Products = (props) => {
         />
         <link
           rel="canonical"
-          href="https://practical-mean-cassowary-094j40.teleporthq.app/products"
+          href="https://practical-mean-cassowary-094j40.teleporthq.site/products"
         />
         <meta
           property="og:url"
-          content="https://practical-mean-cassowary-094j40.teleporthq.app/products"
+          content="https://practical-mean-cassowary-094j40.teleporthq.site/products"
         />
       </Helmet>
       <NavbarInteractive
@@ -38,72 +40,47 @@ const Products = (props) => {
             <span className="products-text101"> Apollo</span>
           </Fragment>
         }
-        login={
-          <Fragment>
-            <span className="products-text102">Login</span>
-          </Fragment>
-        }
-        text1={
-          <Fragment>
-            <span className="products-text103">Team</span>
-          </Fragment>
-        }
-        text2={
-          <Fragment>
-            <span className="products-text104">Blog</span>
-          </Fragment>
-        }
         text3={
           <Fragment>
-            <span className="products-text105">About</span>
+            <span className="products-text102">Home</span>
           </Fragment>
         }
         text4={
           <Fragment>
-            <span className="products-text106">Features</span>
+            <span className="products-text103">Products</span>
           </Fragment>
         }
         text5={
           <Fragment>
-            <span className="products-text107">Pricing</span>
-          </Fragment>
-        }
-        text6={
-          <Fragment>
-            <span className="products-text108">Team</span>
-          </Fragment>
-        }
-        text7={
-          <Fragment>
-            <span className="products-text109">Blog</span>
-          </Fragment>
-        }
-        login1={
-          <Fragment>
-            <span className="products-text110">Login</span>
+            <span className="products-text104">Services</span>
           </Fragment>
         }
         products={
           <Fragment>
-            <span className="products-text111">Products</span>
+            <span className="products-text105">Products</span>
           </Fragment>
         }
         register={
           <Fragment>
-            <span className="products-text112">request Demo</span>
+            <span className="products-text106">request Demo</span>
           </Fragment>
         }
         services={
           <Fragment>
-            <span className="products-text113">Services</span>
-          </Fragment>
-        }
-        register1={
-          <Fragment>
-            <span className="products-text114">Register</span>
+            <span className="products-text107">Services</span>
           </Fragment>
         }
         rootClassName="navbar-interactiveroot-class-name1"
+        text8={
+          <Fragment>
+            <span className="products-text108"> Apollo</span>
+          </Fragment>
+        }
+        primaryButtonTest={
+          <Fragment>
+            <span className="products-text109">Request Demo</span>
+          </Fragment>
+        }
       ></NavbarInteractive>
       <div className="products-thq-product-hero-elm">
         <div className="products-thq-hero-inner-elm">
@@ -299,19 +276,19 @@ const Products = (props) => {
                         INPUTS NEEDED
                       </span>
                       <div className="products-thq-input-tags-row-elm1">
-                        <span className="products-text115">
+                        <span className="products-text110">
                           Purchase order history
                         </span>
-                        <span className="products-text116">
+                        <span className="products-text111">
                           Material master data
                         </span>
-                        <span className="products-text117">
+                        <span className="products-text112">
                           Supplier contracts
                         </span>
-                        <span className="products-text118">
+                        <span className="products-text113">
                           Spend categories
                         </span>
-                        <span className="products-text119">
+                        <span className="products-text114">
                           Commodity market feeds
                         </span>
                       </div>
@@ -319,30 +296,30 @@ const Products = (props) => {
                   </div>
                   <div className="products-thq-right-column-elm1">
                     <div className="products-thq-cpo-outcomes-block-elm1">
-                      <span className="products-text120">👤 CPO Outcomes</span>
+                      <span className="products-text115">👤 CPO Outcomes</span>
                       <div className="products-thq-bullet-point1-elm1">
-                        <span className="products-text121"> </span>
-                        <span className="products-text122">
+                        <span className="products-text116"> </span>
+                        <span className="products-text117">
                           Structured sourcing strategy for 100% of direct spend
                           — not just the top 20%
                         </span>
                       </div>
                       <div className="products-thq-bullet-point2-elm1">
-                        <span className="products-text123"> </span>
-                        <span className="products-text124">
+                        <span className="products-text118"> </span>
+                        <span className="products-text119">
                           Negotiation levers identified per material — indexed
                           contracts, spec changes, TCO shifts
                         </span>
                       </div>
                       <div className="products-thq-bullet-point3-elm1">
-                        <span className="products-text125"> </span>
-                        <span className="products-text126">
+                        <span className="products-text120"> </span>
+                        <span className="products-text121">
                           Tail spend brought under management automatically
                         </span>
                       </div>
                       <div className="products-thq-bullet-point4-elm">
-                        <span className="products-text127"> </span>
-                        <span className="products-text128">
+                        <span className="products-text122"> </span>
+                        <span className="products-text123">
                           Category strategies updated continuously as markets
                           mov
                         </span>
@@ -350,24 +327,24 @@ const Products = (props) => {
                     </div>
                     <div className="products-thq-divider-elm10"></div>
                     <div className="products-thq-cfo-outcomes-block-elm1">
-                      <span className="products-text129">💼 CFO Outcomes</span>
+                      <span className="products-text124">💼 CFO Outcomes</span>
                       <div className="products-thq-bullet-point1-elm2">
-                        <span className="products-text130"> </span>
-                        <span className="products-text131">
+                        <span className="products-text125"> </span>
+                        <span className="products-text126">
                           3–5% cost reduction identified in first category scan
                           — typically within 90 days
                         </span>
                       </div>
                       <div className="products-thq-bullet-point2-elm2">
-                        <span className="products-text132"> </span>
-                        <span className="products-text133">
+                        <span className="products-text127"> </span>
+                        <span className="products-text128">
                           Savings are structural, not one-time — indexed
                           contracts prevent cost creep
                         </span>
                       </div>
                       <div className="products-thq-bullet-point3-elm2">
-                        <span className="products-text134"> </span>
-                        <span className="products-text135">
+                        <span className="products-text129"> </span>
+                        <span className="products-text130">
                           Full spend visibility eliminates maverick buying and
                           leakage
                         </span>
@@ -392,30 +369,30 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm10">
-                        <span className="products-text136">
+                        <span className="products-text131">
                           Bill of materials
                         </span>
-                        <span className="products-text137">Spec sheets</span>
-                        <span className="products-text138">Supplier data</span>
+                        <span className="products-text132">Spec sheets</span>
+                        <span className="products-text133">Supplier data</span>
                       </div>
                       <div className="products-thq-divider-elm11"></div>
                       <div className="products-thq-cpo-row-elm10">
-                        <span className="products-text139"> </span>
-                        <span className="products-text140">
+                        <span className="products-text134"> </span>
+                        <span className="products-text135">
                           CPO: Reduces specification risk — substitutes are
                           pre-validated, not guesswork
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm10">
-                        <span className="products-text141"> </span>
-                        <span className="products-text142">
+                        <span className="products-text136"> </span>
+                        <span className="products-text137">
                           CFO: One-time cost reduction of 3-5% on substituted
                           materials
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm10">
-                      <span className="products-text143">Explore →</span>
+                      <span className="products-text138">Explore →</span>
                     </div>
                   </div>
                   <div className="products-thq-buy-more-now-or-later-card-elm">
@@ -434,28 +411,28 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm11">
-                        <span className="products-text144">Inventory data</span>
-                        <span className="products-text145">Market indices</span>
-                        <span className="products-text146">MRP Output</span>
+                        <span className="products-text139">Inventory data</span>
+                        <span className="products-text140">Market indices</span>
+                        <span className="products-text141">MRP Output</span>
                       </div>
                       <div className="products-thq-divider-elm12"></div>
                       <div className="products-thq-cpo-row-elm11">
-                        <span className="products-text147"> </span>
-                        <span className="products-text148">
+                        <span className="products-text142"> </span>
+                        <span className="products-text143">
                           CPO: Buying decisions backed by data, not buyer
                           instinct
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm11">
-                        <span className="products-text149"> </span>
-                        <span className="products-text150">
+                        <span className="products-text144"> </span>
+                        <span className="products-text145">
                           CFO: Reduces material cost variance — buys low, avoids
                           buying high
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm11">
-                      <span className="products-text151">Explore →</span>
+                      <span className="products-text146">Explore →</span>
                     </div>
                   </div>
                   <div className="products-thq-alternate-suppliers-card-elm">
@@ -474,30 +451,30 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm12">
-                        <span className="products-text152">
+                        <span className="products-text147">
                           Current supplier base
                         </span>
-                        <span className="products-text153">Trade data</span>
-                        <span className="products-text154">Category specs</span>
+                        <span className="products-text148">Trade data</span>
+                        <span className="products-text149">Category specs</span>
                       </div>
                       <div className="products-thq-divider-elm13"></div>
                       <div className="products-thq-cpo-row-elm12">
-                        <span className="products-text155"> </span>
-                        <span className="products-text156">
+                        <span className="products-text150"> </span>
+                        <span className="products-text151">
                           CPO: Reduces single-source risk — qualified
                           alternatives always on hand
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm12">
-                        <span className="products-text157"> </span>
-                        <span className="products-text158">
+                        <span className="products-text152"> </span>
+                        <span className="products-text153">
                           CFO: Creates competitive tension — lowers price even
                           if you don&apos;t switch
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm12">
-                      <span className="products-text159">Explore →</span>
+                      <span className="products-text154">Explore →</span>
                     </div>
                   </div>
                 </div>
@@ -525,14 +502,14 @@ const Products = (props) => {
                         INPUTS NEEDED
                       </span>
                       <div className="products-thq-input-tags-row-elm2">
-                        <span className="products-text160">Material specs</span>
-                        <span className="products-text161">
+                        <span className="products-text155">Material specs</span>
+                        <span className="products-text156">
                           Commodity indices
                         </span>
-                        <span className="products-text162">
+                        <span className="products-text157">
                           Manufacturing data
                         </span>
-                        <span className="products-text163">
+                        <span className="products-text158">
                           Supplier financials
                         </span>
                       </div>
@@ -540,48 +517,48 @@ const Products = (props) => {
                   </div>
                   <div className="products-thq-right-column-elm2">
                     <div className="products-thq-cpo-outcomes-block-elm2">
-                      <span className="products-text164">👤 CPO Outcomes</span>
+                      <span className="products-text159">👤 CPO Outcomes</span>
                       <div className="products-thq-bullet-point1-elm3">
-                        <span className="products-text165"> </span>
-                        <span className="products-text166">
+                        <span className="products-text160"> </span>
+                        <span className="products-text161">
                           Negotiators walk in knowing the should-cost — not just
                           the last price paid
                         </span>
                       </div>
                       <div className="products-thq-bullet-point2-elm3">
-                        <span className="products-text167"> </span>
-                        <span className="products-text168">
+                        <span className="products-text162"> </span>
+                        <span className="products-text163">
                           Supplier margin visibility prevents being taken
                           advantage of in renewals
                         </span>
                       </div>
                       <div className="products-thq-bullet-point3-elm3">
-                        <span className="products-text169"> </span>
-                        <span className="products-text170">
+                        <span className="products-text164"> </span>
+                        <span className="products-text165">
                           Models update automatically as commodity prices shift
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-divider-elm14"></div>
                     <div className="products-thq-cfo-outcomes-block-elm2">
-                      <span className="products-text171">💼 CFO Outcomes</span>
+                      <span className="products-text166">💼 CFO Outcomes</span>
                       <div className="products-thq-bullet-point1-elm4">
-                        <span className="products-text172"> </span>
-                        <span className="products-text173">
+                        <span className="products-text167"> </span>
+                        <span className="products-text168">
                           Prevents margin erosion from supplier price increases
                           not justified by costs
                         </span>
                       </div>
                       <div className="products-thq-bullet-point2-elm4">
-                        <span className="products-text174"> </span>
-                        <span className="products-text175">
+                        <span className="products-text169"> </span>
+                        <span className="products-text170">
                           Typical saving: 4–6% vs. market price on first
                           negotiation using should-cost
                         </span>
                       </div>
                       <div className="products-thq-bullet-point3-elm4">
-                        <span className="products-text176"> </span>
-                        <span className="products-text177">
+                        <span className="products-text171"> </span>
+                        <span className="products-text172">
                           Cost models feed directly into product pricing and
                           budget forecasting
                         </span>
@@ -606,30 +583,30 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm13">
-                        <span className="products-text178">Market indices</span>
-                        <span className="products-text179">Macro data</span>
-                        <span className="products-text180">
+                        <span className="products-text173">Market indices</span>
+                        <span className="products-text174">Macro data</span>
+                        <span className="products-text175">
                           Historical prices
                         </span>
                       </div>
                       <div className="products-thq-divider-elm15"></div>
                       <div className="products-thq-cpo-row-elm13">
-                        <span className="products-text181"> </span>
-                        <span className="products-text182">
+                        <span className="products-text176"> </span>
+                        <span className="products-text177">
                           CPO: Plan contract timing — lock in when market is in
                           your favour
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm13">
-                        <span className="products-text183"> </span>
-                        <span className="products-text184">
+                        <span className="products-text178"> </span>
+                        <span className="products-text179">
                           CFO: Reduces commodity cost variance — more accurate
                           budget forecasting
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm13">
-                      <span className="products-text185">Explore →</span>
+                      <span className="products-text180">Explore →</span>
                     </div>
                   </div>
                   <div className="products-thq-sustainability-tracking-card-elm">
@@ -648,29 +625,29 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm14">
-                        <span className="products-text186">Supplier data</span>
-                        <span className="products-text187">ESG databases</span>
-                        <span className="products-text188">
+                        <span className="products-text181">Supplier data</span>
+                        <span className="products-text182">ESG databases</span>
+                        <span className="products-text183">
                           Regulatory feeds
                         </span>
                       </div>
                       <div className="products-thq-divider-elm16"></div>
                       <div className="products-thq-cpo-row-elm14">
-                        <span className="products-text189"> </span>
-                        <span className="products-text190">
+                        <span className="products-text184"> </span>
+                        <span className="products-text185">
                           CPO: ESG compliance becomes proactive, not reactive
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm14">
-                        <span className="products-text191"> </span>
-                        <span className="products-text192">
+                        <span className="products-text186"> </span>
+                        <span className="products-text187">
                           CFO: Reduces regulatory risk and potential supply
                           disruption costs
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm14">
-                      <span className="products-text193">Explore →</span>
+                      <span className="products-text188">Explore →</span>
                     </div>
                   </div>
                   <div className="products-thq-resilience-sentinel-card-elm">
@@ -689,30 +666,30 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm15">
-                        <span className="products-text194">
+                        <span className="products-text189">
                           Supplier financials
                         </span>
-                        <span className="products-text195">News feeds</span>
-                        <span className="products-text196">Logistics data</span>
+                        <span className="products-text190">News feeds</span>
+                        <span className="products-text191">Logistics data</span>
                       </div>
                       <div className="products-thq-divider-elm17"></div>
                       <div className="products-thq-cpo-row-elm15">
-                        <span className="products-text197"> </span>
-                        <span className="products-text198">
+                        <span className="products-text192"> </span>
+                        <span className="products-text193">
                           CPO: Supply continuity protected — risks surface weeks
                           before they hit
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm15">
-                        <span className="products-text199"> </span>
-                        <span className="products-text200">
+                        <span className="products-text194"> </span>
+                        <span className="products-text195">
                           CFO: Avoids costly emergency sourcing and production
                           line stoppages
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm15">
-                      <span className="products-text201">Explore →</span>
+                      <span className="products-text196">Explore →</span>
                     </div>
                   </div>
                 </div>
@@ -740,14 +717,14 @@ const Products = (props) => {
                         INPUTS NEEDED
                       </span>
                       <div className="products-thq-input-tags-row-elm3">
-                        <span className="products-text202">
+                        <span className="products-text197">
                           Supplier history
                         </span>
-                        <span className="products-text203">Contract data</span>
-                        <span className="products-text204">
+                        <span className="products-text198">Contract data</span>
+                        <span className="products-text199">
                           Market benchmarks
                         </span>
-                        <span className="products-text205">
+                        <span className="products-text200">
                           Category context
                         </span>
                       </div>
@@ -755,23 +732,23 @@ const Products = (props) => {
                   </div>
                   <div className="products-thq-right-column-elm3">
                     <div className="products-thq-cpo-outcomes-block-elm3">
-                      <span className="products-text206">👤 CPO Outcomes</span>
+                      <span className="products-text201">👤 CPO Outcomes</span>
                       <div className="products-thq-bullet-point1-elm5">
-                        <span className="products-text207"> </span>
-                        <span className="products-text208">
+                        <span className="products-text202"> </span>
+                        <span className="products-text203">
                           Every buyer walks in 3× better prepared — regardless
                           of experience level
                         </span>
                       </div>
                       <div className="products-thq-bullet-point2-elm5">
-                        <span className="products-text209"> </span>
-                        <span className="products-text210">
+                        <span className="products-text204"> </span>
+                        <span className="products-text205">
                           Preparation time reduced from days to minutes
                         </span>
                       </div>
                       <div className="products-thq-bullet-point3-elm5">
-                        <span className="products-text211"> </span>
-                        <span className="products-text212">
+                        <span className="products-text206"> </span>
+                        <span className="products-text207">
                           Negotiation outcomes tracked and fed back to improve
                           future playbooks
                         </span>
@@ -779,24 +756,24 @@ const Products = (props) => {
                     </div>
                     <div className="products-thq-divider-elm18"></div>
                     <div className="products-thq-cfo-outcomes-block-elm3">
-                      <span className="products-text213">💼 CFO Outcomes</span>
+                      <span className="products-text208">💼 CFO Outcomes</span>
                       <div className="products-thq-bullet-point1-elm6">
-                        <span className="products-text214"> </span>
-                        <span className="products-text215">
+                        <span className="products-text209"> </span>
+                        <span className="products-text210">
                           Better negotiations = better contracts = sustained
                           margin protection
                         </span>
                       </div>
                       <div className="products-thq-bullet-point2-elm6">
-                        <span className="products-text216"> </span>
-                        <span className="products-text217">
+                        <span className="products-text211"> </span>
+                        <span className="products-text212">
                           Procurement team capacity freed for higher-value
                           strategic work
                         </span>
                       </div>
                       <div className="products-thq-bullet-point3-elm6">
-                        <span className="products-text218"> </span>
-                        <span className="products-text219">
+                        <span className="products-text213"> </span>
+                        <span className="products-text214">
                           Reduces dependency on senior buyer knowledge —
                           scalable across the team
                         </span>
@@ -824,28 +801,28 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm16">
-                        <span className="products-text222">MRP Output</span>
-                        <span className="products-text223">Spend History</span>
-                        <span className="products-text224">Supplier list</span>
+                        <span className="products-text217">MRP Output</span>
+                        <span className="products-text218">Spend History</span>
+                        <span className="products-text219">Supplier list</span>
                       </div>
                       <div className="products-thq-divider-elm19"></div>
                       <div className="products-thq-cpo-row-elm16">
-                        <span className="products-text225"> </span>
-                        <span className="products-text226">
+                        <span className="products-text220"> </span>
+                        <span className="products-text221">
                           CPO: No material gets missed — RFQs go out before
                           contracts auto-renew or safety stocks are consumed
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm16">
-                        <span className="products-text227"> </span>
-                        <span className="products-text228">
+                        <span className="products-text222"> </span>
+                        <span className="products-text223">
                           CFO: Competitive tension maintained on all spend — not
                           just priority categories
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm16">
-                      <span className="products-text229">Explore →</span>
+                      <span className="products-text224">Explore →</span>
                     </div>
                   </div>
                   <div className="products-thq-sipplier-relationship-card-elm">
@@ -864,30 +841,30 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm17">
-                        <span className="products-text230">Delivery data</span>
-                        <span className="products-text231">
+                        <span className="products-text225">Delivery data</span>
+                        <span className="products-text226">
                           Communication logs
                         </span>
-                        <span className="products-text232">MRP Output</span>
+                        <span className="products-text227">MRP Output</span>
                       </div>
                       <div className="products-thq-divider-elm20"></div>
                       <div className="products-thq-cpo-row-elm17">
-                        <span className="products-text233"> </span>
-                        <span className="products-text234">
+                        <span className="products-text228"> </span>
+                        <span className="products-text229">
                           CPO: Supplier performance managed proactively, not
                           reactively
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm17">
-                        <span className="products-text235"> </span>
-                        <span className="products-text236">
+                        <span className="products-text230"> </span>
+                        <span className="products-text231">
                           CFO: Tracks joint development projects and outcomes.
                           Reduces cost of poor supplier performance
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm17">
-                      <span className="products-text237">Explore →</span>
+                      <span className="products-text232">Explore →</span>
                     </div>
                   </div>
                   <div className="products-thq-market-demand-supply-card-elm">
@@ -906,29 +883,29 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm18">
-                        <span className="products-text238">Market data</span>
-                        <span className="products-text239">
+                        <span className="products-text233">Market data</span>
+                        <span className="products-text234">
                           Industry reports
                         </span>
-                        <span className="products-text240">Demand signals</span>
+                        <span className="products-text235">Demand signals</span>
                       </div>
                       <div className="products-thq-divider-elm21"></div>
                       <div className="products-thq-cpo-row-elm18">
-                        <span className="products-text241"> </span>
-                        <span className="products-text242">
+                        <span className="products-text236"> </span>
+                        <span className="products-text237">
                           CPO: Buyers act on market intelligence, not gut feel
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm18">
-                        <span className="products-text243"> </span>
-                        <span className="products-text244">
+                        <span className="products-text238"> </span>
+                        <span className="products-text239">
                           CFO: Buying decisions timed to market conditions —
                           reduces overpaying
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm18">
-                      <span className="products-text245">Explore →</span>
+                      <span className="products-text240">Explore →</span>
                     </div>
                   </div>
                 </div>
@@ -956,34 +933,34 @@ const Products = (props) => {
                         INPUTS NEEDED
                       </span>
                       <div className="products-thq-input-tags-row-elm4">
-                        <span className="products-text246">
+                        <span className="products-text241">
                           Material master
                         </span>
-                        <span className="products-text247">Vendor master</span>
-                        <span className="products-text248">User Inputs</span>
+                        <span className="products-text242">Vendor master</span>
+                        <span className="products-text243">User Inputs</span>
                       </div>
                     </div>
                   </div>
                   <div className="products-thq-right-column-elm4">
                     <div className="products-thq-cpo-outcomes-block-elm4">
-                      <span className="products-text249">👤 CPO Outcomes</span>
+                      <span className="products-text244">👤 CPO Outcomes</span>
                       <div className="products-thq-bullet-point1-elm7">
-                        <span className="products-text250"> </span>
-                        <span className="products-text251">
+                        <span className="products-text245"> </span>
+                        <span className="products-text246">
                           Procurement decisions based on accurate, consolidated
                           spend data — not fragmented records
                         </span>
                       </div>
                       <div className="products-thq-bullet-point2-elm7">
-                        <span className="products-text252"> </span>
-                        <span className="products-text253">
+                        <span className="products-text247"> </span>
+                        <span className="products-text248">
                           Eliminates the hours spent by buyers reconciling
                           duplicate records manually
                         </span>
                       </div>
                       <div className="products-thq-bullet-point3-elm7">
-                        <span className="products-text254"> </span>
-                        <span className="products-text255">
+                        <span className="products-text249"> </span>
+                        <span className="products-text250">
                           Foundation for all Apollo agents — clean data means
                           better recommendations
                         </span>
@@ -991,24 +968,24 @@ const Products = (props) => {
                     </div>
                     <div className="products-thq-divider-elm22"></div>
                     <div className="products-thq-cfo-outcomes-block-elm4">
-                      <span className="products-text256">💼 CFO Outcomes</span>
+                      <span className="products-text251">💼 CFO Outcomes</span>
                       <div className="products-thq-bullet-point1-elm8">
-                        <span className="products-text257"> </span>
-                        <span className="products-text258">
+                        <span className="products-text252"> </span>
+                        <span className="products-text253">
                           True spend visibility — no hidden maverick buying
                           obscured by duplicates
                         </span>
                       </div>
                       <div className="products-thq-bullet-point2-elm8">
-                        <span className="products-text259"> </span>
-                        <span className="products-text260">
+                        <span className="products-text254"> </span>
+                        <span className="products-text255">
                           Accurate supplier consolidation opportunities surface
                           — reduces supply base complexity
                         </span>
                       </div>
                       <div className="products-thq-bullet-point3-elm8">
-                        <span className="products-text261"> </span>
-                        <span className="products-text262">
+                        <span className="products-text256"> </span>
+                        <span className="products-text257">
                           Audit-ready data across all direct spend categories
                         </span>
                       </div>
@@ -1032,32 +1009,32 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm19">
-                        <span className="products-text263">
+                        <span className="products-text258">
                           Material master
                         </span>
-                        <span className="products-text264">Vendor master</span>
-                        <span className="products-text265">
+                        <span className="products-text259">Vendor master</span>
+                        <span className="products-text260">
                           External databases
                         </span>
                       </div>
                       <div className="products-thq-divider-elm23"></div>
                       <div className="products-thq-cpo-row-elm19">
-                        <span className="products-text266"> </span>
-                        <span className="products-text267">
+                        <span className="products-text261"> </span>
+                        <span className="products-text262">
                           CPO: Buyers can find and compare materials instantly —
                           no more guesswork
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm19">
-                        <span className="products-text268"> </span>
-                        <span className="products-text269">
+                        <span className="products-text263"> </span>
+                        <span className="products-text264">
                           CFO: Better data = better AI = better procurement
                           outcomes across the board
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm19">
-                      <span className="products-text270">Explore →</span>
+                      <span className="products-text265">Explore →</span>
                     </div>
                   </div>
                   <div className="products-thq-data-management-in-ma-card-elm">
@@ -1076,30 +1053,30 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm20">
-                        <span className="products-text271">
+                        <span className="products-text266">
                           Both entity ERPs
                         </span>
-                        <span className="products-text272">Spend data</span>
-                        <span className="products-text273">Supplier lists</span>
+                        <span className="products-text267">Spend data</span>
+                        <span className="products-text268">Supplier lists</span>
                       </div>
                       <div className="products-thq-divider-elm24"></div>
                       <div className="products-thq-cpo-row-elm20">
-                        <span className="products-text274"> </span>
-                        <span className="products-text275">
+                        <span className="products-text269"> </span>
+                        <span className="products-text270">
                           CPO: Procurement integration roadmap built on data,
                           not assumptions
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm20">
-                        <span className="products-text276"> </span>
-                        <span className="products-text277">
+                        <span className="products-text271"> </span>
+                        <span className="products-text272">
                           CFO: Procurement synergies quantified and actioned
                           faster — accelerates M&amp;A ROI
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm20">
-                      <span className="products-text278">Explore →</span>
+                      <span className="products-text273">Explore →</span>
                     </div>
                   </div>
                   <div className="products-thq-analytics-card-elm">
@@ -1119,30 +1096,30 @@ const Products = (props) => {
                         INPUTS
                       </span>
                       <div className="products-thq-tags-tow-elm21">
-                        <span className="products-text279">ERP data</span>
-                        <span className="products-text280">Contract data</span>
-                        <span className="products-text281">
+                        <span className="products-text274">ERP data</span>
+                        <span className="products-text275">Contract data</span>
+                        <span className="products-text276">
                           Communication Logs
                         </span>
                       </div>
                       <div className="products-thq-divider-elm25"></div>
                       <div className="products-thq-cpo-row-elm21">
-                        <span className="products-text282"> </span>
-                        <span className="products-text283">
+                        <span className="products-text277"> </span>
+                        <span className="products-text278">
                           CPO: Real-time view of team performance and category
                           health
                         </span>
                       </div>
                       <div className="products-thq-cfo-row-elm21">
-                        <span className="products-text284"> </span>
-                        <span className="products-text285">
+                        <span className="products-text279"> </span>
+                        <span className="products-text280">
                           CFO: Savings verified, tracked, and reported — not
                           just claimed
                         </span>
                       </div>
                     </div>
                     <div className="products-thq-card-footer-elm21">
-                      <span className="products-text286">Explore →</span>
+                      <span className="products-text281">Explore →</span>
                     </div>
                   </div>
                 </div>
@@ -1165,7 +1142,7 @@ const Products = (props) => {
               <span className="products-thq-line2-elm1">in your world.</span>
             </div>
             <div className="products-thq-sub-title-row-elm">
-              <span className="products-text287">
+              <span className="products-text282">
                 Enterprise procurement data is among the most commercially
                 sensitive information a company holds. Apollo is built on a
                 non-negotiable principle: your data never leaves your
@@ -1285,11 +1262,11 @@ const Products = (props) => {
         <div className="products-thq-comparison-inner-elm">
           <div className="products-thq-eyebrow-row-elm2">
             <div className="products-thq-line-elm2"></div>
-            <span className="products-text291">How Apollo is Different</span>
+            <span className="products-text286">How Apollo is Different</span>
           </div>
           <div className="products-thq-title-elm26">
-            <span className="products-text292">Not a replacement.</span>
-            <span className="products-text293">An unfair advantage.</span>
+            <span className="products-text287">Not a replacement.</span>
+            <span className="products-text288">An unfair advantage.</span>
           </div>
           <span className="products-thq-subtitle-elm1">
             ERP (SAP / ORACLE etc) and Procurement software (Ariba / Coupa etc)
@@ -1300,8 +1277,8 @@ const Products = (props) => {
         <div className="products-container7">
           <div className="products-container8">
             <Script
-              html={`<div style="width:100\%; overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid #E8ECF4; border-radius:14px;">
-  <table style="width:100\%; min-width:800px; border-collapse:collapse; overflow:hidden;">
+              html={`<div style="width:100%;overflow:auto;">
+  <table style="width:100%;border-collapse:collapse;border:1px solid #E8ECF4;border-radius:14px;overflow:hidden;">
     <thead>
       <tr>
         <th
@@ -1402,24 +1379,30 @@ const Products = (props) => {
                 rootClassName="gost-teal-buttonroot-class-name5"
                 gostTealButton={
                   <Fragment>
-                    <span className="products-text294">
+                    <span className="products-text289">
                       download agent overview
                     </span>
                   </Fragment>
                 }
+                onClick={() => setShowDownloadModal(true)}
               ></GostTealButton>
               <PrimaryButton
                 rootClassName="primary-buttonroot-class-name6"
                 primaryButtonTest={
                   <Fragment>
-                    <span className="products-text295">REQUEST DEMO</span>
+                    <span className="products-text290">REQUEST DEMO</span>
                   </Fragment>
                 }
+                link="https://outlook.office.com/bookwithme/user/8b876d6424a5445e960d92a2a28db077@scmmax.com/meetingtype/NvRUL87SiUuK83_PAIvasw2?anonymous&ismsaljsauthenabled&ep=mlink"
               ></PrimaryButton>
             </div>
           </div>
         </div>
       </div>
+      <DownloadModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+      ></DownloadModal>
     </div>
   )
 }

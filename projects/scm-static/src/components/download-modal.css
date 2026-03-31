@@ -1,0 +1,140 @@
+.download-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 13, 20, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.download-modal-content {
+  background: #1a2035;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 450px;
+  position: relative;
+  padding: 40px;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6);
+  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.download-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #7A8AAE;
+  font-size: 28px;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.download-modal-close:hover {
+  color: #fff;
+}
+
+.download-modal-form h2, .download-modal-success h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #D9A94E;
+}
+
+.download-modal-form p, .download-modal-success p {
+  font-size: 14px;
+  color: #C8D0E0;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.download-modal-field {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.download-modal-field label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #7A8AAE;
+  font-weight: 500;
+}
+
+.download-modal-field input {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.download-modal-field input:focus {
+  border-color: #00D4BC;
+}
+
+.download-modal-button {
+  width: 100%;
+  background: #C9933A;
+  color: #0A0D14;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 10px;
+}
+
+.download-modal-button:hover {
+  background: #D9A94E;
+}
+
+.download-modal-button:active {
+  transform: scale(0.98);
+}
+
+.download-modal-button:disabled {
+  background: #3A4870;
+  color: #7A8AAE;
+  cursor: not-allowed;
+}
+
+.download-modal-error {
+  background: rgba(255, 95, 87, 0.1);
+  border: 1px solid rgba(255, 95, 87, 0.2);
+  color: #FF5F57;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

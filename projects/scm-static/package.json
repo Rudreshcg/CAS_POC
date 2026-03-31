@@ -2,7 +2,6 @@
   "name": "practical-mean-cassowary",
   "version": "1.0.0",
   "private": true,
-  "homepage": "/",
   "dependencies": {
     "@craco/craco": "^7.1.0",
     "react": "^17.0.2",

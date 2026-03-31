@@ -163,3 +163,12 @@
 .card-wrapper-tealroot-class-name4 {
   display: none;
 }
+ 
+@media(max-width: 479px) {
+  .card-wrapper-teal-thq-card-body-elm {
+    padding: 6px;
+  }
+  .card-wrapper-teal-thq-card-footer-elm {
+    gap: 10px 16px;
+  }
+}

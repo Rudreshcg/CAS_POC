@@ -1,0 +1,6 @@
+fastapi
+pydantic[email]
+uvicorn
+python-dotenv
+boto3
+gunicorn

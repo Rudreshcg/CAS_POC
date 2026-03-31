@@ -1,15 +1,14 @@
-import React, { useState, Fragment } from 'react'
+import React, { Fragment } from 'react'
 import { Link } from 'react-router-dom'
 
+import Script from 'dangerous-html/react'
 import PropTypes from 'prop-types'
 
 import './navbar-interactive.css'
 
 const NavbarInteractive = (props) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
   return (
-    <div className={`navbar-interactive-container ${props.rootClassName} `}>
+    <div className={`navbar-interactive-container1 ${props.rootClassName} `}>
       <header
         data-thq="thq-navbar"
         className="navbar-interactive-thq-navbar-interactive-elm"
@@ -25,7 +24,7 @@ const NavbarInteractive = (props) => {
         <Link to="/" className="navbar-interactive-navlink2">
           {props.text ?? (
             <Fragment>
-              <span className="navbar-interactive-text30"> Apollo</span>
+              <span className="navbar-interactive-text18"> Apollo</span>
             </Fragment>
           )}
         </Link>
@@ -34,81 +33,94 @@ const NavbarInteractive = (props) => {
           className="navbar-interactive-thq-desktop-menu-elm"
         >
           <nav className="navbar-interactive-thq-links-elm1">
-            <Link to="/" className="navbar-interactive-thq-home-elm">
+            <Link to="/" className="navbar-interactive-thq-home-elm1">
               {props.home ?? (
                 <Fragment>
-                  <span className="navbar-interactive-text26">Home</span>
+                  <span className="navbar-interactive-text14">Home</span>
                 </Fragment>
               )}
             </Link>
             <Link
               to="/products"
-              className="navbar-interactive-thq-products-elm"
+              className="navbar-interactive-thq-products-elm1"
             >
               {props.products ?? (
                 <Fragment>
-                  <span className="navbar-interactive-text27">Products</span>
+                  <span className="navbar-interactive-text15">Products</span>
                 </Fragment>
               )}
             </Link>
             <Link
               to="/services"
-              className="navbar-interactive-thq-services-elm"
+              className="navbar-interactive-thq-services-elm1"
             >
               {props.services ?? (
                 <Fragment>
-                  <span className="navbar-interactive-text21">Services</span>
+                  <span className="navbar-interactive-text12">Services</span>
                 </Fragment>
               )}
             </Link>
           </nav>
           <div className="navbar-interactive-thq-buttons-elm1">
-            <button className="navbar-interactive-thq-login-elm1 button">
-              <span>
-                {props.login ?? (
-                  <Fragment>
-                    <span className="navbar-interactive-text33">Login</span>
-                  </Fragment>
-                )}
-              </span>
-            </button>
-            <button className="navbar-interactive-thq-register-elm1 button">
+            <a
+              href="https://outlook.office.com/bookwithme/user/8b876d6424a5445e960d92a2a28db077@scmmax.com/meetingtype/NvRUL87SiUuK83_PAIvasw2?anonymous&ismsaljsauthenabled&ep=mlink"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="navbar-interactive-thq-register-elm button"
+            >
               <span>
                 {props.register ?? (
                   <Fragment>
-                    <span className="navbar-interactive-text29">
+                    <span className="navbar-interactive-text17">
                       request Demo
                     </span>
                   </Fragment>
                 )}
               </span>
-            </button>
+            </a>
           </div>
         </div>
         <div
           data-thq="thq-burger-menu"
           className="navbar-interactive-thq-burger-menu-elm"
-          onClick={() => setIsMenuOpen(true)}
         >
           <svg viewBox="0 0 1024 1024" className="navbar-interactive-icon10">
             <path d="M128 554.667h768c23.552 0 42.667-19.115 42.667-42.667s-19.115-42.667-42.667-42.667h-768c-23.552 0-42.667 19.115-42.667 42.667s19.115 42.667 42.667 42.667zM128 298.667h768c23.552 0 42.667-19.115 42.667-42.667s-19.115-42.667-42.667-42.667h-768c-23.552 0-42.667 19.115-42.667 42.667s19.115 42.667 42.667 42.667zM128 810.667h768c23.552 0 42.667-19.115 42.667-42.667s-19.115-42.667-42.667-42.667h-768c-23.552 0-42.667 19.115-42.667 42.667s19.115 42.667 42.667 42.667z"></path>
           </svg>
+          <div>
+            <div className="navbar-interactive-container3">
+              <Script
+                html={`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+  style="display:block;cursor:pointer;flex-shrink:0;">
+  <path d="M3 6H21" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+  <path d="M3 12H21" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+  <path d="M3 18H21" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+</svg>`}
+              ></Script>
+            </div>
+          </div>
         </div>
         <div
           data-thq="thq-mobile-menu"
-          className={`navbar-interactive-thq-mobile-menu-elm ${isMenuOpen ? 'teleport-show' : ''}`}
+          className="navbar-interactive-thq-mobile-menu-elm"
         >
           <div className="navbar-interactive-thq-nav-elm">
             <div className="navbar-interactive-thq-top-elm">
               <img
-                alt={props.logoAlt}
-                src={props.imageSrc}
+                src="/logo%20-%20final%20-%20black%20background%20-%20small-1500h.png"
+                alt="image"
                 className="navbar-interactive-thq-logo-elm"
               />
+              <Link to="/" className="navbar-interactive-navlink3">
+                {props.text8 ?? (
+                  <Fragment>
+                    <span className="navbar-interactive-text20"> Apollo</span>
+                  </Fragment>
+                )}
+              </Link>
               <div
                 data-thq="thq-close-menu"
                 className="navbar-interactive-thq-close-menu-elm"
-                onClick={() => setIsMenuOpen(false)}
               >
                 <svg
                   viewBox="0 0 1024 1024"
@@ -116,58 +128,67 @@ const NavbarInteractive = (props) => {
                 >
                   <path d="M810 274l-238 238 238 238-60 60-238-238-238 238-60-60 238-238-238-238 60-60 238 238 238-238z"></path>
                 </svg>
+                <div>
+                  <div className="navbar-interactive-container5">
+                    <Script
+                      html={`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+  style="display:block;cursor:pointer;flex-shrink:0;">
+  <path d="M18 6L6 18" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+  <path d="M6 6L18 18" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" />
+</svg>`}
+                    ></Script>
+                  </div>
+                </div>
               </div>
             </div>
             <nav className="navbar-interactive-thq-links-elm2">
-              <Link to="/" className="navbar-interactive-navlink5">
-                <span className="navbar-interactive-text14">
-                  {props.home ?? (
-                    <Fragment>
-                      <span className="navbar-interactive-text26">Home</span>
-                    </Fragment>
-                  )}
-                </span>
+              <Link to="/" className="navbar-interactive-thq-home-elm2">
+                {props.text3 ?? (
+                  <Fragment>
+                    <span className="navbar-interactive-text13">Home</span>
+                  </Fragment>
+                )}
               </Link>
-              <Link to="/products" className="navbar-interactive-navlink6">
-                <span className="navbar-interactive-text15">
-                  {props.products ?? (
-                    <Fragment>
-                      <span className="navbar-interactive-text27">Products</span>
-                    </Fragment>
-                  )}
-                </span>
+              <Link
+                to="/products"
+                className="navbar-interactive-thq-products-elm2"
+              >
+                {props.text4 ?? (
+                  <Fragment>
+                    <span className="navbar-interactive-text16">Products</span>
+                  </Fragment>
+                )}
               </Link>
-              <Link to="/services" className="navbar-interactive-navlink7">
-                <span className="navbar-interactive-text16">
-                  {props.services ?? (
-                    <Fragment>
-                      <span className="navbar-interactive-text21">Services</span>
-                    </Fragment>
-                  )}
-                </span>
+              <Link
+                to="/services"
+                className="navbar-interactive-thq-services-elm2"
+              >
+                {props.text5 ?? (
+                  <Fragment>
+                    <span className="navbar-interactive-text19">Services</span>
+                  </Fragment>
+                )}
               </Link>
             </nav>
             <div className="navbar-interactive-thq-buttons-elm2">
-              <button className="navbar-interactive-thq-login-elm2 button">
-                <span>
-                  {props.login1 ?? (
-                    <Fragment>
-                      <span className="navbar-interactive-text34">Login</span>
-                    </Fragment>
-                  )}
-                </span>
-              </button>
-              <button className="button">
-                <span>
-                  {props.register1 ?? (
-                    <Fragment>
-                      <span className="navbar-interactive-text31">
-                        Register
-                      </span>
-                    </Fragment>
-                  )}
-                </span>
-              </button>
+              <div className="navbar-interactive-container6">
+                <a
+                  href="https://outlook.office.com/bookwithme/user/8b876d6424a5445e960d92a2a28db077@scmmax.com/meetingtype/NvRUL87SiUuK83_PAIvasw2?anonymous&ismsaljsauthenabled&ep=mlink"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="navbar-interactive-thq-primary-button-test-elm button"
+                >
+                  <span>
+                    {props.primaryButtonTest ?? (
+                      <Fragment>
+                        <span className="navbar-interactive-text21">
+                          Request Demo
+                        </span>
+                      </Fragment>
+                    )}
+                  </span>
+                </a>
+              </div>
             </div>
           </div>
           <div>
@@ -198,35 +219,23 @@ const NavbarInteractive = (props) => {
 
 NavbarInteractive.defaultProps = {
   services: undefined,
-  logoSrc: '/scmmaxLogo.png',
-  text2: undefined,
   text3: undefined,
-  logoAlt: 'image',
-  text1: undefined,
-  text7: undefined,
   home: undefined,
   products: undefined,
   text4: undefined,
   register: undefined,
-  imageSrc: '/scmmaxLogo.png',
+  imageSrc: '/logo%20-%20final%20-%20black%20background%20-%20small-1500h.png',
   rootClassName: '',
   text: undefined,
-  register1: undefined,
   text5: undefined,
-  login: undefined,
   imageAlt: 'logo',
-  login1: undefined,
-  text6: undefined,
+  text8: undefined,
+  primaryButtonTest: undefined,
 }
 
 NavbarInteractive.propTypes = {
   services: PropTypes.element,
-  logoSrc: PropTypes.string,
-  text2: PropTypes.element,
   text3: PropTypes.element,
-  logoAlt: PropTypes.string,
-  text1: PropTypes.element,
-  text7: PropTypes.element,
   home: PropTypes.element,
   products: PropTypes.element,
   text4: PropTypes.element,
@@ -234,12 +243,10 @@ NavbarInteractive.propTypes = {
   imageSrc: PropTypes.string,
   rootClassName: PropTypes.string,
   text: PropTypes.element,
-  register1: PropTypes.element,
   text5: PropTypes.element,
-  login: PropTypes.element,
   imageAlt: PropTypes.string,
-  login1: PropTypes.element,
-  text6: PropTypes.element,
+  text8: PropTypes.element,
+  primaryButtonTest: PropTypes.element,
 }
 
 export default NavbarInteractive
