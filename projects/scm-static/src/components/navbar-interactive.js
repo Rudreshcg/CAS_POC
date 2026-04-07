@@ -7,6 +7,9 @@ import PropTypes from 'prop-types'
 import './navbar-interactive.css'
 
 const NavbarInteractive = (props) => {
+  const handleDemoLink = () => {
+    window.open('https://outlook.office.com/book/RequestDemoSchedulingPage@scmmax.com/?ismsaljsauthenabled', '_blank');
+  }
   return (
     <div className={`navbar-interactive-container1 ${props.rootClassName} `}>
       <header
@@ -24,7 +27,7 @@ const NavbarInteractive = (props) => {
         <Link to="/" className="navbar-interactive-navlink2">
           {props.text ?? (
             <Fragment>
-              <span className="navbar-interactive-text18"> Apollo</span>
+              <span className="navbar-interactive-text22"> Apollo</span>
             </Fragment>
           )}
         </Link>
@@ -36,7 +39,7 @@ const NavbarInteractive = (props) => {
             <Link to="/" className="navbar-interactive-thq-home-elm1">
               {props.home ?? (
                 <Fragment>
-                  <span className="navbar-interactive-text14">Home</span>
+                  <span className="navbar-interactive-text18">Home</span>
                 </Fragment>
               )}
             </Link>
@@ -46,7 +49,7 @@ const NavbarInteractive = (props) => {
             >
               {props.products ?? (
                 <Fragment>
-                  <span className="navbar-interactive-text15">Products</span>
+                  <span className="navbar-interactive-text19">Products</span>
                 </Fragment>
               )}
             </Link>
@@ -60,24 +63,35 @@ const NavbarInteractive = (props) => {
                 </Fragment>
               )}
             </Link>
+            <Link
+              to="/about-us"
+              className="navbar-interactive-thq-about-us-elm1"
+            >
+              {props.services2 ?? (
+                <Fragment>
+                  <span className="navbar-interactive-text16">About Us</span>
+                </Fragment>
+              )}
+            </Link>
+            <Link to="/careers" className="navbar-interactive-thq-careers-elm1">
+              Careers
+            </Link>
           </nav>
           <div className="navbar-interactive-thq-buttons-elm1">
-            <a
-              href="https://outlook.office.com/bookwithme/user/8b876d6424a5445e960d92a2a28db077@scmmax.com/meetingtype/NvRUL87SiUuK83_PAIvasw2?anonymous&ismsaljsauthenabled&ep=mlink"
-              target="_blank"
-              rel="noreferrer noopener"
+            <button
+              onClick={handleDemoLink}
               className="navbar-interactive-thq-register-elm button"
             >
               <span>
                 {props.register ?? (
                   <Fragment>
-                    <span className="navbar-interactive-text17">
+                    <span className="navbar-interactive-text21">
                       request Demo
                     </span>
                   </Fragment>
                 )}
               </span>
-            </a>
+            </button>
           </div>
         </div>
         <div
@@ -107,14 +121,14 @@ const NavbarInteractive = (props) => {
           <div className="navbar-interactive-thq-nav-elm">
             <div className="navbar-interactive-thq-top-elm">
               <img
-                src="/logo%20-%20final%20-%20black%20background%20-%20small-1500h.png"
                 alt="image"
+                src="/logo%20-%20final%20-%20black%20background%20-%20small-1500h.png"
                 className="navbar-interactive-thq-logo-elm"
               />
               <Link to="/" className="navbar-interactive-navlink3">
                 {props.text8 ?? (
                   <Fragment>
-                    <span className="navbar-interactive-text20"> Apollo</span>
+                    <span className="navbar-interactive-text17"> Apollo</span>
                   </Fragment>
                 )}
               </Link>
@@ -155,7 +169,7 @@ const NavbarInteractive = (props) => {
               >
                 {props.text4 ?? (
                   <Fragment>
-                    <span className="navbar-interactive-text16">Products</span>
+                    <span className="navbar-interactive-text20">Products</span>
                   </Fragment>
                 )}
               </Link>
@@ -165,29 +179,48 @@ const NavbarInteractive = (props) => {
               >
                 {props.text5 ?? (
                   <Fragment>
-                    <span className="navbar-interactive-text19">Services</span>
+                    <span className="navbar-interactive-text23">Services</span>
+                  </Fragment>
+                )}
+              </Link>
+              <Link
+                to="/about-us"
+                className="navbar-interactive-thq-about-us-elm2"
+              >
+                {props.text1 ?? (
+                  <Fragment>
+                    <span className="navbar-interactive-text14">About Us</span>
+                  </Fragment>
+                )}
+              </Link>
+              <Link
+                to="/careers"
+                className="navbar-interactive-thq-careers-elm2"
+              >
+                {props.text51 ?? (
+                  <Fragment>
+                    <span className="navbar-interactive-text24">Careers</span>
                   </Fragment>
                 )}
               </Link>
             </nav>
             <div className="navbar-interactive-thq-buttons-elm2">
               <div className="navbar-interactive-container6">
-                <a
-                  href="https://outlook.office.com/bookwithme/user/8b876d6424a5445e960d92a2a28db077@scmmax.com/meetingtype/NvRUL87SiUuK83_PAIvasw2?anonymous&ismsaljsauthenabled&ep=mlink"
-                  target="_blank"
-                  rel="noreferrer noopener"
+                <button
+                  type="button"
+                  onClick={handleDemoLink}
                   className="navbar-interactive-thq-primary-button-test-elm button"
                 >
                   <span>
                     {props.primaryButtonTest ?? (
                       <Fragment>
-                        <span className="navbar-interactive-text21">
+                        <span className="navbar-interactive-text15">
                           Request Demo
                         </span>
                       </Fragment>
                     )}
                   </span>
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -220,6 +253,10 @@ const NavbarInteractive = (props) => {
 NavbarInteractive.defaultProps = {
   services: undefined,
   text3: undefined,
+  text1: undefined,
+  primaryButtonTest: undefined,
+  services2: undefined,
+  text8: undefined,
   home: undefined,
   products: undefined,
   text4: undefined,
@@ -229,13 +266,16 @@ NavbarInteractive.defaultProps = {
   text: undefined,
   text5: undefined,
   imageAlt: 'logo',
-  text8: undefined,
-  primaryButtonTest: undefined,
+  text51: undefined,
 }
 
 NavbarInteractive.propTypes = {
   services: PropTypes.element,
   text3: PropTypes.element,
+  text1: PropTypes.element,
+  primaryButtonTest: PropTypes.element,
+  services2: PropTypes.element,
+  text8: PropTypes.element,
   home: PropTypes.element,
   products: PropTypes.element,
   text4: PropTypes.element,
@@ -245,8 +285,7 @@ NavbarInteractive.propTypes = {
   text: PropTypes.element,
   text5: PropTypes.element,
   imageAlt: PropTypes.string,
-  text8: PropTypes.element,
-  primaryButtonTest: PropTypes.element,
+  text51: PropTypes.element,
 }
 
 export default NavbarInteractive

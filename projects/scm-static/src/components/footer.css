@@ -8,17 +8,17 @@
   flex-direction: column;
   background-color: #0A0D14;
 }
- 
+
 .footer-thq-footer-top-elm {
   gap: 48px;
   flex: 0 0 auto;
   width: 100%;
   display: flex;
   align-items: flex-start;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   padding-bottom: var(--dl-layout-space-space48);
 }
- 
+
 .footer-thq-brand-elm {
   gap: 16px;
   flex: 0 0 auto;
@@ -29,19 +29,19 @@
   padding-left: 10px;
   flex-direction: column;
 }
- 
+
 .footer-thq-logo-container-elm {
   flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
 }
- 
+
 .footer-image {
   width: 145px;
   height: 42px;
   object-fit: cover;
 }
- 
+
 .footer-text10 {
   color: rgb(217, 169, 78);
   font-size: 35px;
@@ -50,7 +50,7 @@
   font-weight: 300;
   letter-spacing: 0.03em;
 }
- 
+
 .footer-text11 {
   fill: #C9933A;
   color: rgb(201, 147, 58);
@@ -58,7 +58,7 @@
   font-family: "Fraunces";
   font-weight: 300;
 }
- 
+
 .footer-thq-teal-line-elm {
   flex: 0 0 auto;
   color: 00D4BC;
@@ -70,7 +70,7 @@
   flex-direction: column;
   background-color: #00D4BC;
 }
- 
+
 .footer-text12 {
   color: #4a5880;
   font-size: 13px;
@@ -78,7 +78,7 @@
   min-width: auto;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-products-elm {
   gap: 12px;
   flex: 0 0 auto;
@@ -88,7 +88,7 @@
   align-items: flex-start;
   flex-direction: column;
 }
- 
+
 .footer-thq-product-elm {
   fill: #7A8AAE;
   color: rgb(122, 138, 174);
@@ -98,7 +98,7 @@
   font-weight: 500;
   letter-spacing: 0.14em;
 }
- 
+
 .footer-thq-apollo-platform-elm {
   color: #C8D0E0;
   cursor: pointer;
@@ -106,35 +106,37 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-apollo-platform-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-margin-expansion-elm {
   color: #C8D0E0;
   cursor: pointer;
   font-size: 14px;
   transition: 0.3s;
   font-family: "DM Sans";
+  text-decoration: none;
 }
- 
+
 .footer-thq-margin-expansion-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-margin-protection-elm {
   color: #C8D0E0;
   cursor: pointer;
   font-size: 14px;
   transition: 0.3s;
   font-family: "DM Sans";
+  text-decoration: none;
 }
- 
+
 .footer-thq-margin-protection-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-productivity-elm {
   color: #C8D0E0;
   cursor: pointer;
@@ -142,11 +144,11 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-productivity-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-data-analytics-elm {
   color: #C8D0E0;
   cursor: pointer;
@@ -154,11 +156,11 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-data-analytics-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-services-elm1 {
   gap: 12px;
   flex: 0 0 auto;
@@ -168,7 +170,7 @@
   align-items: flex-start;
   flex-direction: column;
 }
- 
+
 .footer-thq-services-elm2 {
   fill: #7A8AAE;
   color: rgb(122, 138, 174);
@@ -178,7 +180,7 @@
   font-weight: 500;
   letter-spacing: 0.14em;
 }
- 
+
 .footer-thq-buying-services-elm {
   color: #C8D0E0;
   cursor: pointer;
@@ -186,11 +188,11 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-buying-services-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-consulting-elm {
   color: rgb(200, 208, 224);
   cursor: pointer;
@@ -198,11 +200,11 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-consulting-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-data-services-elm {
   color: #C8D0E0;
   cursor: pointer;
@@ -210,11 +212,11 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-data-services-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-forward-deployed-engineers-elm {
   color: #C8D0E0;
   cursor: pointer;
@@ -222,11 +224,11 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-forward-deployed-engineers-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-company-elm1 {
   gap: 12px;
   flex: 0 0 auto;
@@ -236,7 +238,7 @@
   align-items: flex-start;
   flex-direction: column;
 }
- 
+
 .footer-thq-company-elm2 {
   fill: #7A8AAE;
   color: rgb(122, 138, 174);
@@ -246,7 +248,7 @@
   font-weight: 500;
   letter-spacing: 0.14em;
 }
- 
+
 .footer-thq-about-elm {
   color: #C8D0E0;
   cursor: pointer;
@@ -255,23 +257,24 @@
   font-family: "DM Sans";
   text-decoration: none;
 }
- 
+
 .footer-thq-about-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-careers-elm {
   color: #C8D0E0;
   cursor: pointer;
   font-size: 14px;
   transition: 0.3s;
   font-family: "DM Sans";
+  text-decoration: none;
 }
- 
+
 .footer-thq-careers-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-blog-elm {
   color: #C8D0E0;
   cursor: pointer;
@@ -279,11 +282,11 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-blog-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-contact-us-elm {
   color: #C8D0E0;
   cursor: pointer;
@@ -292,11 +295,11 @@
   font-family: "DM Sans";
   text-decoration: none;
 }
- 
+
 .footer-thq-contact-us-elm:hover {
   color: #FFFFFF;
 }
- 
+
 .footer-thq-empty-column-elm {
   flex: 0 0 auto;
   width: 17%;
@@ -305,32 +308,32 @@
   align-items: flex-start;
   flex-direction: column;
 }
- 
+
 .footer-thq-footer-bottom-bar-elm {
   gap: 24px;
   flex: 0 0 auto;
   width: 100%;
   display: flex;
   padding: 24px 0;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   align-items: center;
   justify-content: space-between;
 }
- 
+
 .footer-text13 {
   fill: #4A5880;
   color: rgb(74, 88, 128);
   font-size: 12px;
   font-family: "DM Sans";
 }
- 
+
 .footer-thq-privacy-terms-of-service-row-elm {
   gap: 6px;
   flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
 }
- 
+
 .footer-text14 {
   fill: #4A5880;
   color: #4A5880;
@@ -338,12 +341,12 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-text14:hover {
   fill: #FFFFFF;
   color: #FFFFFF;
 }
- 
+
 .footer-text15 {
   fill: #4A5880;
   color: #4A5880;
@@ -351,152 +354,170 @@
   transition: 0.3s;
   font-family: "DM Sans";
 }
- 
+
 .footer-text15:hover {
   fill: #FFFFFF;
   color: #FFFFFF;
 }
- 
+
 .footer-text16 {
   display: inline-block;
 }
- 
+
 .footer-text17 {
   display: inline-block;
 }
- 
+
 .footer-text18 {
   display: inline-block;
 }
- 
+
 .footer-text19 {
   display: inline-block;
 }
- 
+
 .footer-text20 {
   display: inline-block;
 }
- 
+
 .footer-text21 {
   display: inline-block;
 }
- 
+
 .footer-text22 {
   display: inline-block;
 }
- 
+
 .footer-text23 {
   display: inline-block;
 }
- 
+
 .footer-text24 {
   display: inline-block;
 }
- 
+
 .footer-text25 {
   display: inline-block;
 }
- 
+
 .footer-text26 {
   display: inline-block;
 }
- 
+
 .footer-text27 {
   display: inline-block;
 }
- 
+
 .footer-text28 {
   display: inline-block;
 }
- 
+
 .footer-text29 {
   display: inline-block;
 }
- 
+
 .footer-text30 {
   display: inline-block;
 }
- 
+
 .footer-text31 {
   display: inline-block;
 }
- 
+
 .footer-text32 {
   display: inline-block;
 }
- 
+
 .footer-text33 {
   display: inline-block;
 }
- 
+
 .footer-text34 {
   display: inline-block;
 }
- 
+
 .footer-text35 {
   display: inline-block;
 }
- 
+
 .footer-text36 {
   display: inline-block;
 }
- 
+
 .footer-text37 {
   display: inline-block;
 }
- 
 
- 
+
+
+
+
+
+
+
+
+
+
 @media(max-width: 991px) {
   .footer-thq-footer-top-elm {
     gap: 32px;
     flex-wrap: wrap;
   }
+
   .footer-thq-brand-elm {
     width: 100%;
     max-width: 100%;
     min-width: 0;
   }
+
   .footer-thq-products-elm {
     width: calc(50% - 16px);
     min-width: 0;
   }
+
   .footer-thq-services-elm1 {
     width: calc(50% - 16px);
     min-width: 0;
   }
+
   .footer-thq-company-elm1 {
     width: calc(50% - 16px);
     min-width: 0;
   }
 }
- 
+
 @media(max-width: 479px) {
   .footer-thq-footer-elm {
     padding: 10px 6px;
   }
+
   .footer-thq-footer-top-elm {
     gap: 28px;
     padding: 20px 20px;
     flex-wrap: wrap;
   }
+
   .footer-thq-brand-elm {
     width: 100%;
     max-width: 100%;
     min-width: 0;
   }
+
   .footer-thq-products-elm {
     width: calc(50% - 14px);
     min-width: 0;
   }
+
   .footer-thq-services-elm1 {
     width: calc(50% - 14px);
     min-width: 0;
   }
+
   .footer-thq-company-elm1 {
     width: calc(50% - 14px);
     min-width: 0;
   }
+
   .footer-thq-empty-column-elm {
     display: none;
   }

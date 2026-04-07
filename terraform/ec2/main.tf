@@ -145,6 +145,28 @@ resource "aws_iam_role_policy" "cas_app_bedrock_policy" {
   })
 }
 
+resource "aws_iam_role_policy" "cas_app_s3_policy" {
+  name = "${var.app_name}-s3-policy"
+  role = aws_iam_role.cas_app_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::scmmax-proprietary",
+          "arn:aws:s3:::scmmax-proprietary/*"
+        ]
+      }
+    ]
+  })
+}
+
 resource "aws_iam_instance_profile" "cas_app_profile" {
   name = "${var.app_name}-profile"
   role = aws_iam_role.cas_app_role.name

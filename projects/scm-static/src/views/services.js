@@ -1,4 +1,6 @@
 import React, { useState, Fragment } from 'react'
+import DemoModal from '../components/demo-modal'
+import DownloadModal from '../components/download-modal'
 
 import Script from 'dangerous-html/react'
 import { Helmet } from 'react-helmet'
@@ -6,13 +8,23 @@ import { Helmet } from 'react-helmet'
 import NavbarInteractive from '../components/navbar-interactive'
 import GostTealButton from '../components/gost-teal-button'
 import PrimaryButton from '../components/primary-button'
-import DownloadModal from '../components/download-modal'
+import Footer from '../components/footer'
 import './services.css'
 
 const Services = (props) => {
-  const [showDownloadModal, setShowDownloadModal] = useState(false)
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false)
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false)
+
+  const handleOpenDemo = () => setIsDemoModalOpen(true)
+  const handleCloseDemo = () => setIsDemoModalOpen(false)
+  const handleOpenDownload = () => setIsDownloadModalOpen(true)
+  const handleCloseDownload = () => setIsDownloadModalOpen(false)
+
+  const handleDemoLink = () => {
+    window.open('https://outlook.office.com/book/RequestDemoSchedulingPage@scmmax.com/?ismsaljsauthenabled', '_blank');
+  }
   return (
-    <div className="services-container1">
+    <div id="services" className="services-container1">
       <Helmet>
         <title>Services - Practical Mean Cassowary</title>
         <meta
@@ -39,45 +51,60 @@ const Services = (props) => {
             <span className="services-text11"> Apollo</span>
           </Fragment>
         }
+        text1={
+          <Fragment>
+            <span className="services-text12">About Us</span>
+          </Fragment>
+        }
         text3={
           <Fragment>
-            <span className="services-text12">Home</span>
+            <span className="services-text13">Home</span>
           </Fragment>
         }
         text4={
           <Fragment>
-            <span className="services-text13">Products</span>
+            <span className="services-text14">Products</span>
           </Fragment>
         }
         text5={
           <Fragment>
-            <span className="services-text14">Services</span>
+            <span className="services-text15">Services</span>
+          </Fragment>
+        }
+        text8={
+          <Fragment>
+            <span className="services-text16"> Apollo</span>
+          </Fragment>
+        }
+        text51={
+          <Fragment>
+            <span className="services-text17">Careers</span>
           </Fragment>
         }
         products={
           <Fragment>
-            <span className="services-text15">Products</span>
+            <span className="services-text18">Products</span>
           </Fragment>
         }
         register={
           <Fragment>
-            <span className="services-text16">request Demo</span>
+            <span className="services-text19">request Demo</span>
           </Fragment>
         }
         services={
           <Fragment>
-            <span className="services-text17">Services</span>
+            <span className="services-text20">Services</span>
+          </Fragment>
+        }
+        services2={
+          <Fragment>
+            <span className="services-text21">About Us</span>
           </Fragment>
         }
         rootClassName="navbar-interactiveroot-class-name"
-        text8={
-          <Fragment>
-            <span className="services-text18"> Apollo</span>
-          </Fragment>
-        }
         primaryButtonTest={
           <Fragment>
-            <span className="services-text19">Request Demo</span>
+            <span className="services-text22">Request Demo</span>
           </Fragment>
         }
       ></NavbarInteractive>
@@ -167,14 +194,14 @@ const Services = (props) => {
                 INDUSTRIES WE SERVE
               </span>
               <div className="services-thq-industry-tags-row-elm">
-                <span className="services-text20">Consumer Goods</span>
-                <span className="services-text21">Food &amp; Beverages</span>
-                <span className="services-text22">Chemicals &amp; Pharma</span>
-                <span className="services-text23">Oil &amp; Gas</span>
+                <span className="services-text23">Consumer Goods</span>
+                <span className="services-text24">Food &amp; Beverages</span>
+                <span className="services-text25">Chemicals &amp; Pharma</span>
+                <span className="services-text26">Oil &amp; Gas</span>
               </div>
             </div>
             <div className="services-thq-model-elm">
-              <span className="services-text24">
+              <span className="services-text27">
                 Base Cost + Outcome model. A fixed retainer covers our team and
                 Apollo. Savings above the baseline are shared — we win only when
                 you win.
@@ -217,7 +244,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-service-card4-elm">
-              <span className="services-text25">● MOST CHOSEN</span>
+              <span className="services-text28">● MOST CHOSEN</span>
               <span className="services-thq-number-elm8">04</span>
               <span className="services-thq-title-elm4">
                 End-to-End Buying Service
@@ -279,7 +306,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-card-footer-elm1">
-              <span className="services-text37">EXPLORE -&gt;</span>
+              <span className="services-text40">EXPLORE -&gt;</span>
             </div>
           </div>
           <div className="services-thq-card2-elm">
@@ -300,7 +327,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-card-footer-elm2">
-              <span className="services-text38">EXPLORE -&gt;</span>
+              <span className="services-text41">EXPLORE -&gt;</span>
             </div>
           </div>
           <div className="services-thq-card3-elm">
@@ -320,7 +347,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-card-footer-elm3">
-              <span className="services-text39">EXPLORE -&gt;</span>
+              <span className="services-text42">EXPLORE -&gt;</span>
             </div>
           </div>
           <div className="services-thq-card4-elm">
@@ -341,7 +368,7 @@ const Services = (props) => {
               </span>
             </div>
             <div className="services-thq-card-footer-elm4">
-              <span className="services-text40">EXPLORE -&gt;</span>
+              <span className="services-text43">EXPLORE -&gt;</span>
             </div>
           </div>
         </div>
@@ -408,19 +435,19 @@ const Services = (props) => {
             <div className="services-thq-dark-visual-column-elm">
               <span className="services-thq-label-elm1">BEFORE APOLLO</span>
               <div className="services-thq-item-row1-elm">
-                <span className="services-text41">⚠️</span>
+                <span className="services-text44">⚠️</span>
                 <div className="services-thq-inner-column-elm1">
-                  <span className="services-text42">Raw Material Master</span>
-                  <span className="services-text43">
+                  <span className="services-text45">Raw Material Master</span>
+                  <span className="services-text46">
                     12,400 records — 34% duplicates, thin descriptions
                   </span>
                 </div>
               </div>
               <div className="services-thq-item-row2-elm">
-                <span className="services-text44">⚠️</span>
+                <span className="services-text47">⚠️</span>
                 <div className="services-thq-inner-column-elm2">
-                  <span className="services-text45">Vendor Master</span>
-                  <span className="services-text46">
+                  <span className="services-text48">Vendor Master</span>
+                  <span className="services-text49">
                     3,200 vendors — inconsistent names, missing data
                   </span>
                 </div>
@@ -520,31 +547,153 @@ const Services = (props) => {
             </div>
             <div className="services-thq-right-row-elm">
               <GostTealButton
-                rootClassName="gost-teal-buttonroot-class-name1"
+                rootClassName="gost-teal-buttonroot-class-name3"
+                onClick={handleOpenDownload}
                 gostTealButton={
                   <Fragment>
-                    <span className="services-text47">download agent overview</span>
+                    <span className="services-text50">
+                      DOWNLOAD SERVICES OVERVIEW
+                    </span>
                   </Fragment>
                 }
-                onClick={() => setShowDownloadModal(true)}
               ></GostTealButton>
               <PrimaryButton
                 rootClassName="primary-buttonroot-class-name4"
+                onClick={handleDemoLink}
                 primaryButtonTest={
                   <Fragment>
-                    <span className="services-text48">REQUEST DEMO</span>
+                    <span className="services-text51">REQUEST DEMO</span>
                   </Fragment>
                 }
-                link="https://outlook.office.com/bookwithme/user/8b876d6424a5445e960d92a2a28db077@scmmax.com/meetingtype/NvRUL87SiUuK83_PAIvasw2?anonymous&ismsaljsauthenabled&ep=mlink"
               ></PrimaryButton>
             </div>
           </div>
         </div>
       </div>
-      <DownloadModal
-        isOpen={showDownloadModal}
-        onClose={() => setShowDownloadModal(false)}
-      ></DownloadModal>
+      <Footer
+        blog={
+          <Fragment>
+            <span className="services-text52">Blog</span>
+          </Fragment>
+        }
+        text={
+          <Fragment>
+            <span className="services-text53">
+              © 2026 SCMmax Consulting Inc. All rights reserved.
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: ' ',
+                }}
+              />
+            </span>
+          </Fragment>
+        }
+        about={
+          <Fragment>
+            <span className="services-text54">About</span>
+          </Fragment>
+        }
+        text1={
+          <Fragment>
+            <span className="services-text55">Always Ready. Always Ahead.</span>
+          </Fragment>
+        }
+        text2={
+          <Fragment>
+            <span className="services-text56">
+              AI-powered procurement intelligence for enterprise buying teams.
+            </span>
+          </Fragment>
+        }
+        text3={
+          <Fragment>
+            <span className="services-text57">Privacy Policy</span>
+          </Fragment>
+        }
+        text4={
+          <Fragment>
+            <span className="services-text58">Terms of Service</span>
+          </Fragment>
+        }
+        text5={
+          <Fragment>
+            <span className="services-text59"> Apollo</span>
+          </Fragment>
+        }
+        careers={
+          <Fragment>
+            <span className="services-text60">Careers</span>
+          </Fragment>
+        }
+        company={
+          <Fragment>
+            <span className="services-text61">COMPANY</span>
+          </Fragment>
+        }
+        product={
+          <Fragment>
+            <span className="services-text62">PRODUCT</span>
+          </Fragment>
+        }
+        services={
+          <Fragment>
+            <span className="services-text63">SERVICES</span>
+          </Fragment>
+        }
+        contactUs={
+          <Fragment>
+            <span className="services-text64">Contact Us</span>
+          </Fragment>
+        }
+        consulting={
+          <Fragment>
+            <span className="services-text65">Consulting</span>
+          </Fragment>
+        }
+        dataServices={
+          <Fragment>
+            <span className="services-text66">Data Services</span>
+          </Fragment>
+        }
+        productivity={
+          <Fragment>
+            <span className="services-text67">Productivity</span>
+          </Fragment>
+        }
+        dataAnalytics={
+          <Fragment>
+            <span className="services-text68">Data &amp; Analytics</span>
+          </Fragment>
+        }
+        rootClassName="footerroot-class-name4"
+        apolloPlatform={
+          <Fragment>
+            <span className="services-text69">Apollo Platform</span>
+          </Fragment>
+        }
+        buyingServices={
+          <Fragment>
+            <span className="services-text70">Buying Services</span>
+          </Fragment>
+        }
+        marginExpansion={
+          <Fragment>
+            <span className="services-text71">Margin Expansion</span>
+          </Fragment>
+        }
+        marginProtection={
+          <Fragment>
+            <span className="services-text72">Margin Protection</span>
+          </Fragment>
+        }
+        forwardDeployedEngineers={
+          <Fragment>
+            <span className="services-text73">Forward Deployed Engineers</span>
+          </Fragment>
+        }
+      ></Footer>
+      <DemoModal isOpen={isDemoModalOpen} onClose={handleCloseDemo} />
+      <DownloadModal isOpen={isDownloadModalOpen} onClose={handleCloseDownload} />
     </div>
   )
 }

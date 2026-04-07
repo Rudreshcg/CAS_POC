@@ -65,10 +65,8 @@ $scmStaging = "staging_scm"
 if (Test-Path $scmStaging) { Remove-Item $scmStaging -Recurse -Force }
 New-Item -ItemType Directory -Path $scmStaging | Out-Null
 Copy-Item "projects/scm-static/backend/*" -Destination $scmStaging -Recurse
-New-Item -ItemType Directory -Path "$scmStaging/frontend" -Force | Out-Null
-if (Test-Path "projects/scm-static/build") {
-    Copy-Item "projects/scm-static/build" -Destination "$scmStaging/frontend" -Recurse
-}
+    New-Item -ItemType Directory -Path "$scmStaging/frontend/build" -Force | Out-Null
+    Copy-Item "projects/scm-static/build/*" -Destination "$scmStaging/frontend/build" -Recurse -Force
 tar -czf archives/scm-static.tar.gz -C $scmStaging .
 Remove-Item $scmStaging -Recurse -Force
 

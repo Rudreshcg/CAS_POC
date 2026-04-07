@@ -9,9 +9,8 @@ const GostTealButton = (props) => {
     <div className={`gost-teal-button-container ${props.rootClassName} `}>
       <button
         type="button"
-        onFocus={(e) => e.target.blur()}
-        className="gost-teal-button-thq-gost-teal-button-elm button"
         onClick={props.onClick}
+        className="gost-teal-button-thq-gost-teal-button-elm button"
       >
         <span>
           {props.gostTealButton ?? (

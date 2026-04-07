@@ -61,20 +61,23 @@ const Footer = (props) => {
               </Fragment>
             )}
           </span>
-          <span className="footer-thq-margin-expansion-elm">
+          <a
+            href="/products#Margin-Expansion"
+            className="footer-thq-margin-expansion-elm"
+          >
             {props.marginExpansion ?? (
               <Fragment>
                 <span className="footer-text24">Margin Expansion</span>
               </Fragment>
             )}
-          </span>
-          <span className="footer-thq-margin-protection-elm">
+          </a>
+          <a href="/products#MP1" className="footer-thq-margin-protection-elm">
             {props.marginProtection ?? (
               <Fragment>
                 <span className="footer-text16">Margin Protection</span>
               </Fragment>
             )}
-          </span>
+          </a>
           <span className="footer-thq-productivity-elm">
             {props.productivity ?? (
               <Fragment>
@@ -137,20 +140,20 @@ const Footer = (props) => {
               </Fragment>
             )}
           </span>
-          <Link to="/contact-us" className="footer-thq-about-elm">
+          <Link to="/about-us" className="footer-thq-about-elm">
             {props.about ?? (
               <Fragment>
                 <span className="footer-text31">About</span>
               </Fragment>
             )}
           </Link>
-          <span className="footer-thq-careers-elm">
+          <Link to="/careers" className="footer-thq-careers-elm">
             {props.careers ?? (
               <Fragment>
                 <span className="footer-text20">Careers</span>
               </Fragment>
             )}
-          </span>
+          </Link>
           <span className="footer-thq-blog-elm">
             {props.blog ?? (
               <Fragment>

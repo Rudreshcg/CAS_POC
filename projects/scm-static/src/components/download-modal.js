@@ -16,7 +16,7 @@ const DownloadModal = ({ isOpen, onClose }) => {
     setError('')
     
     try {
-      const response = await fetch('http://localhost:8000/api/download-request', {
+      const response = await fetch('/api/download-request', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -306,9 +306,8 @@ const AgentCarousel = (props) => {
         {CATEGORIES.map((cat) => (
           <button
             key={cat.id}
-            className={`ap-cat-tab ${cat.color} ${
-              activeCategory === cat.id ? 'on' : ''
-            }`}
+            className={`ap-cat-tab ${cat.color} ${activeCategory === cat.id ? 'on' : ''
+              }`}
             onClick={() => handleCategoryClick(cat.id)}
           >
             {cat.label}
@@ -338,9 +337,8 @@ const AgentCarousel = (props) => {
             <button
               key={`${activeCategory}-${agent.tab}-${i}`}
               ref={(el) => (tabRefs.current[i] = el)}
-              className={`ap-tab ${agent.tabColor} ${
-                currentIndex === i ? 'on' : ''
-              }`}
+              className={`ap-tab ${agent.tabColor} ${currentIndex === i ? 'on' : ''
+                }`}
               onClick={() => handleTabClick(i)}
             >
               {agent.tab}
@@ -383,9 +381,8 @@ const AgentCarousel = (props) => {
                     <div className="ap-mv">
                       {m.v}
                       <span
-                        className={`ap-mu ${
-                          ['%', 'Cr', 'M'].includes(m.u) ? 't' : ''
-                        }`}
+                        className={`ap-mu ${['%', 'Cr', 'M'].includes(m.u) ? 't' : ''
+                          }`}
                       >
                         {m.u}
                       </span>
@@ -428,7 +425,7 @@ const AgentCarousel = (props) => {
           <div className="ap-ft-btns">
             <button className="ap-ft-btn ap-ft-gh">Explore All</button>
             <a
-              href="https://outlook.office.com/bookwithme/user/8b876d6424a5445e960d92a2a28db077@scmmax.com/meetingtype/NvRUL87SiUuK83_PAIvasw2?anonymous&ismsaljsauthenabled&ep=mlink"
+              href="https://outlook.office.com/book/RequestDemoSchedulingPage@scmmax.com/?ismsaljsauthenabled"
               target="_blank"
               rel="noreferrer noopener"
               className="ap-ft-btn ap-ft-br"

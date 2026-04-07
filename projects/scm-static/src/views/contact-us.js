@@ -36,53 +36,68 @@ const ContactUs = (props) => {
             <span className="contact-us-text11"> Apollo</span>
           </Fragment>
         }
+        text1={
+          <Fragment>
+            <span className="contact-us-text12">About Us</span>
+          </Fragment>
+        }
         text3={
           <Fragment>
-            <span className="contact-us-text12">Home</span>
+            <span className="contact-us-text13">Home</span>
           </Fragment>
         }
         text4={
           <Fragment>
-            <span className="contact-us-text13">Products</span>
+            <span className="contact-us-text14">Products</span>
           </Fragment>
         }
         text5={
           <Fragment>
-            <span className="contact-us-text14">Services</span>
+            <span className="contact-us-text15">Services</span>
+          </Fragment>
+        }
+        text8={
+          <Fragment>
+            <span className="contact-us-text16"> Apollo</span>
+          </Fragment>
+        }
+        text51={
+          <Fragment>
+            <span className="contact-us-text17">Careers</span>
           </Fragment>
         }
         products={
           <Fragment>
-            <span className="contact-us-text15">Products</span>
+            <span className="contact-us-text18">Products</span>
           </Fragment>
         }
         register={
           <Fragment>
-            <span className="contact-us-text16">request Demo</span>
+            <span className="contact-us-text19">request Demo</span>
           </Fragment>
         }
         services={
           <Fragment>
-            <span className="contact-us-text17">Services</span>
+            <span className="contact-us-text20">Services</span>
+          </Fragment>
+        }
+        services2={
+          <Fragment>
+            <span className="contact-us-text21">About Us</span>
           </Fragment>
         }
         rootClassName="navbar-interactiveroot-class-name2"
-        text8={
-          <Fragment>
-            <span className="contact-us-text18"> Apollo</span>
-          </Fragment>
-        }
         primaryButtonTest={
           <Fragment>
-            <span className="contact-us-text19">Request Demo</span>
+            <span className="contact-us-text22">Request Demo</span>
           </Fragment>
         }
       ></NavbarInteractive>
       <div className="contact-us-thq-hero-elm">
-        <span className="contact-us-text20">----Request a demo----</span>
-        <span className="contact-us-text21">30 minutes</span>
-        <span className="contact-us-text22">Your Spend. Our team</span>
-        <span className="contact-us-text23">
+        <span className="contact-us-text23">----Request a demo----</span>
+        <span className="contact-us-text24">30 minutes</span>
+        <span className="contact-us-text25">Your Spend. Our team</span>
+        <span className="contact-us-text26">
           No slides. No generic pitch. We connect Apollo to a sample of your
           spend data and show you exactly what it finds — in your categories,
           with your suppliers.
@@ -108,7 +123,7 @@ const ContactUs = (props) => {
           <div className="contact-us-thq-left-column-elm1">
             <div className="contact-us-thq-what-happens-next-row-elm">
               <div className="contact-us-thq-inner-column-elm"></div>
-              <span className="contact-us-text24">What Happens Next</span>
+              <span className="contact-us-text27">What Happens Next</span>
             </div>
             <span className="contact-us-thq-title1-elm">A demo built</span>
             <span className="contact-us-thq-title2-elm">around your spend</span>
@@ -118,13 +133,13 @@ const ContactUs = (props) => {
             </span>
             <div className="contact-us-thq-first-point-row-elm">
               <div className="contact-us-thq-number-column-elm1">
-                <span className="contact-us-text25">01</span>
+                <span className="contact-us-text28">01</span>
               </div>
               <div className="contact-us-thq-text-column-elm1">
-                <span className="contact-us-text26">
+                <span className="contact-us-text29">
                   We confirm your session within 24 hours
                 </span>
-                <span className="contact-us-text27">
+                <span className="contact-us-text30">
                   A member of our team will reach out to confirm timing and ask
                   for a sample spend extract — purchase order history or spend
                   by supplier is enough to get started.
@@ -133,13 +148,13 @@ const ContactUs = (props) => {
             </div>
             <div className="contact-us-thq-second-point-row-elm">
               <div className="contact-us-thq-number-column-elm2">
-                <span className="contact-us-text28">02</span>
+                <span className="contact-us-text31">02</span>
               </div>
               <div className="contact-us-thq-text-column-elm2">
-                <span className="contact-us-text29">
+                <span className="contact-us-text32">
                   Apollo runs on your spend before the call
                 </span>
-                <span className="contact-us-text30">
+                <span className="contact-us-text33">
                   We run Procurement Prism across your spend extract —
                   identifying savings opportunities, supplier consolidation
                   levers, and category strategies specific to your business.
@@ -148,13 +163,13 @@ const ContactUs = (props) => {
             </div>
             <div className="contact-us-thq-third-point-row-elm">
               <div className="contact-us-thq-number-column-elm3">
-                <span className="contact-us-text31">03</span>
+                <span className="contact-us-text34">03</span>
               </div>
               <div className="contact-us-thq-text-column-elm3">
-                <span className="contact-us-text32">
+                <span className="contact-us-text35">
                   30-minute session — your results, live
                 </span>
-                <span className="contact-us-text33">
+                <span className="contact-us-text36">
                   We walk you through what Apollo found in your spend. You see
                   real output, not a demo environment. No slides, no sales
                   theatre.
@@ -163,13 +178,13 @@ const ContactUs = (props) => {
             </div>
             <div className="contact-us-thq-fourth-point-row-elm">
               <div className="contact-us-thq-number-column-elm4">
-                <span className="contact-us-text34">04</span>
+                <span className="contact-us-text37">04</span>
               </div>
               <div className="contact-us-thq-text-column-elm4">
-                <span className="contact-us-text35">
+                <span className="contact-us-text38">
                   You decide if it&apos;s worth exploring further
                 </span>
-                <span className="contact-us-text36">
+                <span className="contact-us-text39">
                   No pressure, no follow-up sequence. If the numbers make sense
                   for your business, we talk next steps. If not, you keep the
                   output.
@@ -178,20 +193,20 @@ const ContactUs = (props) => {
             </div>
             <div className="contact-us-thq-trust-stats-row-elm">
               <div className="contact-us-thq-stat1-elm">
-                <span className="contact-us-text37">90</span>
-                <span className="contact-us-text38">
+                <span className="contact-us-text40">90</span>
+                <span className="contact-us-text41">
                   Days to first savings identified
                 </span>
               </div>
               <div className="contact-us-thq-stat2-elm">
-                <span className="contact-us-text39">3 - 5%</span>
-                <span className="contact-us-text40">
+                <span className="contact-us-text42">3 - 5%</span>
+                <span className="contact-us-text43">
                   Typical cost reduction in first scan
                 </span>
               </div>
               <div className="contact-us-thq-stat3-elm">
                 <span className="contact-us-thq-text-elm">16</span>
-                <span className="contact-us-text41">
+                <span className="contact-us-text44">
                   Agents working for your team
                 </span>
               </div>
@@ -491,28 +506,46 @@ function fmValidEmail(e){
   return{ok:true};
 }
 function fmErr(id,eid,msg){
-  document.getElementById(id).classList.add('err');
-  var e=document.getElementById(eid);e.textContent=msg;e.classList.add('show');
+  var el = document.getElementById(id);
+  var errEl = document.getElementById(eid);
+  if (el) el.classList.add('err');
+  if (errEl) {
+    errEl.textContent=msg;
+    errEl.classList.add('show');
+  }
 }
 function fmClear(id,eid){
-  document.getElementById(id).classList.remove('err');
-  document.getElementById(eid).classList.remove('show');
+  var el = document.getElementById(id);
+  var errEl = document.getElementById(eid);
+  if (el) el.classList.remove('err');
+  if (errEl) errEl.classList.remove('show');
 }
-document.getElementById('fm-em').addEventListener('blur',function(){
-  var r=fmValidEmail(this.value.trim());
-  if(!r.ok)fmErr('fm-em','fm-em-e',r.msg);else fmClear('fm-em','fm-em-e');
-});
+var emailEl = document.getElementById('fm-em');
+if (emailEl) {
+  emailEl.addEventListener('blur',function(){
+    var r=fmValidEmail(this.value.trim());
+    if(!r.ok)fmErr('fm-em','fm-em-e',r.msg);else fmClear('fm-em','fm-em-e');
+  });
+}
 function fmSubmit(e){
   e.preventDefault();var ok=true;
-  if(!document.getElementById('fm-fn').value.trim()){fmErr('fm-fn','fm-fn-e','Required');ok=false;}else fmClear('fm-fn','fm-fn-e');
-  if(!document.getElementById('fm-ln').value.trim()){fmErr('fm-ln','fm-ln-e','Required');ok=false;}else fmClear('fm-ln','fm-ln-e');
-  var r=fmValidEmail(document.getElementById('fm-em').value.trim());
+  var fnEl = document.getElementById('fm-fn');
+  var lnEl = document.getElementById('fm-ln');
+  var emEl = document.getElementById('fm-em');
+  var jtEl = document.getElementById('fm-jt');
+  var coEl = document.getElementById('fm-co');
+  
+  if(fnEl && !fnEl.value.trim()){fmErr('fm-fn','fm-fn-e','Required');ok=false;}else fmClear('fm-fn','fm-fn-e');
+  if(lnEl && !lnEl.value.trim()){fmErr('fm-ln','fm-ln-e','Required');ok=false;}else fmClear('fm-ln','fm-ln-e');
+  var r=fmValidEmail(emEl ? emEl.value.trim() : '');
   if(!r.ok){fmErr('fm-em','fm-em-e',r.msg);ok=false;}else fmClear('fm-em','fm-em-e');
-  if(!document.getElementById('fm-jt').value.trim()){fmErr('fm-jt','fm-jt-e','Required');ok=false;}else fmClear('fm-jt','fm-jt-e');
-  if(!document.getElementById('fm-co').value.trim()){fmErr('fm-co','fm-co-e','Required');ok=false;}else fmClear('fm-co','fm-co-e');
+  if(jtEl && !jtEl.value.trim()){fmErr('fm-jt','fm-jt-e','Required');ok=false;}else fmClear('fm-jt','fm-jt-e');
+  if(coEl && !coEl.value.trim()){fmErr('fm-co','fm-co-e','Required');ok=false;}else fmClear('fm-co','fm-co-e');
   if(!ok)return;
-  document.getElementById('fm').style.display='none';
-  document.getElementById('fm-ok').classList.add('show');
+  var fmEl = document.getElementById('fm');
+  var okEl = document.getElementById('fm-ok');
+  if (fmEl) fmEl.style.display='none';
+  if (okEl) okEl.classList.add('show');
 }
 </script>`}
                   ></Script>
@@ -523,7 +556,7 @@ function fmSubmit(e){
         </div>
       </div>
       <div className="contact-us-thq-social-proof-elm">
-        <span className="contact-us-text42">
+        <span className="contact-us-text45">
           What procurement leaders say after their first Apollo demo
         </span>
         <div className="contact-us-thq-conetnt-row-elm">
@@ -586,12 +619,12 @@ function fmSubmit(e){
       <Footer
         blog={
           <Fragment>
-            <span className="contact-us-text43">Blog</span>
+            <span className="contact-us-text46">Blog</span>
           </Fragment>
         }
         text={
           <Fragment>
-            <span className="contact-us-text44">
+            <span className="contact-us-text47">
               © 2026 SCMmax Consulting Inc. All rights reserved.
               <span
                 dangerouslySetInnerHTML={{
@@ -603,107 +636,107 @@ function fmSubmit(e){
         }
         about={
           <Fragment>
-            <span className="contact-us-text45">About</span>
+            <span className="contact-us-text48">About</span>
           </Fragment>
         }
         text1={
           <Fragment>
-            <span className="contact-us-text46">
+            <span className="contact-us-text49">
               Always Ready. Always Ahead.
             </span>
           </Fragment>
         }
         text2={
           <Fragment>
-            <span className="contact-us-text47">
+            <span className="contact-us-text50">
               AI-powered procurement intelligence for enterprise buying teams.
             </span>
           </Fragment>
         }
         text3={
           <Fragment>
-            <span className="contact-us-text48">Privacy Policy</span>
+            <span className="contact-us-text51">Privacy Policy</span>
           </Fragment>
         }
         text4={
           <Fragment>
-            <span className="contact-us-text49">Terms of Service</span>
+            <span className="contact-us-text52">Terms of Service</span>
           </Fragment>
         }
         text5={
           <Fragment>
-            <span className="contact-us-text50"> Apollo</span>
+            <span className="contact-us-text53"> Apollo</span>
           </Fragment>
         }
         careers={
           <Fragment>
-            <span className="contact-us-text51">Careers</span>
+            <span className="contact-us-text54">Careers</span>
           </Fragment>
         }
         company={
           <Fragment>
-            <span className="contact-us-text52">COMPANY</span>
+            <span className="contact-us-text55">COMPANY</span>
           </Fragment>
         }
         product={
           <Fragment>
-            <span className="contact-us-text53">PRODUCT</span>
+            <span className="contact-us-text56">PRODUCT</span>
           </Fragment>
         }
         services={
           <Fragment>
-            <span className="contact-us-text54">SERVICES</span>
+            <span className="contact-us-text57">SERVICES</span>
           </Fragment>
         }
         contactUs={
           <Fragment>
-            <span className="contact-us-text55">Contact Us</span>
+            <span className="contact-us-text58">Contact Us</span>
           </Fragment>
         }
         consulting={
           <Fragment>
-            <span className="contact-us-text56">Consulting</span>
+            <span className="contact-us-text59">Consulting</span>
           </Fragment>
         }
         dataServices={
           <Fragment>
-            <span className="contact-us-text57">Data Services</span>
+            <span className="contact-us-text60">Data Services</span>
           </Fragment>
         }
         productivity={
           <Fragment>
-            <span className="contact-us-text58">Productivity</span>
+            <span className="contact-us-text61">Productivity</span>
           </Fragment>
         }
         dataAnalytics={
           <Fragment>
-            <span className="contact-us-text59">Data &amp; Analytics</span>
+            <span className="contact-us-text62">Data &amp; Analytics</span>
           </Fragment>
         }
         rootClassName="footerroot-class-name"
         apolloPlatform={
           <Fragment>
-            <span className="contact-us-text60">Apollo Platform</span>
+            <span className="contact-us-text63">Apollo Platform</span>
           </Fragment>
         }
         buyingServices={
           <Fragment>
-            <span className="contact-us-text61">Buying Services</span>
+            <span className="contact-us-text64">Buying Services</span>
           </Fragment>
         }
         marginExpansion={
           <Fragment>
-            <span className="contact-us-text62">Margin Expansion</span>
+            <span className="contact-us-text65">Margin Expansion</span>
           </Fragment>
         }
         marginProtection={
           <Fragment>
-            <span className="contact-us-text63">Margin Protection</span>
+            <span className="contact-us-text66">Margin Protection</span>
           </Fragment>
         }
         forwardDeployedEngineers={
           <Fragment>
-            <span className="contact-us-text64">
+            <span className="contact-us-text67">
               Forward Deployed Engineers
             </span>
           </Fragment>

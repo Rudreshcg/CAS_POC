@@ -1,0 +1,1493 @@
+.careers-container1 {
+  width: 100%;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  flex-direction: column;
+}
+ 
+.careers-text10 {
+  display: inline-block;
+}
+ 
+.careers-text11 {
+  display: inline-block;
+}
+ 
+.careers-text12 {
+  display: inline-block;
+}
+ 
+.careers-text13 {
+  display: inline-block;
+}
+ 
+.careers-text14 {
+  display: inline-block;
+}
+ 
+.careers-text15 {
+  display: inline-block;
+}
+ 
+.careers-text16 {
+  display: inline-block;
+}
+ 
+.careers-text17 {
+  display: inline-block;
+}
+ 
+.careers-text18 {
+  display: inline-block;
+}
+ 
+.careers-text19 {
+  display: inline-block;
+}
+ 
+.careers-text20 {
+  display: inline-block;
+}
+ 
+.careers-text21 {
+  display: inline-block;
+}
+ 
+.careers-text22 {
+  display: inline-block;
+}
+ 
+.careers-thq-hero-outer-elm {
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: #0F1421;
+}
+ 
+.careers-thq-hero-inner-elm {
+  gap: 0;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  padding: 140px 80px 80px 80px;
+  max-width: 1200px;
+  margin-top: 0;
+  align-items: flex-start;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 0;
+  flex-direction: column;
+}
+ 
+.careers-thq-eyebrow-elm1 {
+  gap: 10px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+ 
+.careers-container2 {
+  flex: 0 0 auto;
+  width: 28px;
+  border: 2px dashed rgba(120, 120, 120, 0.4);
+  height: 1px;
+  display: flex;
+  opacity: 0.5;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: #00D4BC;
+}
+ 
+.careers-text23 {
+  fill: #00D4BC;
+  color: #00D4BC;
+  font-size: 10px;
+  flex-shrink: 0;
+  font-family: "DM Sans";
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+ 
+.careers-thq-headline-column-elm1 {
+  gap: 0;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-direction: column;
+}
+ 
+.careers-thq-headline1-elm1 {
+  color: #ffffff;
+  font-size: 58px;
+  font-style: normal;
+  font-family: "Fraunces";
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+ 
+.careers-thq-headline2-elm1 {
+  color: var(--dl-color-scmmax-color-accent-brass-color-brass-500);
+  font-size: 58px;
+  font-style: italic;
+  font-family: "Fraunces";
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+ 
+.careers-thq-subheading-elm1 {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 16px;
+  max-width: 600px;
+  font-family: "DM Sans";
+  line-height: 1.75;
+  margin-bottom: 48px;
+}
+ 
+.careers-thq-stats-row-elm {
+  gap: 24px;
+  flex: 0 0 auto;
+  display: flex;
+  border-top: rgba(255,255,255,0.06);
+  margin-top: 40px;
+  align-items: flex-start;
+  padding-top: 32px;
+}
+ 
+.careers-thq-stat1-elm {
+  flex: 1;
+  display: flex;
+  padding: 24px 24px 28px 28x;
+  align-items: flex-start;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  flex-direction: column;
+}
+ 
+.careers-thq-text-elm1 {
+  fill: #E8C278;
+  color: #E8C278;
+  font-size: 29px;
+  font-style: italic;
+  font-family: "Fraunces";
+  font-weight: 200;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+ 
+.careers-text24 {
+  color: #7A8AAE;
+  font-size: 11px;
+  font-family: "DM Sans";
+  line-height: 1.4;
+}
+ 
+.careers-thq-stat2-elm {
+  flex: 1;
+  display: flex;
+  padding: 24px 24px 28px 28x;
+  align-items: flex-start;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  flex-direction: column;
+}
+ 
+.careers-thq-text-elm2 {
+  fill: #E8C278;
+  color: rgb(232, 194, 120);
+  font-size: 29px;
+  font-style: italic;
+  font-family: "Fraunces";
+  font-weight: 200;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+ 
+.careers-text25 {
+  color: rgb(122, 138, 174);
+  font-size: 11px;
+  font-family: "DM Sans";
+  line-height: 1.4;
+}
+ 
+.careers-thq-stat3-elm {
+  flex: 1;
+  display: flex;
+  padding: 24px 24px 28px 28x;
+  align-items: flex-start;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  flex-direction: column;
+}
+ 
+.careers-thq-text-elm3 {
+  fill: #E8C278;
+  color: rgb(232, 194, 120);
+  font-size: 29px;
+  font-style: italic;
+  font-family: "Fraunces";
+  font-weight: 200;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+ 
+.careers-text26 {
+  color: rgb(122, 138, 174);
+  font-size: 11px;
+  font-family: "DM Sans";
+  line-height: 1.4;
+}
+ 
+.careers-thq-stat4-elm {
+  flex: 1;
+  display: flex;
+  padding: 24px 24px 28px 28x;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-thq-text-elm4 {
+  fill: #E8C278;
+  color: rgb(232, 194, 120);
+  font-size: 29px;
+  font-style: italic;
+  font-family: "Fraunces";
+  font-weight: 200;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+ 
+.careers-text27 {
+  color: rgb(122, 138, 174);
+  font-size: 11px;
+  font-family: "DM Sans";
+  line-height: 1.4;
+}
+ 
+.careers-container4 {
+  display: contents;
+}
+ 
+.careers-thq-open-roles-section-elm {
+  flex: 0 0 auto;
+  display: flex;
+  padding: 80px;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: #F4F6FA;
+}
+ 
+.careers-thq-roles-inner-elm {
+  gap: 0;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  max-width: 1200px;
+  align-items: flex-start;
+  margin-left: auto;
+  margin-right: auto;
+  flex-direction: column;
+}
+ 
+.careers-thq-roles-header-elm {
+  gap: 0;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 48px;
+  flex-direction: column;
+}
+ 
+.careers-thq-eyebrow-elm2 {
+  gap: 10px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+ 
+.careers-thq-dash-elm {
+  flex: 0 0 auto;
+  width: 28px;
+  border: 2px dashed rgba(120, 120, 120, 0.4);
+  height: 1px;
+  display: flex;
+  opacity: 0.5;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: #C9933A;
+}
+ 
+.careers-text28 {
+  fill: #00D4BC;
+  color: rgb(201, 147, 58);
+  font-size: 10px;
+  font-style: normal;
+  flex-shrink: 0;
+  font-family: "DM Sans";
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+ 
+.careers-thq-title-column-elm1 {
+  gap: 0;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  flex-direction: column;
+}
+ 
+.careers-text29 {
+  fill: #0F1421;
+  color: rgb(15, 20, 33);
+  font-size: 38px;
+  font-family: "Fraunces";
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+ 
+.careers-text30 {
+  fill: #C9933A;
+  color: #C9933A;
+  font-size: 38px;
+  font-style: italic;
+  font-family: "Fraunces";
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+ 
+.careers-thq-sub-title-elm {
+  fill: #4A5880;
+  color: #4A5880;
+  font-size: 15px;
+  max-width: 680px;
+  font-family: "DM Sans";
+  line-height: 1.75;
+  margin-bottom: 48px;
+}
+ 
+.careers-thq-track-pills-elm {
+  gap: 12px;
+  flex: 0 0 auto;
+  display: none;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-bottom: 48px;
+}
+ 
+.careers-thq-pill1-elm {
+  gap: 10px;
+  flex: 0 0 auto;
+  border: 1px solid #E8ECF4;
+  display: flex;
+  padding: 10px 18px;
+  align-items: center;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+}
+ 
+.careers-thq-dot-elm1 {
+  flex: 0 0 auto;
+  width: 8px;
+  border: 2px dashed rgba(120, 120, 120, 0.4);
+  height: 8px;
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+  border-radius: 50%;
+  flex-direction: column;
+  background-color: #C9933A;
+}
+ 
+.careers-text31 {
+  fill: #253050;
+  color: rgb(37, 48, 80);
+  font-size: 12px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-thq-sub-text-elm1 {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 11px;
+  font-family: "DM Sans";
+}
+ 
+.careers-thq-pill2-elm {
+  gap: 10px;
+  flex: 0 0 auto;
+  border: 1px solid #E8ECF4;
+  display: flex;
+  padding: 10px 18px;
+  align-items: center;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+}
+ 
+.careers-thq-dot-elm2 {
+  flex: 0 0 auto;
+  width: 8px;
+  border: 2px dashed rgba(120, 120, 120, 0.4);
+  height: 8px;
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+  border-radius: 50%;
+  flex-direction: column;
+  background-color: #00B8A0;
+}
+ 
+.careers-text32 {
+  fill: #253050;
+  color: rgb(37, 48, 80);
+  font-size: 12px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-thq-sub-text-elm2 {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 11px;
+  font-family: "DM Sans";
+}
+ 
+.careers-container5 {
+  width: 100%;
+  padding: 0;
+}
+ 
+.careers-container6 {
+  display: contents;
+}
+ 
+.careers-thq-culture-outer-section-elm {
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  padding: 80px;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: #FFFFFF;
+}
+ 
+.careers-thq-culture-inner-r-ow-elm {
+  gap: 80px;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  max-width: 1200px;
+  align-items: flex-start;
+  margin-left: auto;
+  margin-right: auto;
+}
+ 
+.careers-thq-left-column-elm {
+  flex: 1;
+  display: flex;
+  flex-basis: 0%;
+  align-items: flex-start;
+  flex-shrink: 1;
+  flex-direction: column;
+}
+ 
+.careers-thq-eyebrow-elm3 {
+  gap: 10px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+ 
+.careers-container7 {
+  flex: 0 0 auto;
+  width: 28px;
+  border: 2px dashed rgba(120, 120, 120, 0.4);
+  height: 1px;
+  display: flex;
+  opacity: 0.5;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: #00D4BC;
+}
+ 
+.careers-text33 {
+  fill: #00D4BC;
+  color: rgb(0, 212, 188);
+  font-size: 10px;
+  flex-shrink: 0;
+  font-family: "DM Sans";
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+ 
+.careers-thq-headline-column-elm2 {
+  gap: 0;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  flex-direction: column;
+}
+ 
+.careers-thq-headline1-elm2 {
+  fill: #0F1421;
+  color: #0F1421;
+  font-size: 38px;
+  font-style: normal;
+  font-family: "Fraunces";
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+ 
+.careers-thq-headline2-elm2 {
+  color: var(--dl-color-scmmax-color-accent-brass-color-brass-500);
+  font-size: 38px;
+  font-style: italic;
+  font-family: "Fraunces";
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+ 
+.careers-thq-subheading-elm2 {
+  fill: #4A5880;
+  color: #4A5880;
+  font-size: 15px;
+  max-width: 600px;
+  font-family: "DM Sans";
+  line-height: 1.75;
+  margin-bottom: 0;
+}
+ 
+.careers-thq-culture-points-elm {
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  margin-top: 40px;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-thq-cp1-elm {
+  gap: 20px;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0;
+  border-bottom: 1px solid #E8ECF4;
+  padding-bottom: 24px;
+}
+ 
+.careers-thq-icon-box-elm1 {
+  flex: 0 0 auto;
+  width: 40px;
+  border: 1px solid #E8ECF4;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #F4F6FA;
+}
+ 
+.careers-text34 {
+  font-size: 16px;
+  font-family: "DM Sans";
+}
+ 
+.careers-thq-text-column-elm1 {
+  flex: 0 0 auto;
+  display: flex;
+  max-width: 455px;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-text35 {
+  fill: #0F1421;
+  color: rgb(15, 20, 33);
+  font-size: 14px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-text36 {
+  fill: #4A5880;
+  color: rgb(74, 88, 128);
+  font-size: 13px;
+  font-family: "DM Sans";
+  line-height: 1.65;
+}
+ 
+.careers-thq-cp2-elm {
+  gap: 20px;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 24px;
+  border-bottom: 1px solid #E8ECF4;
+  padding-bottom: 24px;
+}
+ 
+.careers-thq-icon-box-elm2 {
+  flex: 0 0 auto;
+  width: 40px;
+  border: 1px solid #E8ECF4;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #F4F6FA;
+}
+ 
+.careers-text37 {
+  font-size: 16px;
+  font-family: "DM Sans";
+}
+ 
+.careers-thq-text-column-elm2 {
+  flex: 0 0 auto;
+  display: flex;
+  max-width: 455px;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-text38 {
+  fill: #0F1421;
+  color: rgb(15, 20, 33);
+  font-size: 14px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-text39 {
+  fill: #4A5880;
+  color: rgb(74, 88, 128);
+  font-size: 13px;
+  font-family: "DM Sans";
+  line-height: 1.65;
+}
+ 
+.careers-thq-cp3-elm {
+  gap: 20px;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 24px;
+  border-bottom: 1px solid #E8ECF4;
+  padding-bottom: 24px;
+}
+ 
+.careers-thq-icon-box-elm3 {
+  flex: 0 0 auto;
+  width: 40px;
+  border: 1px solid #E8ECF4;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #F4F6FA;
+}
+ 
+.careers-text40 {
+  font-size: 16px;
+  font-family: "DM Sans";
+}
+ 
+.careers-thq-text-column-elm3 {
+  flex: 0 0 auto;
+  display: flex;
+  max-width: 455px;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-text41 {
+  fill: #0F1421;
+  color: rgb(15, 20, 33);
+  font-size: 14px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-text42 {
+  fill: #4A5880;
+  color: rgb(74, 88, 128);
+  font-size: 13px;
+  font-family: "DM Sans";
+  line-height: 1.65;
+}
+ 
+.careers-thq-cp4-elm {
+  gap: 20px;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+ 
+.careers-thq-icon-box-elm4 {
+  flex: 0 0 auto;
+  width: 40px;
+  border: 1px solid #E8ECF4;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 10px;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #F4F6FA;
+}
+ 
+.careers-text43 {
+  font-size: 16px;
+  font-family: "DM Sans";
+}
+ 
+.careers-thq-text-column-elm4 {
+  flex: 0 0 auto;
+  display: flex;
+  max-width: 455px;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-text44 {
+  fill: #0F1421;
+  color: rgb(15, 20, 33);
+  font-size: 14px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-text45 {
+  fill: #4A5880;
+  color: rgb(74, 88, 128);
+  font-size: 13px;
+  font-family: "DM Sans";
+  line-height: 1.65;
+}
+ 
+.careers-thq-right-column-elm {
+  width: auto;
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 0%;
+  align-items: flex-start;
+  flex-shrink: 1;
+  flex-direction: column;
+}
+ 
+.careers-thq-culture-card-elm {
+  gap: 20px;
+  flex: 0 0 auto;
+  display: flex;
+  padding: 40px;
+  align-items: flex-start;
+  border-radius: 14px;
+  flex-direction: column;
+  background-color: #0F1421;
+}
+ 
+.careers-thq-card-hearder-elm {
+  gap: 4px;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-thq-title-elm {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 19px;
+  font-family: "Fraunces";
+  margin-bottom: 4px;
+}
+ 
+.careers-text46 {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 13px;
+  font-family: "DM Sans";
+  line-height: 1.65;
+}
+ 
+.careers-thq-profile1-elm {
+  gap: 14px;
+  flex: 0 0 auto;
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  padding: 16px;
+  align-items: flex-start;
+  border-radius: 8px;
+  flex-direction: row;
+  background-color: rgba(255,255,255,0.04);
+}
+ 
+.careers-thq-avtar-elm1 {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #C9933A;
+}
+ 
+.careers-thq-short-text-elm1 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 12px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 600;
+}
+ 
+.careers-thq-profile-text-elm1 {
+  gap: 2px;
+  flex: 0 0 auto;
+  width: 392px;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-thq-name-elm1 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 13px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-thq-role-elm1 {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 11px;
+  font-family: "DM Sans";
+}
+ 
+.careers-thq-quote-elm1 {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 6px;
+  font-family: "DM Sans";
+  font-weight: 400;
+  line-height: 1.6;
+}
+ 
+.careers-thq-profile2-elm {
+  gap: 14px;
+  flex: 0 0 auto;
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  padding: 16px;
+  align-items: flex-start;
+  border-radius: 8px;
+  background-color: rgba(255,255,255,0.04);
+}
+ 
+.careers-thq-avtar-elm2 {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #C9933A;
+}
+ 
+.careers-thq-short-text-elm2 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 12px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 600;
+}
+ 
+.careers-thq-profile-text-elm2 {
+  gap: 2px;
+  flex: 0 0 auto;
+  width: 392px;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-thq-name-elm2 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 13px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-thq-role-elm2 {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 11px;
+  font-family: "DM Sans";
+}
+ 
+.careers-thq-quote-elm2 {
+  color: rgb(122, 138, 174);
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 6px;
+  font-family: "DM Sans";
+  font-weight: 400;
+  line-height: 1.6;
+}
+ 
+.careers-thq-profile3-elm {
+  gap: 14px;
+  flex: 0 0 auto;
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  padding: 16px;
+  align-items: flex-start;
+  border-radius: 8px;
+  background-color: rgba(255,255,255,0.04);
+}
+ 
+.careers-thq-avtar-elm3 {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #C9933A;
+}
+ 
+.careers-thq-short-text-elm3 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 12px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 600;
+}
+ 
+.careers-thq-profile-text-elm3 {
+  gap: 2px;
+  flex: 0 0 auto;
+  width: 392px;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-thq-name-elm3 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 13px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-thq-role-elm3 {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 11px;
+  font-family: "DM Sans";
+}
+ 
+.careers-thq-quote-elm3 {
+  color: rgb(122, 138, 174);
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 6px;
+  font-family: "DM Sans";
+  font-weight: 400;
+  line-height: 1.6;
+}
+ 
+.careers-thq-profile4-elm {
+  gap: 14px;
+  flex: 0 0 auto;
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  padding: 16px;
+  align-items: flex-start;
+  border-radius: 8px;
+  background-color: rgba(255,255,255,0.04);
+}
+ 
+.careers-thq-avtar-elm4 {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #00B8A0;
+}
+ 
+.careers-thq-short-text-elm4 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 12px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 600;
+}
+ 
+.careers-thq-profile-text-elm4 {
+  gap: 2px;
+  flex: 0 0 auto;
+  width: 392px;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-thq-name-elm4 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 13px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+}
+ 
+.careers-thq-role-elm4 {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 11px;
+  font-family: "DM Sans";
+}
+ 
+.careers-thq-quote-elm4 {
+  color: rgb(122, 138, 174);
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 6px;
+  font-family: "DM Sans";
+  font-weight: 400;
+  line-height: 1.6;
+}
+ 
+.careers-thq-cta-strip-elm {
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  display: flex;
+  padding: 64px 80px 64px 80px;
+  align-items: flex-start;
+  flex-direction: column;
+  background-color: #0A0D14;
+}
+ 
+.careers-thq-cta-inner-elm {
+  gap: 40px;
+  flex: 0 0 auto;
+  width: 100%;
+  height: 100px;
+  display: flex;
+  max-width: 1200px;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: space-between;
+}
+ 
+.careers-thq-text-column-elm5 {
+  gap: 8px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-thq-title-column-elm2 {
+  gap: 0;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+ 
+.careers-text47 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  font-size: 29px;
+  font-style: normal;
+  font-family: "Fraunces";
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+ 
+.careers-text48 {
+  fill: #C9933A;
+  color: rgb(201, 147, 58);
+  font-size: 29px;
+  font-style: italic;
+  font-family: "Fraunces";
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+ 
+.careers-thq-subtitle-elm {
+  fill: #7A8AAE;
+  color: rgb(122, 138, 174);
+  font-size: 14px;
+  font-family: "DM Sans";
+  line-height: 1.6;
+}
+ 
+.careers-thq-button-row-elm {
+  gap: 12px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+ 
+.careers-text49 {
+  fill: #FFFFFF;
+  color: rgb(255, 255, 255);
+  padding: 14px 32px 14px 32px;
+  font-size: 12px;
+  font-style: normal;
+  transition: 0.3s;
+  font-family: "DM Sans";
+  font-weight: 500;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background-color: rgb(201, 147, 58);
+}
+ 
+.careers-text49:hover {
+  background-color: var(--dl-color-scmmax-color-accent-brass-color-brass-300);
+}
+ 
+.careers-text50 {
+  fill: #FFFFFF;
+  color: #FFFFFF;
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 14px 32px 14px 32px;
+  font-size: 12px;
+  font-style: normal;
+  font-family: "DM Sans";
+  font-weight: 500;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background-color: transparent;
+}
+ 
+.careers-text51 {
+  display: inline-block;
+}
+ 
+.careers-text52 {
+  display: inline-block;
+}
+ 
+.careers-text53 {
+  display: inline-block;
+}
+ 
+.careers-text54 {
+  display: inline-block;
+}
+ 
+.careers-text55 {
+  display: inline-block;
+}
+ 
+.careers-text56 {
+  display: inline-block;
+}
+ 
+.careers-text57 {
+  display: inline-block;
+}
+ 
+.careers-text58 {
+  display: inline-block;
+}
+ 
+.careers-text59 {
+  display: inline-block;
+}
+ 
+.careers-text60 {
+  display: inline-block;
+}
+ 
+.careers-text61 {
+  display: inline-block;
+}
+ 
+.careers-text62 {
+  display: inline-block;
+}
+ 
+.careers-text63 {
+  display: inline-block;
+}
+ 
+.careers-text64 {
+  display: inline-block;
+}
+ 
+.careers-text65 {
+  display: inline-block;
+}
+ 
+.careers-text66 {
+  display: inline-block;
+}
+ 
+.careers-text67 {
+  display: inline-block;
+}
+ 
+.careers-text68 {
+  display: inline-block;
+}
+ 
+.careers-text69 {
+  display: inline-block;
+}
+ 
+.careers-text70 {
+  display: inline-block;
+}
+ 
+.careers-text71 {
+  display: inline-block;
+}
+ 
+.careers-text72 {
+  display: inline-block;
+}
+ 
+@media(max-width: 991px) {
+  .careers-thq-culture-inner-r-ow-elm {
+    gap: 40px;
+    flex-direction: column;
+  }
+  .careers-thq-left-column-elm {
+    width: 100%;
+    min-width: 0;
+  }
+  .careers-thq-right-column-elm {
+    width: 100%;
+    min-width: 0;
+  }
+  .careers-thq-culture-card-elm {
+    width: 100%;
+  }
+  .careers-thq-profile-text-elm1 {
+    width: 269px;
+  }
+  .careers-thq-profile-text-elm2 {
+    max-width: 269px;
+  }
+  .careers-thq-profile3-elm {
+    gap: 6px;
+    padding: 12px;
+  }
+  .careers-thq-profile-text-elm3 {
+    max-width: 269px;
+  }
+  .careers-thq-profile4-elm {
+    gap: 6px;
+    padding: 12px;
+  }
+  .careers-thq-profile-text-elm4 {
+    max-width: 269px;
+  }
+  .careers-thq-cta-inner-elm {
+    gap: 28px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .careers-text49 {
+    width: 100%;
+    text-align: center;
+  }
+  .careers-text50 {
+    width: 100%;
+    text-align: center;
+  }
+}
+ 
+@media(max-width: 479px) {
+  .careers-thq-hero-inner-elm {
+    padding: 90px 48px 20px 20px;
+  }
+  .careers-thq-stats-row-elm {
+    width: 100%;
+    margin-top: 0;
+    flex-direction: column;
+  }
+  .careers-thq-stat1-elm {
+    width: 100%;
+    align-items: center;
+    border-right: none;
+    padding-left: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 6px;
+    padding-right: 0;
+  }
+  .careers-text24 {
+    font-size: 0.8rem;
+  }
+  .careers-thq-stat2-elm {
+    width: 100%;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 6px;
+  }
+  .careers-text25 {
+    font-size: 0.8rem;
+  }
+  .careers-thq-stat3-elm {
+    width: 100%;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 6px;
+  }
+  .careers-text26 {
+    font-size: 0.8rem;
+  }
+  .careers-thq-stat4-elm {
+    width: 100%;
+    align-items: center;
+    border-right: none;
+    margin-bottom: 6px;
+  }
+  .careers-text27 {
+    font-size: 0.8rem;
+  }
+  .careers-thq-open-roles-section-elm {
+    padding: 48px 20px;
+  }
+  .careers-thq-culture-outer-section-elm {
+    padding: 48px 20px;
+  }
+  .careers-thq-culture-points-elm {
+    max-width: 100%;
+  }
+  .careers-thq-cp1-elm {
+    max-width: 100%;
+  }
+  .careers-thq-text-column-elm1 {
+    max-width: 300px;
+  }
+  .careers-thq-cp2-elm {
+    max-width: 100%;
+  }
+  .careers-thq-text-column-elm2 {
+    max-width: 300px;
+  }
+  .careers-thq-cp3-elm {
+    max-width: 100%;
+  }
+  .careers-thq-text-column-elm3 {
+    max-width: 300px;
+  }
+  .careers-thq-cp4-elm {
+    max-width: 100%;
+  }
+  .careers-thq-text-column-elm4 {
+    max-width: 300px;
+  }
+  .careers-thq-culture-card-elm {
+    padding: 12px;
+  }
+  .careers-thq-profile1-elm {
+    gap: 6px;
+    padding: 12px;
+  }
+  .careers-thq-profile2-elm {
+    gap: 6px;
+    padding: 12px;
+  }
+}

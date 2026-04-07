@@ -12,7 +12,7 @@ const AgentList1 = (props) => {
   return (
     <div className="agent-list1-thq-agent-list1-elm">
       <div className="agent-list1-thq-agent-group-list-elm">
-        <span className="agent-list1-thq-eye-brow-elm1">
+        <span id="ProductList1" className="agent-list1-thq-eye-brow-elm1">
           {props.eyeBrow3 ?? (
             <Fragment>
               <span className="agent-list1-text202">AGENT CATEGORIES</span>
