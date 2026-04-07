@@ -4,4 +4,4 @@ Disallow: /nogooglebot/
 User-agent: *
 Allow: /
 
-Sitemap: https://practical-mean-cassowary-094j40.teleporthq.site/sitemap.xml
+Sitemap: https://scmmax.com/sitemap.xml

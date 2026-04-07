@@ -27,19 +27,21 @@ const Products = (props) => {
   return (
     <div id="products" className="products-container1">
       <Helmet>
-        <title>Products - Practical Mean Cassowary</title>
+        <title>Products - SCMmax Apollo Agent Suite</title>
+        <meta
+          name="description"
+          content="Explore Apollo, the 16-agent suite for direct procurement. AI-driven solutions for margin expansion, protection, and productivity."
+        />
         <meta
           property="og:title"
-          content="Products - Practical Mean Cassowary"
-        />
-        <link
-          rel="canonical"
-          href="https://practical-mean-cassowary-094j40.teleporthq.site/products"
+          content="Products - SCMmax Apollo Agent Suite"
         />
         <meta
-          property="og:url"
-          content="https://practical-mean-cassowary-094j40.teleporthq.site/products"
+          property="og:description"
+          content="Explore Apollo, the 16-agent suite for direct procurement. AI-driven solutions for margin expansion, protection, and productivity."
         />
+        <link rel="canonical" href="https://scmmax.com/products" />
+        <meta property="og:url" content="https://scmmax.com/products" />
       </Helmet>
       <NavbarInteractive
         home={

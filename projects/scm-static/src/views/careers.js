@@ -12,19 +12,21 @@ const Careers = (props) => {
   return (
     <div id="careers" className="careers-container1">
       <Helmet>
-        <title>Careers - Practical Mean Cassowary</title>
+        <title>Careers at SCMmax | Build the Future of AI Procurement</title>
+        <meta
+          name="description"
+          content="Join SCMmax in building the future of procurement intelligence. We're looking for procurement experts and AI/ML engineers."
+        />
         <meta
           property="og:title"
-          content="Careers - Practical Mean Cassowary"
-        />
-        <link
-          rel="canonical"
-          href="https://practical-mean-cassowary-094j40.teleporthq.site/careers"
+          content="Careers at SCMmax | Build the Future of AI Procurement"
         />
         <meta
-          property="og:url"
-          content="https://practical-mean-cassowary-094j40.teleporthq.site/careers"
+          property="og:description"
+          content="Join SCMmax in building the future of procurement intelligence. We're looking for procurement experts and AI/ML engineers."
         />
+        <link rel="canonical" href="https://scmmax.com/careers" />
+        <meta property="og:url" content="https://scmmax.com/careers" />
       </Helmet>
       <NavbarInteractive
         home={

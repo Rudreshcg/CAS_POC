@@ -32,16 +32,18 @@ const Home = (props) => {
   return (
     <div id="home" className="home-container1">
       <Helmet>
-        <title>Practical Mean Cassowary</title>
-        <meta property="og:title" content="Practical Mean Cassowary" />
-        <link
-          rel="canonical"
-          href="https://practical-mean-cassowary-094j40.teleporthq.site/"
-        />
+        <title>SCMmax | AI-Driven Procurement Intelligence</title>
         <meta
-          property="og:url"
-          content="https://practical-mean-cassowary-094j40.teleporthq.site/"
+          name="description"
+          content="Scale your procurement strategy with 24/7 AI agents. SCMmax offers automated negotiation, cost modeling, and spend analysis for enterprise teams."
         />
+        <meta property="og:title" content="SCMmax | AI-Driven Procurement Intelligence" />
+        <meta
+          property="og:description"
+          content="Scale your procurement strategy with 24/7 AI agents. SCMmax offers automated negotiation, cost modeling, and spend analysis for enterprise teams."
+        />
+        <link rel="canonical" href="https://scmmax.com/" />
+        <meta property="og:url" content="https://scmmax.com/" />
       </Helmet>
       <NavbarInteractive
         home={

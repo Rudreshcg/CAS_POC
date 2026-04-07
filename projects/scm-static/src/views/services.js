@@ -26,19 +26,21 @@ const Services = (props) => {
   return (
     <div id="services" className="services-container1">
       <Helmet>
-        <title>Services - Practical Mean Cassowary</title>
+        <title>Services - SCMmax Procurement Consulting</title>
+        <meta
+          name="description"
+          content="AI-amplified buying services, consulting, and data enrichment. SCMmax combines deep domain expertise with Apollo to drive procurement outcomes."
+        />
         <meta
           property="og:title"
-          content="Services - Practical Mean Cassowary"
-        />
-        <link
-          rel="canonical"
-          href="https://practical-mean-cassowary-094j40.teleporthq.site/services"
+          content="Services - SCMmax Procurement Consulting"
         />
         <meta
-          property="og:url"
-          content="https://practical-mean-cassowary-094j40.teleporthq.site/services"
+          property="og:description"
+          content="AI-amplified buying services, consulting, and data enrichment. SCMmax combines deep domain expertise with Apollo to drive procurement outcomes."
         />
+        <link rel="canonical" href="https://scmmax.com/services" />
+        <meta property="og:url" content="https://scmmax.com/services" />
       </Helmet>
       <NavbarInteractive
         home={

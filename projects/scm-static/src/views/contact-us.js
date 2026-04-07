@@ -11,19 +11,21 @@ const ContactUs = (props) => {
   return (
     <div className="contact-us-container1">
       <Helmet>
-        <title>Contact-Us - Practical Mean Cassowary</title>
+        <title>Request a Demo | SCMmax Procurement AI</title>
+        <meta
+          name="description"
+          content="See Apollo in action on your own spend data. Request a 30-minute demo to discover savings opportunities in your direct spend."
+        />
         <meta
           property="og:title"
-          content="Contact-Us - Practical Mean Cassowary"
-        />
-        <link
-          rel="canonical"
-          href="https://practical-mean-cassowary-094j40.teleporthq.site/contact-us"
+          content="Request a Demo | SCMmax Procurement AI"
         />
         <meta
-          property="og:url"
-          content="https://practical-mean-cassowary-094j40.teleporthq.site/contact-us"
+          property="og:description"
+          content="See Apollo in action on your own spend data. Request a 30-minute demo to discover savings opportunities in your direct spend."
         />
+        <link rel="canonical" href="https://scmmax.com/contact-us" />
+        <meta property="og:url" content="https://scmmax.com/contact-us" />
       </Helmet>
       <NavbarInteractive
         home={

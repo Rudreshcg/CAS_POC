@@ -15,19 +15,21 @@ const AboutUs = (props) => {
   return (
     <div className="about-us-container1">
       <Helmet>
-        <title>About-Us - Practical Mean Cassowary</title>
+        <title>About SCMmax | Solving the Procurement Gap</title>
+        <meta
+          name="description"
+          content="SCMmax closes the procurement intelligence gap. We build AI that gives enterprise teams the market knowledge and analytical depth they need."
+        />
         <meta
           property="og:title"
-          content="About-Us - Practical Mean Cassowary"
-        />
-        <link
-          rel="canonical"
-          href="https://practical-mean-cassowary-094j40.teleporthq.site/about-us"
+          content="About SCMmax | Solving the Procurement Gap"
         />
         <meta
-          property="og:url"
-          content="https://practical-mean-cassowary-094j40.teleporthq.site/about-us"
+          property="og:description"
+          content="SCMmax closes the procurement intelligence gap. We build AI that gives enterprise teams the market knowledge and analytical depth they need."
         />
+        <link rel="canonical" href="https://scmmax.com/about-us" />
+        <meta property="og:url" content="https://scmmax.com/about-us" />
       </Helmet>
       <NavbarInteractive
         home={
