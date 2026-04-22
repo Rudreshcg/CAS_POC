@@ -501,7 +501,7 @@ var CORP=['deloitte.com','pwc.com','kpmg.com','ey.com','accenture.com','mckinsey
 'cognizant.com','hcl.com','oliverwyman.com','rolandberger.com','atkearney.com'];
 function fmValidEmail(e){
   if(!e)return{ok:false,msg:'Please enter your work email'};
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+\$/.test(e))return{ok:false,msg:'Please enter a valid email'};
+  if(!/^[^ @]+@[^ @]+\.[^ @]+$/.test(e))return{ok:false,msg:'Please enter a valid email'};
   var d=e.split('@')[1].toLowerCase();
   if(FREE.indexOf(d)>-1)return{ok:false,msg:'Please use your company email — not a personal address'};
   if(CORP.indexOf(d)>-1)return{ok:false,msg:'Please use your company email, not a consulting firm email'};
@@ -530,24 +530,66 @@ if (emailEl) {
   });
 }
 function fmSubmit(e){
-  e.preventDefault();var ok=true;
+  e.preventDefault();
+  var btn = e.target;
+  var origText = btn.textContent;
+  
   var fnEl = document.getElementById('fm-fn');
   var lnEl = document.getElementById('fm-ln');
   var emEl = document.getElementById('fm-em');
   var jtEl = document.getElementById('fm-jt');
   var coEl = document.getElementById('fm-co');
+  var spEl = document.getElementById('fm-sp');
   
+  var ok = true;
   if(fnEl && !fnEl.value.trim()){fmErr('fm-fn','fm-fn-e','Required');ok=false;}else fmClear('fm-fn','fm-fn-e');
   if(lnEl && !lnEl.value.trim()){fmErr('fm-ln','fm-ln-e','Required');ok=false;}else fmClear('fm-ln','fm-ln-e');
   var r=fmValidEmail(emEl ? emEl.value.trim() : '');
   if(!r.ok){fmErr('fm-em','fm-em-e',r.msg);ok=false;}else fmClear('fm-em','fm-em-e');
   if(jtEl && !jtEl.value.trim()){fmErr('fm-jt','fm-jt-e','Required');ok=false;}else fmClear('fm-jt','fm-jt-e');
   if(coEl && !coEl.value.trim()){fmErr('fm-co','fm-co-e','Required');ok=false;}else fmClear('fm-co','fm-co-e');
-  if(!ok)return;
-  var fmEl = document.getElementById('fm');
-  var okEl = document.getElementById('fm-ok');
-  if (fmEl) fmEl.style.display='none';
-  if (okEl) okEl.classList.add('show');
+  
+  if(!ok) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  var erp = Array.from(document.querySelectorAll('input[name="erp"]:checked')).map(function(c){return c.value});
+  var proc = Array.from(document.querySelectorAll('input[name="proc"]:checked')).map(function(c){return c.value});
+
+  var data = {
+    first_name: fnEl.value.trim(),
+    last_name: lnEl.value.trim(),
+    email: emEl.value.trim(),
+    job_title: jtEl.value.trim(),
+    company: coEl.value.trim(),
+    direct_spend: spEl ? spEl.value : '',
+    erp_systems: erp,
+    procurement_systems: proc
+  };
+
+  fetch('/api/contact', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  })
+  .then(function(res){
+    if(!res.ok) return res.json().then(function(d){ throw new Error(d.detail || 'Server error')});
+    return res.json();
+  })
+  .then(function(){
+    var fmEl = document.getElementById('fm');
+    var okEl = document.getElementById('fm-ok');
+    if (fmEl) fmEl.style.display='none';
+    if (okEl) okEl.classList.add('show');
+    window.scrollTo({top: okEl.offsetTop - 100, behavior: 'smooth'});
+  })
+  .catch(function(err){
+    console.error(err);
+    fmErr('fm-em','fm-em-e', err.message || 'Submission failed. Please try again.');
+    btn.disabled = false;
+    btn.textContent = origText;
+  });
 }
 </script>`}
                   ></Script>

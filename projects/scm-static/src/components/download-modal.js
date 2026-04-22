@@ -16,7 +16,11 @@ const DownloadModal = ({ isOpen, onClose }) => {
     setError('')
     
     try {
-      const response = await fetch('/api/download-request', {
+      // Use relative path (proxied)
+      const apiUrl = '/api/download-request'
+      console.log('Attempting POST to:', apiUrl)
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,14 +28,24 @@ const DownloadModal = ({ isOpen, onClose }) => {
         body: JSON.stringify({ name, email }),
       })
 
-      const data = await response.json()
+      const contentType = response.headers.get('content-type')
+      let data = {}
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json()
+      } else {
+        const text = await response.text()
+        console.error('Non-JSON response received:', text)
+        throw new Error(`Server returned non-JSON response (${response.status}). The API proxy might be misconfigured.`)
+      }
 
       if (!response.ok) {
-        throw new Error(data.detail || 'An error occurred. Please try again.')
+        throw new Error(data.detail || `Server Error: ${response.status}`)
       }
 
       setSuccess(true)
     } catch (err) {
+      console.error('Fetch error:', err)
       setError(err.message)
     } finally {
       setLoading(false)

@@ -1,10 +1,10 @@
-# Practical Mean Cassowary
+# SCMmax - AI-Driven Procurement Intelligence
 
-> 
+> Scale your procurement strategy with 24/7 AI agents. SCMmax offers automated negotiation, cost modeling, and spend analysis for enterprise teams.
 
 ## Pages
 
-- [Services - Practical Mean Cassowary](https://practical-mean-cassowary-094j40.teleporthq.site/services)
-- [Products - Practical Mean Cassowary](https://practical-mean-cassowary-094j40.teleporthq.site/products)
-- [Practical Mean Cassowary](https://practical-mean-cassowary-094j40.teleporthq.site)
-- [Contact-Us - Practical Mean Cassowary](https://practical-mean-cassowary-094j40.teleporthq.site/contact-us)
+- [Services - SCMmax Procurement Consulting](https://scmmax.com/services)
+- [Products - SCMmax Apollo Agent Suite](https://scmmax.com/products)
+- [SCMmax | AI-Driven Procurement Intelligence](https://scmmax.com)
+- [Contact Us - Request a Demo | SCMmax Procurement AI](https://scmmax.com/contact-us)

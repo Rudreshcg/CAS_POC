@@ -65,6 +65,12 @@ $scmStaging = "staging_scm"
 if (Test-Path $scmStaging) { Remove-Item $scmStaging -Recurse -Force }
 New-Item -ItemType Directory -Path $scmStaging | Out-Null
 Copy-Item "projects/scm-static/backend/*" -Destination $scmStaging -Recurse
+if (Test-Path "projects/scm-static/backend/.env") {
+    Copy-Item "projects/scm-static/backend/.env" -Destination "$scmStaging/.env" -Force
+}
+if (Test-Path "projects/scm-static/backend/.env.example") {
+    Copy-Item "projects/scm-static/backend/.env.example" -Destination "$scmStaging/.env.example" -Force
+}
     New-Item -ItemType Directory -Path "$scmStaging/frontend/build" -Force | Out-Null
     Copy-Item "projects/scm-static/build/*" -Destination "$scmStaging/frontend/build" -Recurse -Force
 tar -czf archives/scm-static.tar.gz -C $scmStaging .
@@ -87,6 +93,13 @@ $services = @{
     "scm-static"  = "main:app"
 }
 
+$workerArgs = @{
+    "cas-lookup"  = ""
+    "email-demo"  = ""
+    "apollo-demo" = ""
+    "scm-static"  = "-k uvicorn.workers.UvicornWorker"
+}
+
 $ports = @{
     "cas-lookup"  = 5000
     "email-demo"  = 5001
@@ -97,6 +110,7 @@ $ports = @{
 foreach ($svc in $services.Keys) {
     $entryPoint = $services[$svc]
     $port = $ports[$svc]
+    $workerClass = $workerArgs[$svc]
     $content = @"
 [Unit]
 Description=$svc App
@@ -105,7 +119,7 @@ After=network.target
 [Service]
 User=ec2-user
 WorkingDirectory=/opt/$svc
-ExecStart=/opt/$svc/venv/bin/gunicorn --workers 2 --bind 0.0.0.0:$port --timeout 600 $entryPoint
+ExecStart=/opt/$svc/venv/bin/gunicorn $workerClass --workers 2 --bind 0.0.0.0:$port --timeout 600 $entryPoint
 Restart=always
 
 [Install]
@@ -192,8 +206,22 @@ sudo systemctl start nginx
 
 # Stop and Clean
 sudo systemctl stop cas-lookup email-demo apollo-demo scm-static || true
+
+# Backup database if it exists
+if [ -f "/opt/scm-static/downloads.db" ]; then
+    echo "Backing up database..."
+    sudo cp /opt/scm-static/downloads.db /tmp/downloads.db.bak
+fi
+
 sudo rm -rf /opt/cas-lookup /opt/email-demo /opt/apollo-demo /opt/scm-static
 sudo mkdir -p /opt/cas-lookup /opt/email-demo /opt/apollo-demo /opt/scm-static
+
+# Restore database if backup exists
+if [ -f "/tmp/downloads.db.bak" ]; then
+    echo "Restoring database..."
+    sudo mv /tmp/downloads.db.bak /opt/scm-static/downloads.db
+fi
+
 sudo chown -R ec2-user:ec2-user /opt/cas-lookup /opt/email-demo /opt/apollo-demo /opt/scm-static
 
 # Extract
@@ -234,15 +262,22 @@ echo "Configuring services..."
 for svc in cas-lookup email-demo apollo-demo scm-static; do
     sudo mv /tmp/$svc.service /etc/systemd/system/
     sudo systemctl enable $svc
-    sudo systemctl restart $svc || echo "Warning: Failed to restart $svc"
+    sudo systemctl restart $svc
+done
+
+# Verify service health and fail deployment if any service is down
+for svc in cas-lookup email-demo apollo-demo scm-static; do
+    if ! sudo systemctl is-active --quiet $svc; then
+        echo "ERROR: Service $svc failed to start"
+        sudo journalctl -u $svc -n 80 --no-pager || true
+        exit 1
+    fi
 done
 
 echo "Setup finished."
 '@
 
 $setupScript = $setupScriptTemplate -replace 'CONF_BASE64_PLACEHOLDER', $confBase64
-[System.IO.File]::WriteAllText((Join-Path "archives" "setup.sh"), ($setupScript -replace "`r`n", "`n"))
-
 [System.IO.File]::WriteAllText((Join-Path "archives" "setup.sh"), ($setupScript -replace "`r`n", "`n"))
 
 # 4. Upload and Execute
