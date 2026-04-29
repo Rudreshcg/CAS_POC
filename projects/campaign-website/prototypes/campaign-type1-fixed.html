@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apollo — A Procurement Intelligence Roadmap for Tata Chemicals</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,400;1,9..144,200;1,9..144,300;1,9..144,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --ink:       #0A0D14;
+  --slate-900: #0F1421;
+  --slate-800: #1A2035;
+  --slate-700: #253050;
+  --slate-600: #3A4870;
+  --slate-500: #4A5880;
+  --slate-400: #7A8AAE;
+  --slate-300: #A0AECC;
+  --slate-200: #C8D0E0;
+  --slate-100: #E8ECF4;
+  --slate-50:  #F4F6FA;
+  --white:     #FFFFFF;
+  --brass:     #C9933A;
+  --brass-lt:  #E8C278;
+  --brass-dk:  #A6742A;
+  --teal:      #00B8A0;
+  --teal-lt:   #00D4BC;
+  --font-d: 'Fraunces', Georgia, serif;
+  --font-b: 'DM Sans', system-ui, sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
+body{font-family:var(--font-b);color:var(--slate-900);background:var(--white)}
+
+/* ── MINIMAL NAV ── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;height:68px;
+  background:rgba(15,20,33,0.97);border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;backdrop-filter:blur(12px);
+}
+.nav-brand{display:flex;align-items:center;gap:6px}
+.brand-w{font-family:var(--font-b);font-weight:700;font-size:1rem;color:#fff;letter-spacing:.02em}
+.brand-a{font-family:var(--font-d);font-size:1rem;font-style:italic;font-weight:300;color:var(--brass)}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-company-logo{height:28px;opacity:0.85;filter:brightness(0) invert(1)}
+.nav-divider{width:1px;height:20px;background:rgba(255,255,255,0.12)}
+.nav-label{font-size:.7rem;color:var(--slate-400);letter-spacing:.06em;text-transform:uppercase}
+
+/* ── HERO ── */
+.hero{
+  background:var(--slate-900);
+  padding:120px 80px 0;
+  position:relative;overflow:hidden;
+  min-height:100vh;
+  display:flex;align-items:center;
+}
+.hero-bg-orb1{
+  position:absolute;top:-200px;right:-100px;
+  width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,147,58,.06) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-bg-orb2{
+  position:absolute;bottom:-100px;left:-150px;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,184,160,.04) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-inner{
+  max-width:1200px;margin:0 auto;width:100%;
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;
+  align-items:center;position:relative;z-index:1;
+  padding-bottom:80px;
+}
+
+/* Left hero column */
+.hero-left{}
+.hero-provenance{
+  display:flex;align-items:center;gap:10px;margin-bottom:28px;
+}
+.hero-prov-line{width:28px;height:1px;background:var(--teal-lt);opacity:.6}
+.hero-prov-text{
+  font-size:.62rem;font-weight:500;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--teal-lt);
+}
+.hero-greeting{
+  font-family:var(--font-d);
+  font-size:clamp(1rem,1.4vw,1.2rem);
+  font-weight:300;color:var(--slate-400);
+  margin-bottom:8px;letter-spacing:.01em;
+}
+.hero-name{
+  font-family:var(--font-d);
+  font-size:clamp(2.8rem,4vw,4rem);
+  font-weight:300;line-height:1.05;
+  letter-spacing:-.03em;color:#fff;
+  margin-bottom:4px;
+}
+.hero-name em{font-style:italic;color:var(--brass)}
+.hero-company{
+  font-family:var(--font-d);
+  font-size:clamp(1.1rem,1.6vw,1.35rem);
+  font-weight:300;font-style:italic;
+  color:var(--slate-400);margin-bottom:32px;
+  letter-spacing:.01em;
+}
+.hero-intro{
+  font-size:.98rem;color:var(--slate-300);
+  line-height:1.8;max-width:480px;margin-bottom:40px;
+}
+.hero-intro strong{color:#fff;font-weight:500}
+
+/* Scan badge */
+.scan-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(0,184,160,.08);border:1px solid rgba(0,184,160,.2);
+  border-radius:100px;padding:8px 16px;
+}
+.scan-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--teal);
+  box-shadow:0 0 0 3px rgba(0,184,160,.25);
+  animation:pulse 2s infinite;flex-shrink:0;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 3px rgba(0,184,160,.25)}
+  50%{box-shadow:0 0 0 6px rgba(0,184,160,.1)}
+}
+.scan-badge-text{font-size:.72rem;color:var(--teal-lt);letter-spacing:.04em}
+
+/* Right hero column — company card */
+.hero-right{}
+.company-card{
+  background:linear-gradient(135deg,rgba(26,32,53,0.9) 0%,rgba(15,20,33,0.95) 100%);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:20px;padding:40px;
+  position:relative;overflow:hidden;
+}
+.company-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--brass) 0%,var(--brass-lt) 50%,transparent 100%);
+}
+.company-card-header{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:32px;padding-bottom:28px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.company-logo-placeholder{
+  width:56px;height:56px;border-radius:10px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:600;color:var(--slate-300);
+  letter-spacing:.08em;text-transform:uppercase;flex-shrink:0;
+}
+.company-card-name{
+  font-family:var(--font-d);font-size:1.3rem;font-weight:300;
+  color:#fff;letter-spacing:-.01em;line-height:1.2;
+}
+.company-card-meta{font-size:.75rem;color:var(--slate-400);margin-top:3px}
+
+.card-stat-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;
+  margin-bottom:28px;
+}
+.card-stat{
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  border-radius:10px;padding:16px;
+}
+.card-stat-num{
+  font-family:var(--font-d);font-size:1.4rem;font-weight:200;
+  font-style:italic;color:var(--brass);line-height:1;margin-bottom:4px;
+}
+.card-stat-label{font-size:.7rem;color:var(--slate-400);line-height:1.4}
+
+.card-research-badge{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(201,147,58,.06);border:1px solid rgba(201,147,58,.15);
+  border-radius:8px;padding:12px 16px;
+}
+.card-research-icon{font-size:1rem;flex-shrink:0}
+.card-research-text{font-size:.75rem;color:var(--brass-lt);line-height:1.5}
+
+/* ── WAVE ── */
+.wave{background:var(--slate-900);line-height:0}
+.wave svg{display:block;width:100%}
+
+/* ── FINDINGS SECTION ── */
+.findings{background:var(--slate-50);padding:80px}
+.findings-inner{max-width:1200px;margin:0 auto}
+
+.section-eyebrow{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.eyebrow-line{width:24px;height:1px;background:var(--brass);opacity:.6}
+.eyebrow-text{
+  font-size:.6rem;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--brass);
+}
+.section-title{
+  font-family:var(--font-d);font-size:clamp(1.8rem,2.8vw,2.4rem);
+  font-weight:300;letter-spacing:-.025em;color:var(--slate-900);
+  line-height:1.2;margin-bottom:10px;
+}
+.section-title em{font-style:italic;color:var(--brass)}
+.section-sub{
+  font-size:.95rem;color:var(--slate-500);line-height:1.75;
+  max-width:600px;margin-bottom:56px;
+}
+
+/* Finding cards */
+.findings-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:28px;
+  margin-bottom:56px;
+}
+.finding-card{
+  background:var(--white);border:1px solid var(--slate-100);
+  border-radius:16px;padding:0;overflow:hidden;
+  position:relative;
+}
+.finding-card-accent{height:3px;width:100%}
+.finding-card-accent.brass{background:linear-gradient(90deg,var(--brass),var(--brass-lt))}
+.finding-card-accent.teal{background:linear-gradient(90deg,var(--teal),var(--teal-lt))}
+.finding-card-body{padding:32px}
+.finding-number{
+  font-family:var(--font-d);font-size:.75rem;font-weight:300;
+  font-style:italic;color:var(--brass-lt);opacity:.8;
+  letter-spacing:.08em;margin-bottom:12px;
+  text-transform:uppercase;
+}
+.finding-number.teal-num{color:var(--teal-lt)}
+.finding-headline{
+  font-family:var(--font-d);font-size:1.25rem;font-weight:300;
+  color:var(--slate-900);line-height:1.35;letter-spacing:-.02em;
+  margin-bottom:16px;
+}
+.finding-body{
+  font-size:.88rem;color:var(--slate-500);line-height:1.75;
+  margin-bottom:24px;
+}
+.finding-impact{
+  display:flex;align-items:flex-start;gap:10px;
+  background:var(--slate-50);border-radius:8px;padding:14px;
+}
+.finding-impact-icon{font-size:.9rem;flex-shrink:0;margin-top:1px}
+.finding-impact-text{font-size:.78rem;color:var(--slate-600);line-height:1.6}
+.finding-impact-text strong{color:var(--slate-900);font-weight:500}
+
+/* ── AI MATURITY + PDF SECTION ── */
+.roadmap-section{background:var(--white);padding:80px}
+.roadmap-inner{max-width:1200px;margin:0 auto}
+
+.roadmap-card{
+  background:var(--slate-900);border-radius:20px;
+  padding:56px;position:relative;overflow:hidden;
+}
+.roadmap-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--teal) 0%,var(--brass) 50%,transparent 100%);
+}
+.roadmap-card-bg{
+  position:absolute;top:-150px;right:-100px;
+  width:500px;height:500px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,147,58,.05) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+.roadmap-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:64px;align-items:start;position:relative;z-index:1;
+}
+
+/* Left — what you get */
+.roadmap-left{}
+.roadmap-eyebrow{
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;
+}
+.roadmap-ey-line{width:24px;height:1px;background:var(--teal-lt);opacity:.5}
+.roadmap-ey-text{
+  font-size:.6rem;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--teal-lt);
+}
+.roadmap-title{
+  font-family:var(--font-d);font-size:clamp(1.6rem,2.4vw,2rem);
+  font-weight:300;color:#fff;line-height:1.2;
+  letter-spacing:-.025em;margin-bottom:16px;
+}
+.roadmap-title em{font-style:italic;color:var(--brass)}
+.roadmap-sub{
+  font-size:.9rem;color:var(--slate-400);line-height:1.75;
+  margin-bottom:32px;
+}
+
+.roadmap-includes{display:flex;flex-direction:column;gap:12px}
+.roadmap-include-item{
+  display:flex;align-items:flex-start;gap:12px;
+}
+.ri-icon{
+  width:28px;height:28px;border-radius:6px;
+  background:rgba(201,147,58,.1);border:1px solid rgba(201,147,58,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;flex-shrink:0;margin-top:1px;
+}
+.ri-text{font-size:.85rem;color:var(--slate-300);line-height:1.6}
+.ri-text strong{color:#fff;font-weight:500}
+
+/* Right — question + download */
+.roadmap-right{}
+.question-card{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;padding:32px;margin-bottom:20px;
+}
+.question-label{
+  font-size:.62rem;font-weight:500;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--teal-lt);
+  margin-bottom:16px;display:flex;align-items:center;gap:8px;
+}
+.question-label::before{
+  content:'';width:16px;height:1px;background:var(--teal-lt);opacity:.5;
+}
+.question-text{
+  font-family:var(--font-d);font-size:1.05rem;font-weight:300;
+  color:#fff;line-height:1.4;margin-bottom:24px;
+  letter-spacing:-.01em;
+}
+
+.maturity-options{display:flex;flex-direction:column;gap:10px}
+.maturity-opt{
+  display:flex;align-items:center;gap:14px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;padding:14px 18px;
+  cursor:pointer;transition:all 200ms;
+  position:relative;
+}
+.maturity-opt:hover{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.15);
+}
+.maturity-opt.selected{
+  background:rgba(201,147,58,.08);
+  border-color:rgba(201,147,58,.3);
+}
+.maturity-opt input[type="radio"]{
+  width:18px;height:18px;accent-color:var(--brass);
+  flex-shrink:0;cursor:pointer;
+}
+.maturity-opt-content{}
+.maturity-opt-title{
+  font-size:.85rem;font-weight:500;color:#fff;margin-bottom:2px;
+}
+.maturity-opt.selected .maturity-opt-title{color:var(--brass-lt)}
+.maturity-opt-desc{font-size:.72rem;color:var(--slate-400);line-height:1.4}
+
+/* Download button states */
+.download-area{margin-top:0}
+.download-hint{
+  display:flex;align-items:center;gap:8px;
+  font-size:.72rem;color:var(--slate-500);
+  margin-bottom:12px;padding:0 4px;
+  transition:opacity 300ms;
+}
+.download-hint.hidden{opacity:0;pointer-events:none}
+.hint-icon{font-size:.8rem}
+
+.btn-download{
+  width:100%;padding:18px 24px;
+  background:var(--brass);border:none;border-radius:8px;
+  color:#fff;font-family:var(--font-b);font-size:.78rem;
+  font-weight:500;letter-spacing:.05em;text-transform:uppercase;
+  cursor:pointer;transition:all 250ms;
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;flex-wrap:wrap;word-break:break-word;
+  position:relative;overflow:hidden;
+  min-height:56px;line-height:1.3;text-align:center;
+}
+.btn-download:disabled{
+  background:rgba(255,255,255,.08);
+  color:var(--slate-500);cursor:not-allowed;
+}
+.btn-download:not(:disabled):hover{
+  background:var(--brass-lt);transform:translateY(-1px);
+}
+.btn-download-icon{font-size:1rem;flex-shrink:0;transition:transform 200ms}
+.btn-download:not(:disabled):hover .btn-download-icon{
+  transform:translateY(2px);
+}
+
+.privacy-note{
+  margin-top:12px;font-size:.68rem;color:var(--slate-500);
+  text-align:center;line-height:1.5;
+}
+
+/* Download success state */
+.download-success{
+  display:none;
+  background:rgba(0,184,160,.06);
+  border:1px solid rgba(0,184,160,.2);
+  border-radius:10px;padding:20px;
+  text-align:center;
+}
+.download-success.show{display:block}
+.ds-icon{font-size:1.6rem;margin-bottom:8px}
+.ds-title{
+  font-size:.88rem;font-weight:500;color:var(--teal-lt);
+  margin-bottom:4px;
+}
+.ds-sub{font-size:.75rem;color:var(--slate-400);line-height:1.5}
+
+/* ── APOLLO CONTEXT STRIP ── */
+.context-strip{background:var(--slate-50);padding:64px 80px}
+.context-inner{
+  max-width:1200px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:32px;
+}
+.context-item{
+  display:flex;flex-direction:column;gap:12px;
+  padding:28px;background:var(--white);
+  border:1px solid var(--slate-100);border-radius:12px;
+}
+.context-icon{
+  width:40px;height:40px;border-radius:8px;
+  background:rgba(201,147,58,.08);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+}
+.context-title{
+  font-size:.88rem;font-weight:500;color:var(--slate-900);
+  line-height:1.4;
+}
+.context-body{font-size:.8rem;color:var(--slate-500);line-height:1.65}
+
+/* ── CTA STRIP ── */
+.cta-strip{
+  background:var(--ink);padding:72px 80px;
+  position:relative;overflow:hidden;
+}
+.cta-strip::before{
+  content:'';position:absolute;top:-200px;right:-100px;
+  width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,147,58,.05) 0%,transparent 65%);
+  pointer-events:none;
+}
+.cta-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:48px;position:relative;z-index:1;
+}
+.cta-left{}
+.cta-eyebrow{
+  font-size:.6rem;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--teal-lt);
+  margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.cta-ey-line{width:20px;height:1px;background:var(--teal-lt);opacity:.5}
+.cta-title{
+  font-family:var(--font-d);font-size:clamp(1.8rem,2.8vw,2.4rem);
+  font-weight:300;color:#fff;line-height:1.15;
+  letter-spacing:-.025em;margin-bottom:12px;
+}
+.cta-title em{font-style:italic;color:var(--brass)}
+.cta-sub{font-size:.92rem;color:var(--slate-400);line-height:1.7;max-width:480px}
+.cta-right{flex-shrink:0}
+.cta-buttons{display:flex;flex-direction:column;gap:12px;align-items:flex-end}
+.btn-primary{
+  padding:16px 36px;background:var(--brass);border:none;
+  border-radius:6px;color:#fff;font-family:var(--font-b);
+  font-size:.78rem;font-weight:500;letter-spacing:.06em;
+  text-transform:uppercase;cursor:pointer;
+  transition:all 250ms;white-space:nowrap;
+}
+.btn-primary:hover{background:var(--brass-lt);transform:translateY(-1px)}
+.btn-ghost{
+  padding:14px 36px;background:transparent;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:6px;color:var(--slate-300);
+  font-family:var(--font-b);font-size:.78rem;font-weight:500;
+  letter-spacing:.06em;text-transform:uppercase;cursor:pointer;
+  transition:all 250ms;white-space:nowrap;
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,.35);color:#fff}
+.cta-reassurance{
+  font-size:.7rem;color:var(--slate-600);
+  text-align:right;margin-top:4px;
+}
+
+/* ── FOOTER ── */
+.footer{
+  background:var(--ink);border-top:1px solid rgba(255,255,255,.04);
+  padding:24px 80px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.footer-brand{display:flex;align-items:center;gap:6px}
+.footer-copy{font-size:.72rem;color:var(--slate-600)}
+.footer-links{display:flex;gap:24px}
+.footer-link{font-size:.72rem;color:var(--slate-600);text-decoration:none;transition:color 150ms}
+.footer-link:hover{color:var(--slate-400)}
+
+/* ── RESPONSIVE ── */
+
+/* Tablet — ≤ 900px */
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;gap:48px}
+  .findings-grid{grid-template-columns:1fr}
+  .context-inner{grid-template-columns:1fr}
+  .cta-inner{flex-direction:column;align-items:flex-start}
+  .cta-buttons{align-items:flex-start;width:100%}
+  .hero,.findings,.roadmap-section,.context-strip,.cta-strip{
+    padding-left:32px;padding-right:32px
+  }
+  .footer{padding:20px 32px;flex-direction:column;gap:16px;text-align:center}
+
+  /* Roadmap section — stack columns */
+  .roadmap-grid{
+    grid-template-columns:1fr;
+    gap:40px;
+  }
+  .roadmap-card{
+    padding:40px 36px;
+  }
+  /* Move the question/download ABOVE the what-you-get list on mobile
+     so the CTA is seen first without scrolling */
+  .roadmap-left{order:2}
+  .roadmap-right{order:1}
+}
+
+/* Mobile — ≤ 600px */
+@media(max-width:600px){
+  .nav{padding:0 20px}
+  .hero,.findings,.roadmap-section,.context-strip,.cta-strip{
+    padding-left:20px;padding-right:20px
+  }
+  .hero{padding-top:100px}
+  .footer{padding:20px}
+
+  /* Roadmap card — tighter padding on small screens */
+  .roadmap-card{
+    padding:28px 20px;
+    border-radius:16px;
+  }
+
+  /* Question card — tighter */
+  .question-card{
+    padding:24px 20px;
+    margin-bottom:16px;
+  }
+  .question-text{
+    font-size:.95rem;
+  }
+
+  /* Radio options — larger tap targets */
+  .maturity-opt{
+    padding:16px 16px;
+    gap:12px;
+  }
+  .maturity-opt input[type="radio"]{
+    width:20px;height:20px;
+  }
+  .maturity-opt-title{
+    font-size:.9rem;
+  }
+  .maturity-opt-desc{
+    font-size:.75rem;
+  }
+
+  /* Download button — shorter text wraps cleanly */
+  .btn-download{
+    font-size:.72rem;
+    padding:18px 16px;
+    letter-spacing:.03em;
+    gap:6px;
+  }
+
+  /* Left column — tighter spacing */
+  .roadmap-title{
+    font-size:1.5rem;
+  }
+  .roadmap-sub{
+    font-size:.85rem;
+    margin-bottom:24px;
+  }
+  .roadmap-includes{gap:14px}
+  .roadmap-include-item{gap:10px}
+  .ri-text{font-size:.82rem}
+
+  /* Findings */
+  .finding-card-body{padding:28px 20px}
+  .finding-headline{font-size:1rem}
+
+  /* CTA buttons full width */
+  .btn-primary,.btn-ghost{
+    width:100%;text-align:center;
+    justify-content:center;
+  }
+
+  /* Context strip */
+  .context-strip{padding-top:48px;padding-bottom:48px}
+
+  /* Footer */
+  .footer{flex-direction:column;gap:12px;text-align:center}
+  .footer-links{flex-wrap:wrap;justify-content:center;gap:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── MINIMAL NAV ── -->
+<nav class="nav">
+  <div class="nav-brand">
+    <span class="brand-w">SCMM<span style="color:var(--brass)">A</span>X</span>
+    <span class="brand-a" style="margin-left:6px">Apollo</span>
+  </div>
+  <div class="nav-right">
+    <!-- Company logo sits here — shown as text fallback in prototype -->
+    <div class="nav-divider"></div>
+    <span class="nav-label">Prepared for Tata Chemicals</span>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg-orb1"></div>
+  <div class="hero-bg-orb2"></div>
+  <div class="hero-inner">
+
+    <!-- Left -->
+    <div class="hero-left">
+      <div class="hero-provenance">
+        <span class="hero-prov-line"></span>
+        <span class="hero-prov-text">Prepared exclusively for Tata Chemicals</span>
+      </div>
+      <p class="hero-greeting">Good morning,</p>
+      <h1 class="hero-name">Rajesh,<br><em>this is built</em></h1>
+      <p class="hero-company">for Tata Chemicals' procurement team.</p>
+      <p class="hero-intro">
+        Our team spent time understanding <strong>Tata Chemicals' direct spend profile</strong>, 
+        your supplier base, and the commodity markets you operate in. 
+        What follows are two specific opportunities where Apollo can move 
+        the needle on your procurement margins — not generic claims, 
+        but findings based on your context.
+      </p>
+      <div class="scan-badge">
+        <span class="scan-dot"></span>
+        <span class="scan-badge-text">Research prepared · 14 April 2025</span>
+      </div>
+    </div>
+
+    <!-- Right — company card -->
+    <div class="hero-right">
+      <div class="company-card">
+        <div class="company-card-header">
+          <div class="company-logo-placeholder">TC</div>
+          <div>
+            <div class="company-card-name">Tata Chemicals</div>
+            <div class="company-card-meta">Specialty & Commodity Chemicals · Mumbai</div>
+          </div>
+        </div>
+        <div class="card-stat-row">
+          <div class="card-stat">
+            <div class="card-stat-num">₹2,400Cr</div>
+            <div class="card-stat-label">Estimated direct spend under management</div>
+          </div>
+          <div class="card-stat">
+            <div class="card-stat-num">6</div>
+            <div class="card-stat-label">Key commodity categories analysed</div>
+          </div>
+          <div class="card-stat">
+            <div class="card-stat-num">3–5%</div>
+            <div class="card-stat-label">Potential cost reduction identified</div>
+          </div>
+          <div class="card-stat">
+            <div class="card-stat-num">90 days</div>
+            <div class="card-stat-label">Estimated time to first savings</div>
+          </div>
+        </div>
+        <div class="card-research-badge">
+          <span class="card-research-icon">🔍</span>
+          <span class="card-research-text">
+            This analysis was built using Apollo's Procurement Prism 
+            applied to publicly available Tata Chemicals spend and 
+            supplier data — not generic benchmarks.
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── WAVE ── -->
+<div class="wave">
+  <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg"
+    preserveAspectRatio="none" style="display:block;width:100%;height:60px;">
+    <path d="M0 0 L1440 0 L1440 0 Q1080 60 720 50 Q360 40 0 60 Z" fill="#0F1421"/>
+    <path d="M0 60 Q360 40 720 50 Q1080 60 1440 0 L1440 60 Z" fill="#F4F6FA"/>
+  </svg>
+</div>
+
+<!-- ── FINDINGS ── -->
+<section class="findings">
+  <div class="findings-inner">
+
+    <div class="section-eyebrow">
+      <span class="eyebrow-line"></span>
+      <span class="eyebrow-text">What We Found — Specific to Tata Chemicals</span>
+    </div>
+    <h2 class="section-title">Two opportunities.<br><em>Quantified. Actionable. Yours.</em></h2>
+    <p class="section-sub">
+      These are not generic procurement observations. They reflect 
+      Tata Chemicals' specific commodity exposure, supplier base, 
+      and market position as of Q1 2025.
+    </p>
+
+    <div class="findings-grid">
+
+      <!-- Finding 1 -->
+      <div class="finding-card">
+        <div class="finding-card-accent brass"></div>
+        <div class="finding-card-body">
+          <div class="finding-number">Finding 01</div>
+          <h3 class="finding-headline">
+            Your soda ash margins are absorbing Chinese import pressure 
+            that your contracts aren't indexed to deflect
+          </h3>
+          <p class="finding-body">
+            Global soda ash prices have declined 18% over the past 14 months, 
+            driven by expanded Chinese production capacity. Apollo's analysis 
+            of Tata Chemicals' procurement contracts indicates that a significant 
+            portion of your domestic soda ash purchases are on fixed-price 
+            annual contracts — meaning you are not capturing the downward 
+            price movement that your competitors with indexed contracts are 
+            already benefiting from.
+          </p>
+          <p class="finding-body">
+            Apollo's Should-Cost Modeling agent builds a live bottom-up cost 
+            model for soda ash that reflects current Chinese export pricing, 
+            energy input costs, and logistics — giving your negotiating team 
+            a defensible number to bring to the next contract renewal.
+          </p>
+          <div class="finding-impact">
+            <span class="finding-impact-icon">💼</span>
+            <span class="finding-impact-text">
+              <strong>Estimated CFO impact:</strong> Transitioning 40% of 
+              fixed-price soda ash contracts to indexed structures could 
+              represent ₹28–45Cr in annual cost reduction at current market rates.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finding 2 -->
+      <div class="finding-card">
+        <div class="finding-card-accent teal"></div>
+        <div class="finding-card-body">
+          <div class="finding-number teal-num">Finding 02</div>
+          <h3 class="finding-headline">
+            Your specialty chemical supplier base has three 
+            single-source dependencies that create material supply risk
+          </h3>
+          <p class="finding-body">
+            Apollo's analysis of Tata Chemicals' specialty chemical 
+            procurement identified three material categories — sodium 
+            bicarbonate precursors, specific chlorine derivatives, and 
+            silica compounds — where your supply base shows single-source 
+            concentration. Two of these suppliers are in geographies 
+            currently experiencing logistics volatility.
+          </p>
+          <p class="finding-body">
+            Apollo's Alternate Suppliers agent continuously scans global 
+            trade databases and qualified supplier networks to identify 
+            pre-vetted alternative sources — complete with landed cost 
+            comparisons, quality certification status, and lead time profiles 
+            — before a supply disruption forces an emergency decision.
+          </p>
+          <div class="finding-impact">
+            <span class="finding-impact-icon">👤</span>
+            <span class="finding-impact-text">
+              <strong>Estimated CPO impact:</strong> Qualifying two alternate 
+              sources per single-source category reduces emergency sourcing 
+              premium exposure — historically 15–30% above contracted price 
+              during supply events.
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── ROADMAP + PDF DOWNLOAD ── -->
+<section class="roadmap-section">
+  <div class="roadmap-inner">
+    <div class="roadmap-card">
+      <div class="roadmap-card-bg"></div>
+      <div class="roadmap-grid">
+
+        <!-- Left — what the PDF contains -->
+        <div class="roadmap-left">
+          <div class="roadmap-eyebrow">
+            <span class="roadmap-ey-line"></span>
+            <span class="roadmap-ey-text">Your Personalised Roadmap</span>
+          </div>
+          <h2 class="roadmap-title">
+            A full AI procurement<br><em>roadmap for Tata Chemicals</em>
+          </h2>
+          <p class="roadmap-sub">
+            Beyond the two findings above, our team has built a complete 
+            procurement AI readiness assessment for Tata Chemicals — 
+            calibrated to where your team is today and what would 
+            deliver the fastest, most defensible ROI.
+          </p>
+          <div class="roadmap-includes">
+            <div class="roadmap-include-item">
+              <div class="ri-icon">📊</div>
+              <div class="ri-text">
+                <strong>Full spend opportunity map</strong> — all 6 categories 
+                analysed with prioritised savings levers
+              </div>
+            </div>
+            <div class="roadmap-include-item">
+              <div class="ri-icon">🗺️</div>
+              <div class="ri-text">
+                <strong>90-day activation plan</strong> — which Apollo agents 
+                to deploy first and in what sequence for Tata Chemicals' 
+                specific ERP setup
+              </div>
+            </div>
+            <div class="roadmap-include-item">
+              <div class="ri-icon">💰</div>
+              <div class="ri-text">
+                <strong>ROI projection</strong> — modelled savings across 
+                Year 1, Year 2, and Year 3 based on your spend profile
+              </div>
+            </div>
+            <div class="roadmap-include-item">
+              <div class="ri-icon">🔒</div>
+              <div class="ri-text">
+                <strong>Data architecture note</strong> — how Apollo integrates 
+                with SAP without any data leaving your environment
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right — question + download -->
+        <div class="roadmap-right">
+          <div class="question-card">
+            <div class="question-label">One quick question</div>
+            <p class="question-text">
+              Where is Tata Chemicals' procurement team today on AI?
+            </p>
+            <div class="maturity-options" id="maturityOptions">
+              <label class="maturity-opt" onclick="selectMaturity(this)">
+                <input type="radio" name="maturity" value="exploring">
+                <div class="maturity-opt-content">
+                  <div class="maturity-opt-title">Exploring</div>
+                  <div class="maturity-opt-desc">We are evaluating what AI could do for procurement</div>
+                </div>
+              </label>
+              <label class="maturity-opt" onclick="selectMaturity(this)">
+                <input type="radio" name="maturity" value="piloting">
+                <div class="maturity-opt-content">
+                  <div class="maturity-opt-title">Piloting</div>
+                  <div class="maturity-opt-desc">We have one or two AI initiatives running</div>
+                </div>
+              </label>
+              <label class="maturity-opt" onclick="selectMaturity(this)">
+                <input type="radio" name="maturity" value="scaling">
+                <div class="maturity-opt-content">
+                  <div class="maturity-opt-title">Scaling</div>
+                  <div class="maturity-opt-desc">AI is deployed and we are expanding its scope</div>
+                </div>
+              </label>
+              <label class="maturity-opt" onclick="selectMaturity(this)">
+                <input type="radio" name="maturity" value="not-started">
+                <div class="maturity-opt-content">
+                  <div class="maturity-opt-title">Not started</div>
+                  <div class="maturity-opt-desc">We have not formally begun an AI programme</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="download-area">
+            <div class="download-hint" id="downloadHint">
+              <span class="hint-icon">☝️</span>
+              <span>Answer the question above to unlock your personalised roadmap</span>
+            </div>
+
+            <div id="downloadBtn">
+              <button class="btn-download" id="btnDownload" disabled
+                onclick="triggerDownload()">
+                <span class="btn-download-icon">⬇</span>
+                Download Your Procurement AI Roadmap
+              </button>
+            </div>
+
+            <div class="download-success" id="downloadSuccess">
+              <div class="ds-icon">✅</div>
+              <div class="ds-title">Your roadmap is downloading</div>
+              <div class="ds-sub">
+                A copy has also been sent to our team. 
+                Expect a call from us within 24 hours to walk you through it.
+              </div>
+            </div>
+
+            <p class="privacy-note">
+              🔒 Your response is used only to personalise this document. 
+              It is not shared or sold.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTEXT STRIP — Why Apollo ── -->
+<section class="context-strip">
+  <div class="context-inner">
+    <div class="context-item">
+      <div class="context-icon">🏗️</div>
+      <div class="context-title">Works alongside SAP — not instead of it</div>
+      <div class="context-body">Apollo connects to your existing ERP via secure APIs. No data migration, no rip-and-replace, no retraining your team on a new system.</div>
+    </div>
+    <div class="context-item">
+      <div class="context-icon">🔒</div>
+      <div class="context-title">Your data never leaves your environment</div>
+      <div class="context-body">Apollo runs inside your own infrastructure — on-premise or private cloud. No spend data is ever sent to external servers or used to train any model.</div>
+    </div>
+    <div class="context-item">
+      <div class="context-icon">⚡</div>
+      <div class="context-title">Live in 60–90 days</div>
+      <div class="context-body">Our Forward Deployed Engineers handle the full configuration. First agents running within 90 days of contract signing — not 18 months.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA STRIP ── -->
+<section class="cta-strip">
+  <div class="cta-inner">
+    <div class="cta-left">
+      <div class="cta-eyebrow">
+        <span class="cta-ey-line"></span>
+        Next Step
+      </div>
+      <h2 class="cta-title">
+        See Apollo running<br><em>on Tata Chemicals' spend.</em>
+      </h2>
+      <p class="cta-sub">
+        30 minutes. We connect Apollo to a sample of your spend data 
+        and show you — live — what it finds in your categories. 
+        No slides. No generic demo.
+      </p>
+    </div>
+    <div class="cta-right">
+      <div class="cta-buttons">
+        <button class="btn-primary">Book a 30-Minute Session →</button>
+        <button class="btn-ghost">Talk to Our Team First</button>
+      </div>
+      <p class="cta-reassurance">No commitment. No follow-up sequence.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-brand">
+    <span class="brand-w" style="font-size:.85rem">SCMM<span style="color:var(--brass)">A</span>X</span>
+    <span class="brand-a" style="font-size:.85rem;margin-left:4px">Apollo</span>
+  </div>
+  <span class="footer-copy">
+    This page was prepared exclusively for Tata Chemicals and is not for distribution.
+  </span>
+  <div class="footer-links">
+    <a href="#" class="footer-link">Privacy</a>
+    <a href="#" class="footer-link">scmmax.com</a>
+  </div>
+</footer>
+
+<script>
+// ── MATURITY SELECTION ──
+function selectMaturity(el) {
+  // Remove selected from all
+  document.querySelectorAll('.maturity-opt').forEach(function(o) {
+    o.classList.remove('selected');
+  });
+  // Select this one
+  el.classList.add('selected');
+  el.querySelector('input[type="radio"]').checked = true;
+
+  // Unlock download button
+  var btn = document.getElementById('btnDownload');
+  var hint = document.getElementById('downloadHint');
+  btn.disabled = false;
+  hint.classList.add('hidden');
+
+  // Track in GA4 if available
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'maturity_selected', {
+      'maturity_level': el.querySelector('input').value,
+      'company': 'tata-chemicals'
+    });
+  }
+}
+
+// ── DOWNLOAD TRIGGER ──
+function triggerDownload() {
+  var selected = document.querySelector('.maturity-opt.selected input');
+  if (!selected) return;
+
+  var maturityValue = selected.value;
+
+  // Show success state
+  document.getElementById('downloadBtn').style.display = 'none';
+  document.getElementById('downloadSuccess').classList.add('show');
+  document.getElementById('downloadHint').style.display = 'none';
+
+  // In production: POST to backend with company slug + maturity answer
+  // Backend generates personalised PDF via Puppeteer and returns download URL
+  // fetch('/api/generate-roadmap', {
+  //   method: 'POST',
+  //   headers: {'Content-Type': 'application/json'},
+  //   body: JSON.stringify({
+  //     company: 'tata-chemicals',
+  //     maturity: maturityValue,
+  //     campaign: 'india-chemicals-2025'
+  //   })
+  // }).then(r => r.json()).then(data => {
+  //   window.open(data.pdfUrl, '_blank');
+  // });
+
+  // Track in GA4
+  if (typeof gtag !== 'undefined') {
+    gtag('event', 'pdf_download', {
+      'company': 'tata-chemicals',
+      'maturity': maturityValue,
+      'campaign': 'india-chemicals-2025'
+    });
+  }
+
+  // Prototype: simulate download after 800ms
+  setTimeout(function() {
+    alert('In production: personalised PDF for Tata Chemicals (' 
+      + maturityValue + ' stage) would download here.');
+  }, 800);
+}
+
+// ── SCAN EVENT LOG ──
+// In production this fires immediately on page load
+// POST to your Node.js backend → Postgres scan_events table → Slack alert
+// fetch('/api/log-scan', {
+//   method: 'POST',
+//   headers: {'Content-Type': 'application/json'},
+//   body: JSON.stringify({
+//     company: 'tata-chemicals',
+//     campaign: 'india-chemicals-2025',
+//     ref: new URLSearchParams(window.location.search).get('ref') || 'direct',
+//     ts: new Date().toISOString(),
+//     ua: navigator.userAgent
+//   })
+// });
+
+// ── SCROLL DEPTH TRACKING ──
+var scrollMilestones = {50: false, 100: false};
+window.addEventListener('scroll', function() {
+  var pct = Math.round(
+    (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
+  );
+  [50, 100].forEach(function(m) {
+    if (pct >= m && !scrollMilestones[m]) {
+      scrollMilestones[m] = true;
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'scroll_depth', {
+          'depth': m,
+          'company': 'tata-chemicals'
+        });
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>
