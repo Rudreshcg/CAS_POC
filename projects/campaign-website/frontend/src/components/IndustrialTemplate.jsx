@@ -1,15 +1,38 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 const IndustrialTemplate = ({ data, selectedMaturity, onMaturitySelect, onDownload, downloaded }) => {
     // Local form state for the prototype's contact form
-    const [form, setForm] = useState({ fn: '', ln: '', em: '', co: '', role: '' });
+    const [form, setForm] = useState({ first_name: '', last_name: '', email: '', company: '', role: '' });
     const [submitted, setSubmitted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Just show success state like the prototype script
-        setSubmitted(true);
-        if (onDownload) onDownload();
+        setIsLoading(true);
+        setError('');
+        
+        // Map index to label
+        const maturityLabels = ["Exploring", "Piloting", "Scaling", "Not started"];
+        const maturityValue = selectedMaturity !== null ? maturityLabels[selectedMaturity] : "None";
+
+        try {
+            await axios.post(`${API_BASE}/api/report-request`, {
+                slug: data.slug,
+                ...form,
+                maturity: maturityValue
+            });
+            setSubmitted(true);
+            if (onDownload) onDownload();
+        } catch (err) {
+            console.error("Report Request Error:", err);
+            setError(err.response?.data?.detail || "Something went wrong. Please try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -317,26 +340,26 @@ const IndustrialTemplate = ({ data, selectedMaturity, onMaturitySelect, onDownlo
                                         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14}}>
                                             <div>
                                                 <label className="admin-label">First name</label>
-                                                <input type="text" className="admin-input" placeholder="Vikram" required />
+                                                <input type="text" className="admin-input" placeholder="Vikram" value={form.first_name} onChange={e => setForm({...form, first_name: e.target.value})} required />
                                             </div>
                                             <div>
                                                 <label className="admin-label">Last name</label>
-                                                <input type="text" className="admin-input" placeholder="Shah" required />
+                                                <input type="text" className="admin-input" placeholder="Shah" value={form.last_name} onChange={e => setForm({...form, last_name: e.target.value})} required />
                                             </div>
                                         </div>
                                         <div style={{marginBottom:14}}>
                                             <label className="admin-label">Work email</label>
-                                            <input type="email" className="admin-input" placeholder="vikram.shah@yourcompany.com" required />
+                                            <input type="email" className="admin-input" placeholder="vikram.shah@yourcompany.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
                                         </div>
                                         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:20}}>
                                             <div>
                                                 <label className="admin-label">Company</label>
-                                                <input type="text" className="admin-input" placeholder="Your company" required />
+                                                <input type="text" className="admin-input" placeholder="Your company" value={form.company} onChange={e => setForm({...form, company: e.target.value})} required />
                                             </div>
                                             <div>
                                                 <label className="admin-label">Your role</label>
-                                                <select className="admin-input" required>
-                                                    <option value="" disabled selected>Select</option>
+                                                <select className="admin-input" value={form.role} onChange={e => setForm({...form, role: e.target.value})} required>
+                                                    <option value="" disabled>Select</option>
                                                     <option>CPO / Head of Procurement</option>
                                                     <option>VP / Director Procurement</option>
                                                     <option>Category Manager</option>
@@ -346,7 +369,10 @@ const IndustrialTemplate = ({ data, selectedMaturity, onMaturitySelect, onDownlo
                                                 </select>
                                             </div>
                                         </div>
-                                        <button type="submit" className="btn-primary" style={{width:'100%'}}>Send Me the Report →</button>
+                                        {error && <div style={{color: '#ff6b6b', fontSize: '.75rem', marginBottom: '15px', textAlign: 'center'}}>{error}</div>}
+                                        <button type="submit" className="btn-primary" style={{width:'100%'}} disabled={isLoading}>
+                                            {isLoading ? 'Sending...' : 'Send Me the Report →'}
+                                        </button>
                                     </form>
                                 </>
                             ) : (

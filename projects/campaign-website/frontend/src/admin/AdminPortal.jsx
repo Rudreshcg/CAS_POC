@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit2, Trash2, X, Save, FileSpreadsheet, ChevronRight, Layout, Database } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Save, FileSpreadsheet, ChevronRight, Layout, Database, Users, Download } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 const AdminPortal = () => {
     const [secretKey, setSecretKey] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [view, setView] = useState('list'); // 'list', 'edit', 'upload'
+    const [view, setView] = useState('list'); // 'list', 'edit', 'upload', 'leads'
     const [campaigns, setCampaigns] = useState([]);
+    const [leads, setLeads] = useState([]);
     const [currentCampaign, setCurrentCampaign] = useState(null);
     const [status, setStatus] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -17,9 +18,10 @@ const AdminPortal = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            fetchCampaigns();
+            if (view === 'list') fetchCampaigns();
+            if (view === 'leads') fetchLeads();
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, view]);
 
     const fetchCampaigns = async () => {
         try {
@@ -31,6 +33,15 @@ const AdminPortal = () => {
                 setIsAuthenticated(false);
                 setModal({ isOpen: true, type: 'alert', message: "Invalid or expired session. Please login again." });
             }
+        }
+    };
+
+    const fetchLeads = async () => {
+        try {
+            const res = await axios.get(`${API_BASE}/api/admin/leads?key=${secretKey}`);
+            setLeads(res.data);
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -177,6 +188,9 @@ const AdminPortal = () => {
                         <div style={{ fontSize: '.7rem', color: 'var(--slate-500)', letterSpacing: '.1em' }}>CAMPAIGN ENGINE</div>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
+                        <button onClick={() => setView('leads')} style={{ background: view === 'leads' ? 'rgba(201,147,58,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${view === 'leads' ? 'var(--brass)' : 'rgba(255,255,255,0.1)'}`, color: view === 'leads' ? 'var(--brass-lt)' : '#fff', padding: '10px 16px', borderRadius: '6px', fontSize: '.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Users size={16} /> Report Leads
+                        </button>
                         <button onClick={startNew} style={{ background: 'rgba(201,147,58,0.1)', border: '1px solid var(--brass)', color: 'var(--brass-lt)', padding: '10px 16px', borderRadius: '6px', fontSize: '.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <Plus size={16} /> Create New
                         </button>
@@ -228,6 +242,75 @@ const AdminPortal = () => {
                                             </td>
                                         </tr>
                                     ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* Leads View */}
+                {view === 'leads' && (
+                    <div style={{ background: 'var(--slate-900)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                        <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: 300 }}>Report Request Leads</h3>
+                                <div style={{ fontSize: '.7rem', color: 'var(--slate-500)' }}>{leads.length} total requests</div>
+                            </div>
+                            <a href={`${API_BASE}/api/admin/leads/csv?key=${secretKey}`} download className="btn-ghost" style={{ fontSize: '.75rem', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', padding: '8px 12px' }}>
+                                <Download size={14} /> Export CSV
+                            </a>
+                        </div>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                <thead>
+                                    <tr style={{ fontSize: '.65rem', textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--slate-500)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                        <th style={{ padding: '16px 24px' }}>Lead Details</th>
+                                        <th>Company / Role</th>
+                                        <th>Maturity</th>
+                                        <th>Campaign Source</th>
+                                        <th>Status</th>
+                                        <th style={{ textAlign: 'right', paddingRight: '24px' }}>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {leads.length === 0 ? (
+                                        <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: 'var(--slate-600)' }}>No report requests found.</td></tr>
+                                    ) : (
+                                        leads.map(lead => (
+                                            <tr key={lead.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }} className="admin-row">
+                                                <td style={{ padding: '16px 24px' }}>
+                                                    <div style={{ fontWeight: 500 }}>{lead.first_name} {lead.last_name}</div>
+                                                    <div style={{ fontSize: '.75rem', color: 'var(--slate-400)' }}>{lead.email}</div>
+                                                </td>
+                                                <td>
+                                                    <div style={{ fontSize: '.85rem' }}>{lead.company}</div>
+                                                    <div style={{ fontSize: '.7rem', color: 'var(--slate-500)' }}>{lead.role}</div>
+                                                </td>
+                                                <td>
+                                                    <div style={{ fontSize: '.8rem', color: lead.maturity ? 'var(--brass-lt)' : 'var(--slate-600)' }}>
+                                                        {lead.maturity || 'N/A'}
+                                                    </div>
+                                                </td>
+                                                <td style={{ fontSize: '.8rem', color: 'var(--slate-400)' }}>
+                                                    {lead.slug}
+                                                </td>
+                                                <td>
+                                                    {lead.is_downloaded ? (
+                                                        <span style={{ fontSize: '.6rem', padding: '2px 8px', borderRadius: '100px', background: 'rgba(0,184,160,0.1)', color: 'var(--teal-lt)', border: '1px solid rgba(0,184,160,0.2)' }}>
+                                                            DOWNLOADED
+                                                        </span>
+                                                    ) : (
+                                                        <span style={{ fontSize: '.6rem', padding: '2px 8px', borderRadius: '100px', background: 'rgba(255,255,255,0.05)', color: 'var(--slate-400)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                                            PENDING
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td style={{ textAlign: 'right', paddingRight: '24px', fontSize: '.75rem', color: 'var(--slate-500)' }}>
+                                                    {new Date(lead.created_at).toLocaleDateString()}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
                                 </tbody>
                             </table>
                         </div>

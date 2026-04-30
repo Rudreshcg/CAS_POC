@@ -54,24 +54,24 @@ npm install
 npm run build
 Pop-Location
 
-Write-Host "  Archiving CAS Lookup..."
-$casStaging = "staging_cas"
-if (Test-Path $casStaging) { Remove-Item $casStaging -Recurse -Force }
-New-Item -ItemType Directory -Path $casStaging | Out-Null
-Copy-Item "projects/cas-lookup/backend/*" -Destination $casStaging -Recurse -Exclude "venv","__pycache__"
-New-Item -ItemType Directory -Path "$casStaging/frontend" -Force | Out-Null
-if (Test-Path "projects/cas-lookup/frontend/dist") {
-    Copy-Item "projects/cas-lookup/frontend/dist" -Destination "$casStaging/frontend" -Recurse
-}
-tar -czf archives/cas-lookup.tar.gz -C $casStaging .
-Remove-Item $casStaging -Recurse -Force
+# Write-Host "  Archiving CAS Lookup..."
+# $casStaging = "staging_cas"
+# if (Test-Path $casStaging) { Remove-Item $casStaging -Recurse -Force }
+# New-Item -ItemType Directory -Path $casStaging | Out-Null
+# Copy-Item "projects/cas-lookup/backend/*" -Destination $casStaging -Recurse -Exclude "venv","__pycache__"
+# New-Item -ItemType Directory -Path "$casStaging/frontend" -Force | Out-Null
+# if (Test-Path "projects/cas-lookup/frontend/dist") {
+#     Copy-Item "projects/cas-lookup/frontend/dist" -Destination "$casStaging/frontend" -Recurse
+# }
+# tar -czf archives/cas-lookup.tar.gz -C $casStaging .
+# Remove-Item $casStaging -Recurse -Force
 
 # SCM Static needs both frontend build and backend
 Write-Host "  Archiving SCM Static..."
 $scmStaging = "staging_scm"
 if (Test-Path $scmStaging) { Remove-Item $scmStaging -Recurse -Force }
 New-Item -ItemType Directory -Path $scmStaging | Out-Null
-Copy-Item "projects/scm-static/backend/*" -Destination $scmStaging -Recurse -Exclude "venv","__pycache__"
+Copy-Item "projects/scm-static/backend/*" -Destination $scmStaging -Recurse -Exclude "venv","__pycache__","*.db","*.db-journal","*.db-wal","*.db-shm"
 if (Test-Path "projects/scm-static/backend/.env") {
     Copy-Item "projects/scm-static/backend/.env" -Destination "$scmStaging/.env" -Force
 }
@@ -84,16 +84,16 @@ tar -czf archives/scm-static.tar.gz -C $scmStaging .
 Remove-Item $scmStaging -Recurse -Force
 
 # Other projects
-Write-Host "  Archiving Email Demo..."
-tar -czf archives/email-demo.tar.gz -C projects/email-demo .
-Write-Host "  Archiving Apollo Demo..."
-tar -czf archives/apollo-demo.tar.gz -C projects/apollo-demo .
+# Write-Host "  Archiving Email Demo..."
+# tar -czf archives/email-demo.tar.gz -C projects/email-demo .
+# Write-Host "  Archiving Apollo Demo..."
+# tar -czf archives/apollo-demo.tar.gz -C projects/apollo-demo .
 
 Write-Host "  Archiving Campaign Website..."
 $campaignStaging = "staging_campaign"
 if (Test-Path $campaignStaging) { Remove-Item $campaignStaging -Recurse -Force }
 New-Item -ItemType Directory -Path $campaignStaging | Out-Null
-Copy-Item "projects/campaign-website/backend/*" -Destination $campaignStaging -Recurse -Exclude "venv","__pycache__"
+Copy-Item "projects/campaign-website/backend/*" -Destination $campaignStaging -Recurse -Exclude "venv","__pycache__","*.db","*.db-journal","*.db-wal","*.db-shm"
 New-Item -ItemType Directory -Path "$campaignStaging/frontend" -Force | Out-Null
 if (Test-Path "projects/campaign-website/frontend/dist") {
     Copy-Item "projects/campaign-website/frontend/dist" -Destination "$campaignStaging/frontend" -Recurse
@@ -106,9 +106,9 @@ Write-Host "[2/5] Creating support files..." -ForegroundColor Cyan
 
 # Service Files
 $services = @{
-    "cas-lookup"  = "app:app"
-    "email-demo"  = "web_app:app"
-    "apollo-demo" = "app:app"
+    # "cas-lookup"  = "app:app"
+    # "email-demo"  = "web_app:app"
+    # "apollo-demo" = "app:app"
     "scm-static"  = "main:app"
     "campaign-website" = "main:app"
 }
@@ -165,29 +165,29 @@ server {
         root /opt/scm-static/frontend/build;
     }
 
-    location /cas-lookup/ {
-        proxy_pass http://127.0.0.1:5000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Script-Name /cas-lookup;
-    }
+    # location /cas-lookup/ {
+    #     proxy_pass http://127.0.0.1:5000/;
+    #     proxy_set_header Host $host;
+    #     proxy_set_header X-Real-IP $remote_addr;
+    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #     proxy_set_header X-Script-Name /cas-lookup;
+    # }
 
-    location /email-demo/ {
-        proxy_pass http://127.0.0.1:5001/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Script-Name /email-demo;
-    }
+    # location /email-demo/ {
+    #     proxy_pass http://127.0.0.1:5001/;
+    #     proxy_set_header Host $host;
+    #     proxy_set_header X-Real-IP $remote_addr;
+    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #     proxy_set_header X-Script-Name /email-demo;
+    # }
 
-    location /apollo/ {
-        proxy_pass http://127.0.0.1:5002/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Script-Name /apollo;
-    }
+    # location /apollo/ {
+    #     proxy_pass http://127.0.0.1:5002/;
+    #     proxy_set_header Host $host;
+    #     proxy_set_header X-Real-IP $remote_addr;
+    #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #     proxy_set_header X-Script-Name /apollo;
+    # }
 
     location /api/ {
         proxy_pass http://127.0.0.1:5003/api/;
@@ -256,10 +256,20 @@ if [ -f "/opt/campaign-website/campaigns.db" ]; then
     sudo cp /opt/campaign-website/campaigns.db /tmp/campaigns.db.bak
 fi
 
-sudo rm -rf /opt/cas-lookup /opt/email-demo /opt/apollo-demo /opt/scm-static /opt/campaign-website
-sudo mkdir -p /opt/cas-lookup /opt/email-demo /opt/apollo-demo /opt/scm-static /opt/campaign-website
+# sudo rm -rf /opt/cas-lookup /opt/email-demo /opt/apollo-demo
+sudo rm -rf /opt/scm-static /opt/campaign-website
+sudo mkdir -p /opt/scm-static /opt/campaign-website
 
-# Restore databases if backups exist
+# Extract
+echo "Checking uploaded archives..."
+ls -l /tmp/*.tar.gz
+
+echo "Extracting scm-static..."
+sudo tar -xzf /tmp/scm-static.tar.gz -C /opt/scm-static
+echo "Extracting campaign-website..."
+sudo tar -xzf /tmp/campaign-website.tar.gz -C /opt/campaign-website
+
+# Restore databases if backups exist (do this AFTER extraction so we don't overwrite with local DB)
 if [ -f "/tmp/downloads.db.bak" ]; then
     echo "Restoring scm-static database..."
     sudo mv /tmp/downloads.db.bak /opt/scm-static/downloads.db
@@ -270,17 +280,8 @@ if [ -f "/tmp/campaigns.db.bak" ]; then
     sudo mv /tmp/campaigns.db.bak /opt/campaign-website/campaigns.db
 fi
 
-sudo chown -R ec2-user:ec2-user /opt/cas-lookup /opt/email-demo /opt/apollo-demo /opt/scm-static /opt/campaign-website
-
-# Extract
-tar -xzf /tmp/cas-lookup.tar.gz -C /opt/cas-lookup
-tar -xzf /tmp/email-demo.tar.gz -C /opt/email-demo
-tar -xzf /tmp/apollo-demo.tar.gz -C /opt/apollo-demo
-tar -xzf /tmp/scm-static.tar.gz -C /opt/scm-static
-tar -xzf /tmp/campaign-website.tar.gz -C /opt/campaign-website
-
 # Venvs
-for proj in cas-lookup email-demo apollo-demo scm-static campaign-website; do
+for proj in scm-static campaign-website; do
     echo "Processing $proj..."
     cd /opt/$proj
     python3.11 -m venv venv
@@ -305,21 +306,27 @@ echo "Requesting SSL certificates for domains..."
 sudo certbot --nginx -d scmmax.com -d www.scmmax.com -d campaigns.scmmax.com --non-interactive --agree-tos --register-unsafely-without-email --expand || echo "SSL certificate generation failed, continuing with HTTP only."
 
 # Services
+# Fix ownership before starting services
+sudo chown -R ec2-user:ec2-user /opt/scm-static /opt/campaign-website
+
 echo "Configuring services..."
-for svc in cas-lookup email-demo apollo-demo scm-static campaign-website; do
+for svc in scm-static campaign-website; do
     sudo mv /tmp/$svc.service /etc/systemd/system/
     sudo systemctl enable $svc
     sudo systemctl restart $svc
 done
 
 # Verify service health and fail deployment if any service is down
-for svc in cas-lookup email-demo apollo-demo scm-static campaign-website; do
+for svc in scm-static campaign-website; do
     if ! sudo systemctl is-active --quiet $svc; then
         echo "ERROR: Service $svc failed to start"
-        sudo journalctl -u $svc -n 80 --no-pager || true
+        sudo journalctl -u $svc -n 100 --no-pager || true
         exit 1
     fi
 done
+
+echo "Testing API endpoint..."
+curl -s "http://127.0.0.1:5004/api/admin/leads?key=campaign_secret_2025" || echo "CURL FAILED"
 
 echo "Setup finished."
 '@

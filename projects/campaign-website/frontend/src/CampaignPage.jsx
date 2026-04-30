@@ -59,11 +59,15 @@ const CampaignPage = () => {
         setDownloaded(true);
 
         // 1. Track Download Clicks
+        const maturityLabels = ["Exploring", "Piloting", "Scaling", "Not started"];
+        const maturityValue = selectedMaturity !== null ? maturityLabels[selectedMaturity] : "None";
+
         try {
             await axios.post(`${API_BASE}/api/track`, {
                 slug: slug,
                 event_type: 'download_click',
-                detail: `PDF Stage ${selectedMaturity + 1}`
+                detail: `PDF Stage ${selectedMaturity + 1}`,
+                maturity: maturityValue
             });
         } catch (e) { console.warn("Tracking failed"); }
 

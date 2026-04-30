@@ -5,4 +5,5 @@ uvicorn
 python-dotenv
 boto3
 pandas
+openpyxl
 gunicorn

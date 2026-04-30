@@ -11,8 +11,9 @@ from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
-import pandas as pd
+import csv
 import io
+import secrets
 
 load_dotenv()
 
@@ -80,6 +81,29 @@ def init_db():
             created_at DATETIME
         )
     ''')
+    # Leads table
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS leads (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            slug TEXT,
+            first_name TEXT,
+            last_name TEXT,
+            email TEXT,
+            company TEXT,
+            role TEXT,
+            token TEXT,
+            created_at DATETIME,
+            is_downloaded INTEGER DEFAULT 0,
+            downloaded_at DATETIME
+        )
+    ''')
+    
+    # Migration: Add maturity column if missing
+    try:
+        c.execute("ALTER TABLE leads ADD COLUMN maturity TEXT")
+    except sqlite3.OperationalError:
+        pass # Already exists
+        
     conn.commit()
     conn.close()
 
@@ -90,6 +114,16 @@ class TrackEvent(BaseModel):
     slug: str
     event_type: str
     detail: str = None
+    maturity: str = None
+
+class LeadRequest(BaseModel):
+    slug: str
+    first_name: str
+    last_name: str
+    email: str
+    company: str
+    role: str
+    maturity: str = None
 
 # 3. Email Logic
 def send_notification(to_email: str, subject: str, body: str):
@@ -171,22 +205,179 @@ async def track_event(event: TrackEvent, request: Request, background_tasks: Bac
                 background_tasks.add_task(send_notification, camp[2], subject, body)
 
     elif event.event_type == "download_click":
-         c.execute("SELECT company_name, contact_email FROM campaigns WHERE slug = ?", (event.slug,))
+         c.execute("SELECT company_name, exec_name, contact_email, type FROM campaigns WHERE slug = ?", (event.slug,))
          camp = c.fetchone()
-         if camp and camp[1]:
+         if camp and camp[2]:
+             # 1. Send Notification
              subject = f"PDF Downloaded: {camp[0]}"
              body = f"User from {camp[0]} just clicked the download link for: {event.detail}"
-             background_tasks.add_task(send_notification, camp[1], subject, body)
+             background_tasks.add_task(send_notification, camp[2], subject, body)
+             
+             # 2. Record in Leads table for Personalized campaigns (so it shows in Admin)
+             if camp[3] == 'p':
+                 viewer_email = f"viewer@{event.slug}.com"
+                 # Check if we already recorded this personalized download
+                 c.execute("SELECT id FROM leads WHERE slug = ? AND email = ?", (event.slug, viewer_email))
+                 existing = c.fetchone()
+                 if not existing:
+                     unique_token = f"PERS-{secrets.token_urlsafe(16)}"
+                     c.execute('''
+                        INSERT INTO leads (slug, first_name, last_name, email, company, role, maturity, token, created_at, is_downloaded, downloaded_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     ''', (event.slug, camp[1] or "Executive", "Visitor", viewer_email, camp[0], "Personalized Viewer", event.maturity, unique_token, datetime.now().isoformat(), 1, datetime.now().isoformat()))
+                 else:
+                     # Update maturity and download timestamp if provided
+                     c.execute("UPDATE leads SET maturity = ?, is_downloaded = 1, downloaded_at = ? WHERE id = ?", (event.maturity, datetime.now().isoformat(), existing[0]))
 
     conn.commit()
     conn.close()
     return {"status": "success"}
+
+@app.post("/api/report-request")
+async def report_request(data: LeadRequest, request: Request, background_tasks: BackgroundTasks):
+    token = secrets.token_urlsafe(32)
+    created_at = datetime.now().isoformat()
+    
+    conn = sqlite3.connect(DATABASE_URL)
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO leads (slug, first_name, last_name, email, company, role, maturity, token, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (data.slug, data.first_name, data.last_name, data.email, data.company, data.role, data.maturity, token, created_at))
+    conn.commit()
+    
+    # Get campaign details for the email
+    c.execute("SELECT company_name, contact_email, pdf_1 FROM campaigns WHERE slug = ?", (data.slug,))
+    camp = c.fetchone()
+    conn.close()
+    
+    # Construct download link
+    base_url = os.getenv("BASE_URL", str(request.base_url).rstrip("/"))
+    download_link = f"{base_url}/api/report/download/{token}"
+    
+    if SMTP_USERNAME and SMTP_PASSWORD:
+        # 1. Notify User
+        user_subject = "Your SCMmax Industry Report Playbook"
+        user_body = f"""
+        <html>
+          <body style="font-family: sans-serif; color: #333;">
+            <p>Hello {data.first_name},</p>
+            <p>Thank you for your interest in SCMmax. As requested, here is your copy of the <strong>AI Procurement in Indian Chemicals — 2025 Playbook</strong>.</p>
+            <p style="margin: 30px 0;">
+              <a href="{download_link}" style="background: #c9933a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Download Report Playbook</a>
+            </p>
+            <p>If the button doesn't work, copy and paste this link: <br/> {download_link}</p>
+            <p>Regards,<br/>SCMmax Team</p>
+          </body>
+        </html>
+        """
+        background_tasks.add_task(send_notification, data.email, user_subject, user_body)
+        
+        # 2. Notify Sales
+        sales_email = os.getenv("SALES_EMAIL", camp[1] if camp and camp[1] else "sales@scmmax.com")
+        sales_subject = f"NEW Report Lead: {data.company} - {data.first_name} {data.last_name}"
+        sales_body = f"""
+        <html>
+          <body>
+            <h3>New Report Request Received</h3>
+            <p><strong>Name:</strong> {data.first_name} {data.last_name}</p>
+            <p><strong>Email:</strong> {data.email}</p>
+            <p><strong>Company:</strong> {data.company}</p>
+            <p><strong>Role:</strong> {data.role}</p>
+            <p><strong>Campaign:</strong> {data.slug} ({camp[0] if camp else 'N/A'})</p>
+            <p><strong>Time:</strong> {created_at}</p>
+          </body>
+        </html>
+        """
+        background_tasks.add_task(send_notification, sales_email, sales_subject, sales_body)
+        
+    return {"status": "success", "message": "Report request received"}
+
+@app.get("/api/report/download/{token}")
+async def download_report(token: str, request: Request):
+    from fastapi.responses import RedirectResponse
+    conn = sqlite3.connect(DATABASE_URL)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM leads WHERE token = ?", (token,))
+    lead = c.fetchone()
+    
+    if not lead:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Invalid or expired download link")
+    
+    # Update download status
+    c.execute("UPDATE leads SET is_downloaded = 1, downloaded_at = ? WHERE token = ?", (datetime.now().isoformat(), token))
+    
+    # Get campaign PDF
+    c.execute("SELECT pdf_1, company_name, contact_email FROM campaigns WHERE slug = ?", (lead['slug'],))
+    camp = c.fetchone()
+    conn.commit()
+    conn.close()
+    
+    # Default PDF if not set
+    pdf_url = camp['pdf_1'] if camp and camp['pdf_1'] else "https://scmmax-proprietary.s3.us-east-1.amazonaws.com/Apollo-Agent-Suite-Overview.pdf"
+    
+    return RedirectResponse(url=pdf_url)
+
+@app.get("/api/admin/leads")
+async def get_admin_leads(key: str):
+    if key != ADMIN_SECRET_KEY:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    try:
+        conn = sqlite3.connect(DATABASE_URL)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute("SELECT * FROM leads ORDER BY created_at DESC")
+        rows = c.fetchall()
+        conn.close()
+        
+        # Convert sqlite3.Row to dict
+        data = [dict(row) for row in rows]
+        return data
+    except Exception as e:
+        logger.error(f"Error in get_admin_leads: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@app.get("/api/admin/leads/csv")
+async def export_leads_csv(key: str):
+    if key != ADMIN_SECRET_KEY:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    conn = sqlite3.connect(DATABASE_URL)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM leads ORDER BY created_at DESC")
+    rows = c.fetchall()
+    conn.close()
+    
+    if not rows:
+        return StreamingResponse(io.StringIO("No leads found").getvalue(), media_type="text/csv")
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Headers
+    cols = ['id', 'slug', 'first_name', 'last_name', 'email', 'company', 'role', 'maturity', 'token', 'created_at', 'is_downloaded', 'downloaded_at']
+    writer.writerow(cols)
+    
+    # Data rows
+    for row in rows:
+        writer.writerow([row[c] if c in row.keys() else "" for c in cols])
+    
+    return StreamingResponse(
+        io.BytesIO(output.getvalue().encode()),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=leads_export.csv"}
+    )
 
 @app.get("/api/admin/template")
 async def download_template(key: str):
     if key != ADMIN_SECRET_KEY:
         raise HTTPException(status_code=403, detail="Unauthorized")
 
+    import pandas as pd
     columns = [
         "Type", "Slug", "Company_Name", "Exec_Name", "Greeting", "Intro", "Provenance",
         "Finding1_Title", "Finding1_Body", "Finding1_Impact",
@@ -268,6 +459,8 @@ async def ingest_campaigns(key: str, request: Request):
         raise HTTPException(status_code=403, detail="Unauthorized")
     
     try:
+        import pandas as pd
+        import io
         # We expect a file upload here, but for simplicity we'll check for a local file if needed
         # Or handle multi-part file upload
         form = await request.form()
@@ -275,12 +468,8 @@ async def ingest_campaigns(key: str, request: Request):
         if not file:
             return JSONResponse(status_code=400, content={"detail": "No file uploaded"})
         
-        # Save temp file
-        temp_path = "temp_campaigns.xlsx"
-        with open(temp_path, "wb") as f:
-            f.write(await file.read())
-            
-        df = pd.read_excel(temp_path)
+        contents = await file.read()
+        df = pd.read_excel(io.BytesIO(contents))
         conn = sqlite3.connect(DATABASE_URL)
         c = conn.cursor()
         
@@ -346,7 +535,6 @@ async def ingest_campaigns(key: str, request: Request):
         
         conn.commit()
         conn.close()
-        os.remove(temp_path)
         return {"status": "success", "processed": len(df)}
         
     except Exception as e:

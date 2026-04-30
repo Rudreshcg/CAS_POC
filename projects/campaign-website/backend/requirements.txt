@@ -2,7 +2,7 @@ fastapi
 uvicorn
 pydantic
 python-dotenv
-pandas
-openpyxl
 python-multipart
 emails
+pandas
+openpyxl
