@@ -57,7 +57,7 @@ const IndustrialTemplate = ({ data, selectedMaturity, onMaturitySelect, onDownlo
                     <div className="hero-left">
                         <div className="hero-eyebrow">
                             <span className="ey-line"></span>
-                            <span className="ey-text">{data.provenance || 'AI Procurement Intelligence · Indian Chemical Sector'}</span>
+                            <span className="ey-text">{data.research_date || data.provenance || 'AI Procurement Intelligence · Indian Chemical Sector'}</span>
                         </div>
                         <h1 className="hero-hl">
                             {data.exec_name ? (
@@ -108,7 +108,7 @@ const IndustrialTemplate = ({ data, selectedMaturity, onMaturitySelect, onDownlo
                         <div className="hero-stat-card">
                             <div className="stat-card-label" style={{ display: 'flex', alignItems: 'center' }}>
                                 <span style={{ width: '16px', height: '1px', background: 'var(--teal-lt)', marginRight: '8px' }}></span>
-                                Apollo in Indian Chemicals — What We See
+                                {data.nav_label || `Apollo in Indian Chemicals — What We See`}
                             </div>
                             <div className="ind-stat-grid">
                                 {(data.stats && data.stats.length > 0 ? data.stats : [
@@ -125,9 +125,7 @@ const IndustrialTemplate = ({ data, selectedMaturity, onMaturitySelect, onDownlo
                             </div>
                             <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', marginBottom: '16px', width: '100%' }}></div>
                             <div className="stat-footnote" style={{ fontSize: '.75rem', color: 'var(--slate-500)', lineHeight: '1.5' }}>
-                                Based on Apollo's analysis of procurement patterns across 
-                                12 Indian chemical companies. Benchmarks are segment-specific, 
-                                not global averages.
+                                {data.analysis_source || `Based on Apollo's analysis of procurement patterns across 12 Indian chemical companies. Benchmarks are segment-specific, not global averages.`}
                             </div>
                         </div>
                     </div>

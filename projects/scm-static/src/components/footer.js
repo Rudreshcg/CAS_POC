@@ -220,7 +220,7 @@ Footer.defaultProps = {
   marginExpansion: undefined,
   text: undefined,
   company: undefined,
-  imageSrc: '/logo%20-%20final%20-%20black%20background%20-%20small-200h.png',
+  imageSrc: '/scmmaxLogo.png',
   text3: undefined,
   forwardDeployedEngineers: undefined,
   text1: undefined,

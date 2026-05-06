@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from pydantic import BaseModel
+from typing import List, Optional
 from fastapi.middleware.cors import CORSMiddleware
 import sqlite3
 import json
@@ -98,12 +99,32 @@ def init_db():
         )
     ''')
     
-    # Migration: Add maturity column if missing
-    try:
-        c.execute("ALTER TABLE leads ADD COLUMN maturity TEXT")
-    except sqlite3.OperationalError:
-        pass # Already exists
-        
+    # Migration: Add new columns if missing
+    columns_to_add = [
+        ("industry_segment", "TEXT"),
+        ("hero_subheadline", "TEXT"),
+        ("research_date", "TEXT"),
+        ("analysis_source", "TEXT"),
+        ("nav_label", "TEXT"),
+        ("findings_title", "TEXT"),
+        ("findings_subtitle", "TEXT"),
+        ("findings_eyebrow", "TEXT"),
+        ("hero_title", "TEXT"),
+        ("hero_title_main", "TEXT"),
+        ("hero_title_highlight", "TEXT"),
+        ("findings_title_main", "TEXT"),
+        ("findings_title_highlight", "TEXT"),
+        ("roadmap_title_main", "TEXT"),
+        ("roadmap_title_highlight", "TEXT"),
+        ("roadmap_eyebrow", "TEXT"),
+        ("roadmap_subtitle", "TEXT")
+    ]
+    for col_name, col_type in columns_to_add:
+        try:
+            c.execute(f"ALTER TABLE campaigns ADD COLUMN {col_name} {col_type}")
+        except sqlite3.OperationalError:
+            pass # Already exists
+
     conn.commit()
     conn.close()
 
@@ -406,27 +427,30 @@ async def download_template(key: str):
         "Stat1_Num": "₹2,400Cr",
         "Stat1_Label": "Estimated direct spend under management",
         "Stat2_Num": "6",
-        "Stat2_Label": "Key commodity categories analysed",
-        "Stat3_Num": "3–5%",
-        "Stat3_Label": "Potential cost reduction identified",
-        "Stat4_Num": "90 days",
-        "Stat4_Label": "To first agent running alongside your ERP",
-        "Contact_Email": "sales@scmmax.com"
+        'Type': 'p', 'Slug': 'tata-chemicals-rajesh', 'Company_Name': 'Tata Chemicals',
+        'Exec_Name': 'Rajesh', 'Greeting': 'Good morning,', 
+        'Intro': 'Our team spent time understanding **Tata Chemicals\' direct spend profile**...',
+        'Provenance': 'Prepared exclusively for Tata Chemicals',
+        'Industry_Segment': 'Specialty & Commodity Chemicals · Mumbai',
+        'Hero_Subheadline': 'applied to Tata Chemicals\' complexity.',
+        'Research_Date': 'Research prepared · 14 April 2025',
+        'Analysis_Source': 'Analysis built from Tata Chemicals\' FY25 annual report...',
+        'Nav_Label': 'Prepared for Tata Chemicals · Rajesh, CEO',
+        'Finding1_Title': 'Your soda ash margins are absorbing Chinese import pressure...',
+        'Finding1_Body': 'Global soda ash prices have declined 18%...',
+        'Finding1_Impact': 'Estimated CPO impact: **₹28–45Cr** in annual cost reduction.',
+        'Finding2_Title': 'Your specialty chemical supplier base has three single-source dependencies...',
+        'Finding2_Body': 'Analysis identified three material categories...',
+        'Finding2_Impact': 'Estimated CPO impact: **₹15–20Cr** risk reduction.',
+        'Stat1_Num': '₹2,400Cr', 'Stat1_Label': 'Estimated direct spend',
+        'Stat2_Num': '6', 'Stat2_Label': 'Key categories analysed',
+        'Stat3_Num': '3–5%', 'Stat3_Label': 'Potential cost reduction',
+        'Stat4_Num': '90 days', 'Stat4_Label': 'Time to first agent',
+        'Contact_Email': 'sales@scmmax.com',
+        'PDF_1': 'https://example.com/roadmap1.pdf'
     }
     
     sample_row_i = {
-        "Type": "i",
-        "Slug": "industrial-chemicals-na",
-        "Company_Name": "Industrial Chemicals Ltd",
-        "Exec_Name": "",
-        "Greeting": "",
-        "Intro": "",
-        "Provenance": "Prepared exclusively for Industrial Chemicals Ltd",
-        "Finding1_Title": "",
-        "Finding1_Body": "",
-        "Finding1_Impact": "",
-        "Finding2_Title": "",
-        "Finding2_Body": "",
         "Finding2_Impact": "",
         "Stat1_Num": "₹180Cr",
         "Stat1_Label": "Avg. direct spend in mid-size Indian chemical co.",
@@ -475,7 +499,7 @@ async def ingest_campaigns(key: str, request: Request):
         
         for _, row in df.iterrows():
             findings = []
-            for i in range(1, 4): # Support up to 3 findings
+            for i in range(1, 7): # Support up to 6 findings
                 title = row.get(f'Finding{i}_Title')
                 if pd.notna(title):
                     findings.append({
@@ -485,7 +509,7 @@ async def ingest_campaigns(key: str, request: Request):
                     })
             
             stats = []
-            for i in range(1, 5): # Support up to 4 stats
+            for i in range(1, 7): # Support up to 6 stats
                 num = row.get(f'Stat{i}_Num')
                 if pd.notna(num):
                     stats.append({
@@ -497,15 +521,22 @@ async def ingest_campaigns(key: str, request: Request):
             c.execute('''
                 INSERT INTO campaigns (
                     type, slug, company_name, exec_name, greeting, intro, provenance,
+                    industry_segment, hero_subheadline, research_date, analysis_source, nav_label,
                     findings_json, stats_json, contact_email, pdf_1, pdf_2, pdf_3, pdf_4,
                     created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(slug) DO UPDATE SET
+                    type=excluded.type,
                     company_name=excluded.company_name,
                     exec_name=excluded.exec_name,
                     greeting=excluded.greeting,
                     intro=excluded.intro,
                     provenance=excluded.provenance,
+                    industry_segment=excluded.industry_segment,
+                    hero_subheadline=excluded.hero_subheadline,
+                    research_date=excluded.research_date,
+                    analysis_source=excluded.analysis_source,
+                    nav_label=excluded.nav_label,
                     findings_json=excluded.findings_json,
                     stats_json=excluded.stats_json,
                     contact_email=excluded.contact_email,
@@ -522,6 +553,11 @@ async def ingest_campaigns(key: str, request: Request):
                 row.get('Greeting', ''),
                 row.get('Intro', ''),
                 row.get('Provenance', ''),
+                row.get('Industry_Segment', ''),
+                row.get('Hero_Subheadline', ''),
+                row.get('Research_Date', ''),
+                row.get('Analysis_Source', ''),
+                row.get('Nav_Label', ''),
                 json.dumps(findings),
                 json.dumps(stats),
                 row.get('Contact_Email'),
@@ -557,20 +593,37 @@ async def list_campaigns(key: str):
 
 class CampaignData(BaseModel):
     is_new: bool = False
-    type: str
+    type: str # 'p' for personalized, 'i' for industrial
     slug: str
     company_name: str
-    exec_name: str = None
-    greeting: str = None
-    intro: str = None
-    provenance: str = None
-    findings: list = []
-    stats: list = []
-    contact_email: str = None
-    pdf_1: str = None
-    pdf_2: str = None
-    pdf_3: str = None
-    pdf_4: str = None
+    exec_name: Optional[str] = None
+    greeting: Optional[str] = ""
+    intro: Optional[str] = ""
+    provenance: Optional[str] = ""
+    findings: list = [] # title, body, impact
+    stats: list = [] # num, label
+    contact_email: Optional[str] = "sales@scmmax.com"
+    industry_segment: Optional[str] = ""
+    hero_subheadline: Optional[str] = ""
+    research_date: Optional[str] = ""
+    analysis_source: Optional[str] = ""
+    nav_label: Optional[str] = ""
+    findings_title: Optional[str] = ""
+    findings_subtitle: Optional[str] = ""
+    findings_eyebrow: Optional[str] = ""
+    hero_title: Optional[str] = ""
+    hero_title_main: Optional[str] = ""
+    hero_title_highlight: Optional[str] = ""
+    findings_title_main: Optional[str] = ""
+    findings_title_highlight: Optional[str] = ""
+    roadmap_title_main: Optional[str] = ""
+    roadmap_title_highlight: Optional[str] = ""
+    roadmap_eyebrow: Optional[str] = ""
+    roadmap_subtitle: Optional[str] = ""
+    pdf_1: Optional[str] = ""
+    pdf_2: Optional[str] = ""
+    pdf_3: Optional[str] = ""
+    pdf_4: Optional[str] = ""
 
 @app.post("/api/admin/save")
 async def save_campaign(key: str, data: CampaignData):
@@ -589,9 +642,13 @@ async def save_campaign(key: str, data: CampaignData):
         c.execute('''
             INSERT INTO campaigns (
                 type, slug, company_name, exec_name, greeting, intro, provenance,
+                industry_segment, hero_subheadline, research_date, analysis_source, nav_label,
+                findings_title, findings_subtitle, findings_eyebrow, hero_title,
+                hero_title_main, hero_title_highlight, findings_title_main, findings_title_highlight,
+                roadmap_title_main, roadmap_title_highlight, roadmap_eyebrow, roadmap_subtitle,
                 findings_json, stats_json, contact_email, pdf_1, pdf_2, pdf_3, pdf_4,
                 created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(slug) DO UPDATE SET
                 type=excluded.type,
                 company_name=excluded.company_name,
@@ -599,6 +656,23 @@ async def save_campaign(key: str, data: CampaignData):
                 greeting=excluded.greeting,
                 intro=excluded.intro,
                 provenance=excluded.provenance,
+                industry_segment=excluded.industry_segment,
+                hero_subheadline=excluded.hero_subheadline,
+                research_date=excluded.research_date,
+                analysis_source=excluded.analysis_source,
+                nav_label=excluded.nav_label,
+                findings_title=excluded.findings_title,
+                findings_subtitle=excluded.findings_subtitle,
+                findings_eyebrow=excluded.findings_eyebrow,
+                hero_title=excluded.hero_title,
+                hero_title_main=excluded.hero_title_main,
+                hero_title_highlight=excluded.hero_title_highlight,
+                findings_title_main=excluded.findings_title_main,
+                findings_title_highlight=excluded.findings_title_highlight,
+                roadmap_title_main=excluded.roadmap_title_main,
+                roadmap_title_highlight=excluded.roadmap_title_highlight,
+                roadmap_eyebrow=excluded.roadmap_eyebrow,
+                roadmap_subtitle=excluded.roadmap_subtitle,
                 findings_json=excluded.findings_json,
                 stats_json=excluded.stats_json,
                 contact_email=excluded.contact_email,
@@ -609,7 +683,12 @@ async def save_campaign(key: str, data: CampaignData):
                 updated_at=excluded.updated_at
         ''', (
             data.type, data.slug, data.company_name, data.exec_name, data.greeting,
-            data.intro, data.provenance, json.dumps(data.findings), json.dumps(data.stats),
+            data.intro, data.provenance, data.industry_segment, data.hero_subheadline,
+            data.research_date, data.analysis_source, data.nav_label,
+            data.findings_title, data.findings_subtitle, data.findings_eyebrow, data.hero_title,
+            data.hero_title_main, data.hero_title_highlight, data.findings_title_main, data.findings_title_highlight,
+            data.roadmap_title_main, data.roadmap_title_highlight, data.roadmap_eyebrow, data.roadmap_subtitle,
+            json.dumps(data.findings), json.dumps(data.stats),
             data.contact_email, data.pdf_1, data.pdf_2, data.pdf_3, data.pdf_4,
             datetime.now().isoformat(), datetime.now().isoformat()
         ))

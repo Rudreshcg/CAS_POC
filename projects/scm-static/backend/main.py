@@ -450,4 +450,4 @@ async def get_admin_downloads_csv(key: str = None):
     return response
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=5003)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

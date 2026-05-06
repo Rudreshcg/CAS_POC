@@ -8,6 +8,7 @@ import {
 } from 'react-router-dom'
 
 import './style.css'
+import Admin from './views/admin'
 import Services from './views/services'
 import Products from './views/products'
 import Careers from './views/careers'
@@ -20,6 +21,7 @@ const App = () => {
   return (
     <Router>
       <Switch>
+        <Route component={Admin} exact path="/admin" />
         <Route component={Services} exact path="/services" />
         <Route component={Products} exact path="/products" />
         <Route component={Careers} exact path="/careers" />

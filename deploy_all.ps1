@@ -4,6 +4,8 @@ param(
     [string]$ServerIP = ""
 )
 
+$ErrorActionPreference = "Stop"
+
 Write-Host "==================================" -ForegroundColor Cyan
 Write-Host "Multi-App Deployment Script" -ForegroundColor Cyan
 Write-Host "==================================" -ForegroundColor Cyan

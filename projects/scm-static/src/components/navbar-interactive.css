@@ -418,6 +418,44 @@
   }
 }
 
+@media(max-width: 1200px) {
+  .navbar-interactive-thq-products-elm1 {
+    margin-left: 16px;
+  }
+  .navbar-interactive-thq-services-elm1 {
+    margin-left: 16px;
+  }
+  .navbar-interactive-thq-about-us-elm1 {
+    margin-left: 16px;
+  }
+  .navbar-interactive-thq-careers-elm1 {
+    margin-left: 16px;
+  }
+}
+
+@media(max-width: 991px) {
+  .navbar-interactive-thq-navbar-interactive-elm {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .navbar-interactive-thq-products-elm1 {
+    margin-left: 12px;
+    font-size: 16px;
+  }
+  .navbar-interactive-thq-services-elm1 {
+    margin-left: 12px;
+    font-size: 16px;
+  }
+  .navbar-interactive-thq-about-us-elm1 {
+    margin-left: 12px;
+    font-size: 16px;
+  }
+  .navbar-interactive-thq-careers-elm1 {
+    margin-left: 12px;
+    font-size: 16px;
+  }
+}
+
 @media(max-width: 479px) {
   .navbar-interactive-thq-navbar-interactive-elm {
     padding: 16px;

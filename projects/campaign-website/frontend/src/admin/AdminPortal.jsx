@@ -93,9 +93,22 @@ const AdminPortal = () => {
             greeting: 'Good morning,',
             intro: '',
             provenance: '',
-            findings: [{ title: '', body: '', impact: '' }, { title: '', body: '', impact: '' }],
+            findings: [{ label: '', title: '', body: '', impact: '' }, { label: '', title: '', body: '', impact: '' }],
             stats: [{ num: '', label: '' }, { num: '', label: '' }, { num: '', label: '' }, { num: '', label: '' }],
             contact_email: 'sales@scmmax.com',
+            industry_segment: '',
+            hero_subheadline: '',
+            research_date: '',
+            analysis_source: '',
+            nav_label: '',
+            findings_title: '',
+            findings_subtitle: '',
+            findings_eyebrow: '',
+            hero_title: '',
+            hero_title_main: '', hero_title_highlight: '',
+            findings_title_main: '', findings_title_highlight: '',
+            roadmap_title_main: '', roadmap_title_highlight: '',
+            roadmap_eyebrow: '', roadmap_subtitle: '',
             pdf_1: '', pdf_2: '', pdf_3: '', pdf_4: ''
         });
         setView('edit');
@@ -336,9 +349,43 @@ const AdminPortal = () => {
                                         <input type="text" className="admin-input" value={currentCampaign.slug} onChange={e => setCurrentCampaign({ ...currentCampaign, slug: e.target.value })} placeholder={currentCampaign.type === 'i' ? 'e.g. industrial-chemicals-na' : 'e.g. tata-chemicals-rajesh'} required />
                                     </div>
                                     
-                                    <div style={{ gridColumn: 'span 2' }}>
-                                        <label className="admin-label">{currentCampaign.type === 'i' ? 'Hero Headline (Main Title)' : 'Executive Name'}</label>
-                                        <input type="text" className="admin-input" value={currentCampaign.exec_name} onChange={e => setCurrentCampaign({ ...currentCampaign, exec_name: e.target.value })} placeholder={currentCampaign.type === 'i' ? 'e.g. Your margins are being decided...' : 'e.g. Rajesh'} />
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                        <div>
+                                            <label className="admin-label">{currentCampaign.type === 'i' ? 'Hero Headline (Main Title)' : 'Executive Name'}</label>
+                                            <input type="text" className="admin-input" value={currentCampaign.exec_name || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, exec_name: e.target.value })} placeholder={currentCampaign.type === 'i' ? 'e.g. Your margins are being decided...' : 'e.g. Rajesh'} />
+                                        </div>
+                                        {!currentCampaign.type || currentCampaign.type === 'p' ? (
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '20px' }}>
+                                                <div>
+                                                    <label className="admin-label">Hero Title Main (e.g. Birajeev,)</label>
+                                                    <input type="text" className="admin-input" value={currentCampaign.hero_title_main || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, hero_title_main: e.target.value })} placeholder="e.g. Rajesh," />
+                                                </div>
+                                                <div>
+                                                    <label className="admin-label">Hero Title Highlight (e.g. this is built)</label>
+                                                    <input type="text" className="admin-input" value={currentCampaign.hero_title_highlight || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, hero_title_highlight: e.target.value })} placeholder="e.g. this is built" />
+                                                </div>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="admin-label">Hero Sub-headline</label>
+                                        <input type="text" className="admin-input" value={currentCampaign.hero_subheadline || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, hero_subheadline: e.target.value })} placeholder="e.g. applied to Tata Chemicals' complexity." />
+                                    </div>
+                                    <div>
+                                        <label className="admin-label">Industry / Segment Label</label>
+                                        <input type="text" className="admin-input" value={currentCampaign.industry_segment || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, industry_segment: e.target.value })} placeholder="e.g. Specialty & Commodity Chemicals · Mumbai" />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+                                    <div>
+                                        <label className="admin-label">Research Date Label</label>
+                                        <input type="text" className="admin-input" value={currentCampaign.research_date || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, research_date: e.target.value })} placeholder="e.g. Research prepared · 14 April 2025" />
+                                    </div>
+                                    <div>
+                                        <label className="admin-label">Nav Label (Top Right)</label>
+                                        <input type="text" className="admin-input" value={currentCampaign.nav_label || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, nav_label: e.target.value })} placeholder="e.g. Prepared for Tata Chemicals · Rajesh, CEO" />
                                     </div>
                                 </div>
 
@@ -354,24 +401,91 @@ const AdminPortal = () => {
                                     <textarea className="admin-input" rows="4" value={currentCampaign.intro} onChange={e => setCurrentCampaign({ ...currentCampaign, intro: e.target.value })} placeholder={currentCampaign.type === 'i' ? 'Describe the core challenge for this sector...' : "e.g. Our team spent time understanding **Tata Chemicals' direct spend profile**, your supplier base, and the commodity markets you operate in. What follows are two specific opportunities where Apollo can move the needle on your procurement margins."} />
                                 </div>
                                 
-                                <div>
+                                <div style={{ marginBottom: '24px' }}>
                                     <label className="admin-label">{currentCampaign.type === 'i' ? 'Report Eyebrow (Top Left Title)' : 'Provenance / Prepared By'}</label>
-                                    <input type="text" className="admin-input" value={currentCampaign.provenance} onChange={e => setCurrentCampaign({ ...currentCampaign, provenance: e.target.value })} placeholder={currentCampaign.type === 'i' ? 'e.g. Prepared exclusively for Industrial Chemicals Ltd' : 'e.g. Prepared exclusively for Tata Chemicals'} />
+                                    <input type="text" className="admin-input" value={currentCampaign.provenance || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, provenance: e.target.value })} placeholder={currentCampaign.type === 'i' ? 'e.g. Prepared exclusively for Industrial Chemicals Ltd' : 'e.g. Prepared exclusively for Tata Chemicals'} />
+                                </div>
+
+                                <div>
+                                    <label className="admin-label">Research Analysis Source (Card Footnote)</label>
+                                    <textarea className="admin-input" rows="3" value={currentCampaign.analysis_source || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, analysis_source: e.target.value })} placeholder="Describe the sources used for this analysis..." />
                                 </div>
                             </div>
 
                             {/* Findings Card */}
                             {currentCampaign.type !== 'i' && (
                             <div style={{ background: 'var(--slate-900)', padding: '32px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                <h4 style={{ fontSize: '.7rem', color: 'var(--brass)', letterSpacing: '.1em', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <Database size={14} /> FINDINGS (2)
-                                </h4>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                    <h4 style={{ fontSize: '.7rem', color: 'var(--brass)', letterSpacing: '.1em', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                                        <Database size={14} /> FINDINGS ({currentCampaign.findings.length})
+                                    </h4>
+                                    <button type="button" onClick={() => setCurrentCampaign({...currentCampaign, findings: [...currentCampaign.findings, {label:'', title:'', body:'', impact:''}]})} style={{ background: 'rgba(201,147,58,0.1)', border: '1px solid var(--brass)', color: 'var(--brass-lt)', padding: '4px 12px', borderRadius: '4px', fontSize: '.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <Plus size={12} /> Add Finding
+                                    </button>
+                                </div>
+
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label className="admin-label">Findings Section Eyebrow</label>
+                                    <input type="text" className="admin-input" value={currentCampaign.findings_eyebrow || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, findings_eyebrow: e.target.value })} placeholder="e.g. What We Found — Specific to Jubilant Ingrevia · For the CPO" />
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+                                    <div>
+                                        <label className="admin-label">Findings Section Title (Main)</label>
+                                        <input type="text" className="admin-input" value={currentCampaign.findings_title_main || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, findings_title_main: e.target.value })} placeholder="e.g. Four categories." />
+                                    </div>
+                                    <div>
+                                        <label className="admin-label">Findings Section Title (Highlight/Gold)</label>
+                                        <input type="text" className="admin-input" value={currentCampaign.findings_title_highlight || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, findings_title_highlight: e.target.value })} placeholder="e.g. Your biggest levers, right now." />
+                                    </div>
+                                </div>
+                                <div style={{ marginBottom: '24px' }}>
+                                    <label className="admin-label">Findings Section Subtitle (Markdown **bold** supported)</label>
+                                    <textarea className="admin-input" rows="2" value={currentCampaign.findings_subtitle || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, findings_subtitle: e.target.value })} placeholder="e.g. These are not generic procurement observations..." />
+                                </div>
                                 {currentCampaign.findings.map((f, i) => (
-                                    <div key={i} style={{ marginBottom: i === 0 ? '30px' : 0, padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                        <div style={{ fontSize: '.6rem', color: 'var(--slate-500)', marginBottom: '15px' }}>FINDING 0{i + 1}</div>
+                                    <div key={i} style={{ marginBottom: i === currentCampaign.findings.length - 1 ? 0 : '30px', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                            <div style={{ fontSize: '.6rem', color: 'var(--slate-500)' }}>FINDING 0{i + 1}</div>
+                                            <button type="button" onClick={() => {
+                                                const newF = currentCampaign.findings.filter((_, idx) => idx !== i);
+                                                setCurrentCampaign({...currentCampaign, findings: newF});
+                                            }} style={{ background: 'none', border: 'none', color: '#ff6b6b', cursor: 'pointer', opacity: 0.6 }} title="Remove Finding">
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '15px' }}>
+                                            <div>
+                                                <label className="admin-label">Icon (Emoji)</label>
+                                                <input type="text" className="admin-input" placeholder="e.g. 💼" value={f.icon || ''} onChange={e => {
+                                                    const newF = [...currentCampaign.findings];
+                                                    newF[i].icon = e.target.value;
+                                                    setCurrentCampaign({ ...currentCampaign, findings: newF });
+                                                }} />
+                                            </div>
+                                            <div>
+                                                <label className="admin-label">Accent Color</label>
+                                                <select className="admin-input" value={f.accent || ''} onChange={e => {
+                                                    const newF = [...currentCampaign.findings];
+                                                    newF[i].accent = e.target.value;
+                                                    setCurrentCampaign({ ...currentCampaign, findings: newF });
+                                                }}>
+                                                    <option value="">Default (Auto)</option>
+                                                    <option value="brass">Brass (Gold)</option>
+                                                    <option value="teal">Teal (Green)</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="admin-label">Label (Optional)</label>
+                                                <input type="text" className="admin-input" placeholder={`Finding 0${i + 1}`} value={f.label || ''} onChange={e => {
+                                                    const newF = [...currentCampaign.findings];
+                                                    newF[i].label = e.target.value;
+                                                    setCurrentCampaign({ ...currentCampaign, findings: newF });
+                                                }} />
+                                            </div>
+                                        </div>
                                         <div style={{ marginBottom: '15px' }}>
                                             <label className="admin-label">Headline</label>
-                                            <input type="text" className="admin-input" placeholder={i === 0 ? "e.g. Your soda ash margins are absorbing Chinese import pressure that your contracts aren't indexed to deflect" : "e.g. Your specialty chemical supplier base has three single-source dependencies that create supply risk"} value={f.title} onChange={e => {
+                                            <input type="text" className="admin-input" placeholder={i === 0 ? "e.g. Your soda ash margins are absorbing..." : "e.g. Your specialty chemical..."} value={f.title || ''} onChange={e => {
                                                 const newF = [...currentCampaign.findings];
                                                 newF[i].title = e.target.value;
                                                 setCurrentCampaign({ ...currentCampaign, findings: newF });
@@ -385,7 +499,7 @@ const AdminPortal = () => {
                                                 setCurrentCampaign({ ...currentCampaign, findings: newF });
                                             }} />
                                         </div>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '15px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px' }}>
                                             <div>
                                                 <label className="admin-label">Impact (Bold Value)</label>
                                                 <input type="text" className="admin-input" placeholder={i === 0 ? "e.g. Estimated CPO impact:" : "e.g. Estimated CPO impact:"} 
@@ -419,13 +533,26 @@ const AdminPortal = () => {
 
                             {/* Metrics/Stats Card */}
                             <div style={{ background: 'var(--slate-900)', padding: '32px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                <h4 style={{ fontSize: '.7rem', color: 'var(--brass)', letterSpacing: '.1em', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <Plus size={14} /> KEY METRICS / STATS (4)
-                                </h4>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                    <h4 style={{ fontSize: '.7rem', color: 'var(--brass)', letterSpacing: '.1em', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                                        <Plus size={14} /> KEY METRICS / STATS ({currentCampaign.stats.length})
+                                    </h4>
+                                    <button type="button" onClick={() => setCurrentCampaign({...currentCampaign, stats: [...currentCampaign.stats, {num:'', label:''}]})} style={{ background: 'rgba(201,147,58,0.1)', border: '1px solid var(--brass)', color: 'var(--brass-lt)', padding: '4px 12px', borderRadius: '4px', fontSize: '.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <Plus size={12} /> Add Metric
+                                    </button>
+                                </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                    {(currentCampaign.stats || [{num:'',label:''},{num:'',label:''},{num:'',label:''},{num:'',label:''}]).map((s, i) => (
-                                        <div key={i} style={{ padding: '15px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                            <div style={{ fontSize: '.6rem', color: 'var(--slate-500)', marginBottom: '10px' }}>METRIC {i + 1}</div>
+                                    {(currentCampaign.stats || []).map((s, i) => (
+                                        <div key={i} style={{ padding: '15px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', position: 'relative' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                                <div style={{ fontSize: '.6rem', color: 'var(--slate-500)' }}>METRIC {i + 1}</div>
+                                                <button type="button" onClick={() => {
+                                                    const newS = currentCampaign.stats.filter((_, idx) => idx !== i);
+                                                    setCurrentCampaign({...currentCampaign, stats: newS});
+                                                }} style={{ background: 'none', border: 'none', color: '#ff6b6b', cursor: 'pointer', opacity: 0.6 }} title="Remove Metric">
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
                                             <div style={{ marginBottom: '10px' }}>
                                                 <label className="admin-label">Value (e.g. ₹120Cr)</label>
                                                 <input type="text" className="admin-input" placeholder={
@@ -454,6 +581,34 @@ const AdminPortal = () => {
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+                            </div>
+
+                            <div style={{ background: 'var(--slate-900)', padding: '32px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                    <h4 style={{ fontSize: '.7rem', color: 'var(--brass)', letterSpacing: '.1em', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                                        <Database size={14} /> ROADMAP SECTION
+                                    </h4>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+                                    <div>
+                                        <label className="admin-label">Roadmap Eyebrow</label>
+                                        <input type="text" className="admin-input" value={currentCampaign.roadmap_eyebrow || ''} onChange={e => setCurrentCampaign({ ...currentCampaign.roadmap_eyebrow, roadmap_eyebrow: e.target.value })} placeholder="e.g. Your Personalised CPO Roadmap" />
+                                    </div>
+                                    <div>
+                                        <label className="admin-label">Roadmap Subtitle</label>
+                                        <textarea className="admin-input" rows="1" value={currentCampaign.roadmap_subtitle || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, roadmap_subtitle: e.target.value })} placeholder="e.g. Our team has built a complete Apollo deployment plan..." />
+                                    </div>
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                    <div>
+                                        <label className="admin-label">Roadmap Title (Main)</label>
+                                        <input type="text" className="admin-input" value={currentCampaign.roadmap_title_main || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, roadmap_title_main: e.target.value })} placeholder="e.g. A structured procurement" />
+                                    </div>
+                                    <div>
+                                        <label className="admin-label">Roadmap Title (Highlight)</label>
+                                        <input type="text" className="admin-input" value={currentCampaign.roadmap_title_highlight || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, roadmap_title_highlight: e.target.value })} placeholder="e.g. transformation roadmap for JIL." />
+                                    </div>
                                 </div>
                             </div>
                         </div>

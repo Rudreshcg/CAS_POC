@@ -122,7 +122,7 @@ const NavbarInteractive = (props) => {
             <div className="navbar-interactive-thq-top-elm">
               <img
                 alt="image"
-                src="/logo%20-%20final%20-%20black%20background%20-%20small-1500h.png"
+                src="/scmmaxLogo.png"
                 className="navbar-interactive-thq-logo-elm"
               />
               <Link to="/" className="navbar-interactive-navlink3">
@@ -261,7 +261,7 @@ NavbarInteractive.defaultProps = {
   products: undefined,
   text4: undefined,
   register: undefined,
-  imageSrc: '/logo%20-%20final%20-%20black%20background%20-%20small-1500h.png',
+  imageSrc: '/scmmaxLogo.png',
   rootClassName: '',
   text: undefined,
   text5: undefined,

@@ -22,7 +22,7 @@
 .footer-thq-brand-elm {
   gap: 16px;
   flex: 0 0 auto;
-  width: 35%;
+  flex: 2.2 0 auto;
   height: auto;
   display: flex;
   align-items: flex-start;
@@ -81,8 +81,7 @@
 
 .footer-thq-products-elm {
   gap: 12px;
-  flex: 0 0 auto;
-  width: 16%;
+  flex: 1 0 auto;
   height: auto;
   display: flex;
   align-items: flex-start;
@@ -163,8 +162,7 @@
 
 .footer-thq-services-elm1 {
   gap: 12px;
-  flex: 0 0 auto;
-  width: 16%;
+  flex: 1 0 auto;
   height: auto;
   display: flex;
   align-items: flex-start;
@@ -231,8 +229,7 @@
 
 .footer-thq-company-elm1 {
   gap: 12px;
-  flex: 0 0 auto;
-  width: 16%;
+  flex: 1 0 auto;
   height: auto;
   display: flex;
   align-items: flex-start;
@@ -302,7 +299,7 @@
 
 .footer-thq-empty-column-elm {
   flex: 0 0 auto;
-  width: 17%;
+  flex: 1.1 0 auto;
   height: 100px;
   display: flex;
   align-items: flex-start;
