@@ -266,8 +266,8 @@ const PersonalizedTemplate = ({ data, selectedMaturity, onMaturitySelect, onDown
                     </div>
                     <div className="cta-right">
                         <div className="cta-buttons">
-                            <button className="btn-primary" style={{textTransform:'uppercase'}} onClick={() => window.location.href='https://scmmax.com/demo'}>Book a 30-Minute Session →</button>
-                            <button className="btn-ghost" style={{textTransform:'uppercase'}}>Talk to Our Team First</button>
+                            <button className="btn-primary" style={{textTransform:'uppercase'}} onClick={() => window.location.href='https://outlook.office.com/book/RequestDemoSchedulingPage@scmmax.com/?ismsaljsauthenabled'}>Book a 30-Minute Session →</button>
+                            <button className="btn-ghost" style={{textTransform:'uppercase'}} onClick={() => window.location.href='https://outlook.office.com/book/RequestDemoSchedulingPage@scmmax.com/?ismsaljsauthenabled'}>Talk to Our Team First</button>
                         </div>
                         <p className="cta-reassurance" style={{fontSize:'.65rem', color:'var(--slate-500)', textAlign:'right', marginTop:12, letterSpacing:'.01em'}}>No commitment. No follow-up sequence.</p>
                     </div>

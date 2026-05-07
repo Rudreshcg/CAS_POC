@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, UploadFile, File
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from pydantic import BaseModel
@@ -15,6 +15,9 @@ from dotenv import load_dotenv
 import csv
 import io
 import secrets
+import boto3
+from botocore.exceptions import ClientError
+from urllib.parse import urlparse
 
 load_dotenv()
 
@@ -43,6 +46,40 @@ SMTP_USERNAME = os.getenv("SMTP_USERNAME")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY", "campaign_secret_2025")
+
+# S3 Client Setup
+aws_key = os.getenv("AWS_ACCESS_KEY_ID")
+aws_secret = os.getenv("AWS_SECRET_ACCESS_KEY")
+aws_region = os.getenv("AWS_REGION", "us-east-1")
+
+s3_kwargs = {'region_name': aws_region}
+if aws_key and aws_key.strip():
+    s3_kwargs['aws_access_key_id'] = aws_key.strip()
+if aws_secret and aws_secret.strip():
+    s3_kwargs['aws_secret_access_key'] = aws_secret.strip()
+
+s3_client = boto3.client('s3', **s3_kwargs)
+
+def get_s3_presigned_url(s3_url: str, expiration=3600):
+    if not s3_url or not s3_url.startswith("https://") or ".s3." not in s3_url:
+        return s3_url
+    
+    try:
+        # Parse bucket and key from URL
+        # Format: https://bucket-name.s3.region.amazonaws.com/key
+        # Or: https://bucket-name.s3.amazonaws.com/key
+        parsed = urlparse(s3_url)
+        bucket = parsed.netloc.split('.')[0]
+        key = parsed.path.lstrip('/')
+        
+        response = s3_client.generate_presigned_url('get_object',
+                                                    Params={'Bucket': bucket,
+                                                            'Key': key},
+                                                    ExpiresIn=expiration)
+        return response
+    except Exception as e:
+        print(f"Error generating presigned URL: {e}")
+        return s3_url
 
 # 1. Database Setup
 def init_db():
@@ -184,7 +221,14 @@ async def get_campaign(slug: str):
     except:
         data['findings'] = []
         data['stats'] = []
-        
+
+
+    # Pre-sign S3 URLs
+    for i in range(1, 5):
+        key = f'pdf_{i}'
+        if data.get(key):
+            data[key] = get_s3_presigned_url(data[key])
+
     return data
 
 @app.post("/api/track")
@@ -226,29 +270,38 @@ async def track_event(event: TrackEvent, request: Request, background_tasks: Bac
                 background_tasks.add_task(send_notification, camp[2], subject, body)
 
     elif event.event_type == "download_click":
-         c.execute("SELECT company_name, exec_name, contact_email, type FROM campaigns WHERE slug = ?", (event.slug,))
+         c.execute("SELECT company_name, exec_name, contact_email, type, pdf_1, pdf_2, pdf_3, pdf_4 FROM campaigns WHERE slug = ?", (event.slug,))
          camp = c.fetchone()
          if camp and camp[2]:
+             # Determine the PDF link based on maturity
+             pdf_url = "No PDF available"
+             if event.maturity == "Exploring": pdf_url = camp[4]
+             elif event.maturity == "Piloting": pdf_url = camp[5]
+             elif event.maturity == "Scaling": pdf_url = camp[6]
+             elif event.maturity == "Not started": pdf_url = camp[7]
+             elif event.detail: pdf_url = event.detail
+
+             # Pre-sign the URL for the email
+             pdf_url = get_s3_presigned_url(pdf_url)
+
              # 1. Send Notification
              subject = f"PDF Downloaded: {camp[0]}"
-             body = f"User from {camp[0]} just clicked the download link for: {event.detail}"
+             body = f"""
+             <h3>PDF Download Triggered</h3>
+             <p>{camp[1] if camp[1] else 'Executive'} from {camp[0]} just clicked the download link.</p>
+             <p><strong>Maturity Selected:</strong> {event.maturity}</p>
+             <p><strong>PDF Link:</strong> <a href="{pdf_url}">{pdf_url}</a></p>
+             """
              background_tasks.add_task(send_notification, camp[2], subject, body)
              
              # 2. Record in Leads table for Personalized campaigns (so it shows in Admin)
              if camp[3] == 'p':
-                 viewer_email = f"viewer@{event.slug}.com"
-                 # Check if we already recorded this personalized download
-                 c.execute("SELECT id FROM leads WHERE slug = ? AND email = ?", (event.slug, viewer_email))
-                 existing = c.fetchone()
-                 if not existing:
-                     unique_token = f"PERS-{secrets.token_urlsafe(16)}"
-                     c.execute('''
-                        INSERT INTO leads (slug, first_name, last_name, email, company, role, maturity, token, created_at, is_downloaded, downloaded_at)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                     ''', (event.slug, camp[1] or "Executive", "Visitor", viewer_email, camp[0], "Personalized Viewer", event.maturity, unique_token, datetime.now().isoformat(), 1, datetime.now().isoformat()))
-                 else:
-                     # Update maturity and download timestamp if provided
-                     c.execute("UPDATE leads SET maturity = ?, is_downloaded = 1, downloaded_at = ? WHERE id = ?", (event.maturity, datetime.now().isoformat(), existing[0]))
+                 viewer_email = "Personalized Viewer"
+                 unique_token = f"PERS-{secrets.token_urlsafe(16)}"
+                 c.execute('''
+                    INSERT INTO leads (slug, first_name, last_name, email, company, role, maturity, token, created_at, is_downloaded, downloaded_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 ''', (event.slug, camp[1] or "Executive", "Visitor", viewer_email, camp[0], "Personalized Viewer", event.maturity, unique_token, datetime.now().isoformat(), 1, datetime.now().isoformat()))
 
     conn.commit()
     conn.close()
@@ -475,6 +528,31 @@ async def download_template(key: str):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": "attachment; filename=campaign_template.xlsx"}
     )
+
+
+@app.post("/api/admin/upload-pdf")
+async def upload_pdf(key: str, file: UploadFile = File(...)):
+    if key != ADMIN_SECRET_KEY:
+        raise HTTPException(status_code=403, detail="Unauthorized")
+    
+    try:
+        # Upload to S3
+        file_name = f"campaign_pdfs/{secrets.token_hex(8)}_{file.filename}"
+        s3_client.upload_fileobj(
+            file.file,
+            os.getenv("S3_BUCKET_NAME", "scmmax-proprietary"),
+            file_name
+        )
+        
+        # Construct the S3 URL
+        bucket = os.getenv("S3_BUCKET_NAME", "scmmax-proprietary")
+        region = os.getenv("AWS_REGION", "us-east-1")
+        # Use a standard S3 URL format that our get_s3_presigned_url can parse
+        url = f"https://{bucket}.s3.{region}.amazonaws.com/{file_name}"
+        return {"url": url}
+    except Exception as e:
+        print(f"Upload Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/api/admin/ingest")

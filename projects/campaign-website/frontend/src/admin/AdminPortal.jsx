@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Edit2, Trash2, X, Save, FileSpreadsheet, ChevronRight, Layout, Database, Users, Download } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Save, FileSpreadsheet, ChevronRight, Layout, Database, Users, Download, Upload } from 'lucide-react';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -629,11 +629,39 @@ const AdminPortal = () => {
                             </div>
 
                             <div style={{ background: 'var(--slate-900)', padding: '24px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                <h5 style={{ fontSize: '.65rem', color: 'var(--slate-500)', marginBottom: '15px' }}>PDF DOWNLOADS (S3 URLS)</h5>
+                                <h5 style={{ fontSize: '.65rem', color: 'var(--slate-500)', marginBottom: '15px' }}>PDF DOWNLOADS</h5>
                                 {[1, 2, 3, 4].map(n => (
-                                    <div key={n} style={{ marginBottom: '10px' }}>
-                                        <label style={{ fontSize: '.6rem', color: 'var(--slate-600)' }}>PDF {n}</label>
-                                        <input type="text" className="admin-input" style={{ fontSize: '.7rem', padding: '8px' }} value={currentCampaign[`pdf_${n}`] || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, [`pdf_${n}`]: e.target.value })} />
+                                    <div key={n} style={{ marginBottom: '15px' }}>
+                                        <label style={{ fontSize: '.6rem', color: 'var(--slate-600)', display: 'block', marginBottom: '4px' }}>PDF {n} {n === 1 ? '(Exploring)' : n === 2 ? '(Piloting)' : n === 3 ? '(Scaling)' : '(Not started)'}</label>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <input type="text" className="admin-input" style={{ fontSize: '.7rem', padding: '8px' }} value={currentCampaign[`pdf_${n}`] || ''} onChange={e => setCurrentCampaign({ ...currentCampaign, [`pdf_${n}`]: e.target.value })} placeholder="URL or Upload ->" />
+                                            <div style={{ position: 'relative' }}>
+                                                <input 
+                                                    type="file" 
+                                                    id={`pdf-up-${n}`} 
+                                                    style={{ display: 'none' }} 
+                                                    accept=".pdf"
+                                                    onChange={async (e) => {
+                                                        const file = e.target.files[0];
+                                                        if (!file) return;
+                                                        const formData = new FormData();
+                                                        formData.append('file', file);
+                                                        try {
+                                                            setStatus(`Uploading PDF ${n}...`);
+                                                            const res = await axios.post(`${API_BASE}/api/admin/upload-pdf?key=${secretKey}`, formData);
+                                                            setCurrentCampaign({ ...currentCampaign, [`pdf_${n}`]: res.data.url });
+                                                            setStatus(`PDF ${n} uploaded!`);
+                                                        } catch (err) {
+                                                            console.error(err);
+                                                            setStatus("Upload failed.");
+                                                        }
+                                                    }}
+                                                />
+                                                <label htmlFor={`pdf-up-${n}`} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '8px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', width: '38px' }}>
+                                                    <Upload size={14} />
+                                                </label>
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

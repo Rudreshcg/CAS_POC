@@ -395,8 +395,8 @@ const IndustrialTemplate = ({ data, selectedMaturity, onMaturitySelect, onDownlo
                     </div>
                     <div className="demo-right">
                         <div className="demo-buttons" style={{display:'flex', flexDirection:'column', gap:12, alignItems:'flex-end'}}>
-                            <button className="btn-primary">Book a 30-Minute Session →</button>
-                            <button className="btn-ghost-light">Talk to Our Team First</button>
+                            <button className="btn-primary" onClick={() => window.location.href='https://outlook.office.com/book/RequestDemoSchedulingPage@scmmax.com/?ismsaljsauthenabled'}>Book a 30-Minute Session →</button>
+                            <button className="btn-ghost-light" onClick={() => window.location.href='https://outlook.office.com/book/RequestDemoSchedulingPage@scmmax.com/?ismsaljsauthenabled'}>Talk to Our Team First</button>
                             <p className="demo-reassurance">No commitment. No follow-up sequence.</p>
                         </div>
                     </div>
